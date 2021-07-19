@@ -1,0 +1,21 @@
+{
+  "folders": [
+    {
+      "path": "."
+    }
+  ],
+  "settings": {
+    "eslint.workingDirectories": [{ "mode": "auto" }],
+    "editor.codeActionsOnSave": { "source.fixAll.eslint": true },
+    "solidity.packageDefaultDependenciesContractsDirectory": "",
+    "solidity.packageDefaultDependenciesDirectory": "node_modules"
+  },
+  "extensions": {
+    "recommendations": [
+      "juanblanco.solidity",
+      "esbenp.prettier-vscode",
+      "dbaeumer.vscode-eslint",
+      "mikestead.dotenv"
+    ]
+  }
+}

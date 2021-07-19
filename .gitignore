@@ -1,0 +1,16 @@
+# General
+node_modules
+.DS_STORE
+yarn-error.log
+
+# Coverage
+coverage.json
+coverage
+
+# Hardhat files
+cache
+artifacts
+typechained
+
+# Config files
+.env

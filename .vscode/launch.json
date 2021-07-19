@@ -1,0 +1,16 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Unit Tests",
+      "runtimeExecutable": "yarn",
+      "cwd": "${workspaceFolder}",
+      "args": ["test"],
+      "internalConsoleOptions": "openOnSessionStart",
+      "skipFiles": ["<node_internals>/**"],
+      "smartStep": true
+    }
+  ]
+}
