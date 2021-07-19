@@ -1,5 +1,7 @@
 # lopt
 
+[![NPM Package](https://img.shields.io/npm/v/lopt.svg?style=flat-square)](https://www.npmjs.org/package/lopt)
+
 `lopt` is a utility package that can generate mock Solidity contracts in the form of `fakes` and `mocks`.
 
 `lopt` is based in [@eth-optimism/smock](https://github.com/ethereum-optimism/optimism/tree/develop/packages/smock), [sinon](https://sinonjs.org/) and [sinon-chai](https://www.chaijs.com/plugins/sinon-chai/).
