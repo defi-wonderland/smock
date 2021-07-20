@@ -30,7 +30,8 @@
   "types": "src/index",
   "scripts": {
     "compile": "hardhat compile",
-    "test": "cross-env TEST=true mocha 'test/unit/**/*.spec.ts'",
+    "test:nocompile": "cross-env mocha 'test/unit/**/*.spec.ts'",
+    "test": "yarn compile && yarn test:nocompile",
     "lint:check": "cross-env solhint 'contracts/**/*.sol' 'interfaces/**/*.sol' && cross-env prettier --check './**'",
     "lint:fix": "sort-package-json && cross-env prettier --write './**' && cross-env solhint --fix 'contracts/**/*.sol' 'interfaces/**/*.sol'",
     "prepublishOnly": "pinst --disable",

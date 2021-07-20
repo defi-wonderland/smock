@@ -1,7 +1,7 @@
 import chai, { expect } from 'chai';
 import { FakeContract, lopt } from '@lib';
 import { Receiver, Receiver__factory } from '@typechained';
-import receiverArtifact from 'artifacts/test/contracts/watchable-contract/Receiver.sol/Receiver.json';
+import receiverArtifact from 'artifacts/test/contracts/watchable-function-logic/Receiver.sol/Receiver.json';
 import { ethers } from 'hardhat';
 
 chai.should();
