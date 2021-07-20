@@ -1,5 +1,5 @@
 {
-  "name": "lopt",
+  "name": "@defi-wonderland/lopt",
   "version": "0.0.1",
   "description": "Mocking framework for Solidity contracts",
   "keywords": [
@@ -13,21 +13,24 @@
     "mocks",
     "chai"
   ],
+  "homepage": "https://github.com/defi-wonderland/lopt#readme",
+  "bugs": {
+    "url": "https://github.com/defi-wonderland/lopt/issues"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/defi-wonderland/lopt.git"
   },
   "license": "MIT",
+  "author": "DeFi Wonderland",
   "contributors": [
-    {
-      "name": "kiwi745",
-      "url": "https://github.com/kiwi745"
-    }
+    "kiwi745 (https://github.com/kiwi745)"
   ],
+  "main": "src/index",
+  "types": "src/index",
   "scripts": {
     "compile": "hardhat compile",
     "test": "cross-env TEST=true mocha 'test/unit/**/*.spec.ts'",
-    "postinstall": "husky install && yarn compile",
     "lint:check": "cross-env solhint 'contracts/**/*.sol' 'interfaces/**/*.sol' && cross-env prettier --check './**'",
     "lint:fix": "sort-package-json && cross-env prettier --write './**' && cross-env solhint --fix 'contracts/**/*.sol' 'interfaces/**/*.sol'",
     "prepublishOnly": "pinst --disable",
