@@ -27,13 +27,14 @@
   "scripts": {
     "compile": "hardhat compile",
     "test": "cross-env TEST=true mocha 'test/unit/**/*.spec.ts'",
-    "docs": "solidity-docgen --solc-module solc-0.8",
     "postinstall": "husky install && yarn compile",
     "lint:check": "cross-env solhint 'contracts/**/*.sol' 'interfaces/**/*.sol' && cross-env prettier --check './**'",
     "lint:fix": "sort-package-json && cross-env prettier --write './**' && cross-env solhint --fix 'contracts/**/*.sol' 'interfaces/**/*.sol'",
     "prepublishOnly": "pinst --disable",
     "postpublish": "pinst --enable",
-    "release": "standard-version"
+    "release": "standard-version",
+    "docs:install": "pip install -r docs/requirements.txt",
+    "docs:watch": "sphinx-autobuild -a docs/source docs/_build/html --watch docs/source"
   },
   "resolutions": {
     "@ethereumjs/block": "3.2.1",
