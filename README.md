@@ -1,6 +1,6 @@
 # lopt
 
-[![NPM Package](https://img.shields.io/npm/v/lopt.svg?style=flat-square)](https://www.npmjs.org/package/lopt)
+[![NPM Package](https://img.shields.io/npm/v/@defi-wonderland/lopt.svg?style=flat-square)](https://www.npmjs.org/package/@defi-wonderland/lopt)
 
 `lopt` is a utility package that can generate mock Solidity contracts in the form of `fakes` and `mocks`.
 
@@ -17,18 +17,24 @@ Some benefits of using `lopt`:
 
 ---
 
+## Documentation
+
+Documentation is available [here](https://lopt.readthedocs.io/en/latest/).
+
+---
+
 ## Installation
 
 You can easily install `lopt` via npm:
 
 ```
-npm install --save-dev lopt
+npm install --save-dev @defi-wonderland/lopt
 ```
 
 Or via yarn:
 
 ```
-yarn add --dev lopt
+yarn add --dev @defi-wonderland/lopt
 ```
 
 ---
@@ -37,7 +43,7 @@ yarn add --dev lopt
 
 ```typescript
 ...
-import { FakeContract, lopt } from 'lopt';
+import { FakeContract, lopt } from '@defi-wonderland/lopt';
 
 chai.should(); // if you like should syntax
 chai.use(lopt.matchers);
@@ -55,35 +61,6 @@ describe('MyContract', () => {
         myContractFake.bark.atCall(0).should.be.calledWith('Hello World');
     });
 });
-```
-
----
-
-## Note on using `mocks`
-
-`mocks` requires access to the internal storage layout of your smart contracts. The Solidity compiler exposes this via the storageLayout flag, which you need to enable at your hardhat config.
-
-Here's an example `hardhat.config.ts` that shows how to import the plugin:
-
-```typescript
-// hardhat.config.ts
-import { HardhatUserConfig } from 'hardhat/config'
-
-const config: HardhatUserConfig = {
-  ...,
-  solidity: {
-    version: '0.8.4',
-    settings: {
-      outputSelection: {
-        "*": {
-            "*": ["storageLayout"],
-        },
-      },
-    }
-  },
-}
-
-export default config
 ```
 
 ---

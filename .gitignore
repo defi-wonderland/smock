@@ -2,6 +2,9 @@
 node_modules
 .DS_STORE
 yarn-error.log
+dist
+build
+_build
 
 # Coverage
 coverage.json
@@ -14,3 +17,6 @@ typechained
 
 # Config files
 .env
+
+# Docs
+docs/env

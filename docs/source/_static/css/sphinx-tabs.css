@@ -1,0 +1,34 @@
+.sphinx-tabs .sphinx-tabs-tab[aria-selected="true"] {
+  background-color: #272823;
+}
+
+.sphinx-tabs .sphinx-tabs-tab {
+  background-color: #44463a;
+  color: white;
+  margin: 0 !important;
+  border: none !important;
+  padding: 8px 24px;
+}
+
+.sphinx-tabs .sphinx-tabs-tab:not(:last-child) {
+  border-top-right-radius: 0;
+}
+
+.sphinx-tabs .sphinx-tabs-tab:not(:first-child) {
+  border-top-left-radius: 0;
+}
+
+.sphinx-tabs .sphinx-tabs-panel {
+  padding: 0;
+  border: none;
+  margin: 0;
+}
+
+.rst-content .sphinx-tabs div[class^=highlight] {
+  margin-top: 0;
+  border-top-left-radius: 0;
+}
+
+.sphinx-tabs [role="tablist"] {
+  border: none;
+}
