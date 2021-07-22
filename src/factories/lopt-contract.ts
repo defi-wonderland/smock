@@ -97,6 +97,7 @@ function parseAndFilterBeforeMessages(
 function fillProgrammableContractFunction(fn: ProgrammableContractFunction, logic: ProgrammableFunctionLogic): void {
   fn._watchable = logic;
   fn.atCall = logic.atCall.bind(logic);
+  fn.getCall = logic.getCall.bind(logic);
   fn.returns = logic.returns.bind(logic);
   fn.returnsAtCall = logic.returnsAtCall.bind(logic);
   fn.reverts = logic.reverts.bind(logic);

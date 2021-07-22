@@ -26,6 +26,7 @@ export interface SignerContract {
 export interface WatchableContractFunction {
   _watchable: WatchableFunctionLogic;
   atCall: (index: number) => WatchableFunctionLogic;
+  getCall: (index: number) => ContractCall;
 }
 
 export interface ContractCall {
