@@ -123,7 +123,7 @@ describe('WatchableFunctionLogic: Call arguments', () => {
     it('should provide call nonce', async () => {
       await sendBooleanToWatchableContract(true);
       await sendBooleanToWatchableContract(true);
-      fake.receiveBoolean.getCall(1).nonce.should.equal(2);
+      fake.receiveBoolean.getCall(1).nonce.should.be.gt(fake.receiveBoolean.getCall(0).nonce);
     });
   });
 
