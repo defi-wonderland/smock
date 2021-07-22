@@ -1,6 +1,6 @@
 {
   "name": "@defi-wonderland/lopt",
-  "version": "0.0.1-rc.2",
+  "version": "0.0.1-rc.3",
   "description": "Mocking framework for Solidity contracts",
   "keywords": [
     "ethereum",
@@ -32,14 +32,14 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsc -p tsconfig.build.json",
+    "build": "rm -rf dist && tsc -p tsconfig.build.json",
     "compile": "hardhat compile",
     "test:nocompile": "cross-env mocha 'test/unit/**/*.spec.ts'",
     "test": "yarn compile && yarn test:nocompile",
     "lint:check": "cross-env solhint 'contracts/**/*.sol' 'interfaces/**/*.sol' && cross-env prettier --check './**'",
     "lint:fix": "sort-package-json && cross-env prettier --write './**' && cross-env solhint --fix 'contracts/**/*.sol' 'interfaces/**/*.sol'",
-    "release": "standard-version",
-    "pre-release": "yarn release --prerelease rc",
+    "release": "yarn build && standard-version",
+    "pre-release": "yarn build && standard-version --prerelease rc",
     "docs:install": "pip install -r docs/requirements.txt",
     "docs:watch": "sphinx-autobuild -a docs/source docs/_build/html --watch docs/source"
   },

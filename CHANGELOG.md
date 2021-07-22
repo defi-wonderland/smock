@@ -2,6 +2,8 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.1-rc.3](https://github.com/defi-wonderland/lopt/compare/v0.0.1-rc.2...v0.0.1-rc.3) (2021-07-22)
+
 ### [0.0.1-rc.2](https://github.com/defi-wonderland/lopt/compare/v0.0.1-rc.1...v0.0.1-rc.2) (2021-07-22)
 
 
