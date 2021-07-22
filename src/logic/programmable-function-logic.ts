@@ -1,9 +1,9 @@
-import { ProgrammedReturnValue, ContractCall } from '@lib';
+import { ProgrammedReturnValue, ContractCall } from '../index';
 import { EVMResult } from '@nomiclabs/ethereumjs-vm/dist/evm/evm';
-import { WatchableFunctionLogic } from 'src/logic/watchable-function-logic';
+import { WatchableFunctionLogic } from '../logic/watchable-function-logic';
 import { map, Observable } from 'rxjs';
 import { VmError } from '@nomiclabs/ethereumjs-vm/dist/exceptions';
-import { fromHexString } from '@utils';
+import { fromHexString } from '../utils';
 import BN from 'bn.js';
 import { ethers } from 'ethers';
 

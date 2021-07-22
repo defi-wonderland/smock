@@ -1,4 +1,4 @@
-import { FakeContract, FakeContractOptions, FakeContractSpec, MockContract } from '@lib';
+import { FakeContract, FakeContractOptions, FakeContractSpec, MockContract } from './types';
 import { BaseContract } from 'ethers';
 import { Sandbox } from './sandbox';
 import { matchers } from './chai-plugin/matchers';

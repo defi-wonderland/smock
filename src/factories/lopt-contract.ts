@@ -1,13 +1,13 @@
 import Message from '@nomiclabs/ethereumjs-vm/dist/evm/message';
-import { toHexString, toFancyAddress, fromFancyAddress, impersonate } from '@utils';
+import { toHexString, toFancyAddress, fromFancyAddress, impersonate } from '../utils';
 import { BaseContract, ethers } from 'ethers';
 import { Interface } from 'ethers/lib/utils';
 import { distinct, filter, map, share, withLatestFrom } from 'rxjs/operators';
-import { MockContract, ContractCall, FakeContract, ProgrammableContractFunction } from 'src/types';
-import { ObservableVM } from 'src/observable-vm';
+import { MockContract, ContractCall, FakeContract, ProgrammableContractFunction } from '../types';
+import { ObservableVM } from '../observable-vm';
 import { Observable } from 'rxjs';
-import { SafeProgrammableContract, ProgrammableFunctionLogic } from 'src/logic/programmable-function-logic';
-import { Sandbox } from 'src/sandbox';
+import { SafeProgrammableContract, ProgrammableFunctionLogic } from '../logic/programmable-function-logic';
+import { Sandbox } from '../sandbox';
 
 export async function createFakeContract<Contract extends BaseContract>(
   vm: ObservableVM,

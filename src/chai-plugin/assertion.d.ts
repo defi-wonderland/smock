@@ -1,4 +1,4 @@
-import { WatchableContractFunction } from '@lib';
+import { WatchableContractFunction } from '../index';
 
 declare global {
   export namespace Chai {
