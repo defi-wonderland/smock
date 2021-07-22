@@ -1,6 +1,6 @@
 import chai from 'chai';
 import { ethers } from 'hardhat';
-import { FakeContract, lopt } from '@lib';
+import { FakeContract, lopt } from '@src';
 import { Caller, Caller__factory, Receiver } from '@typechained';
 import { BigNumber } from 'ethers';
 import { BYTES32_EXAMPLE, BYTES_EXAMPLE, STRUCT_DYNAMIC_SIZE_EXAMPLE, STRUCT_FIXED_SIZE_EXAMPLE } from '@test-utils';

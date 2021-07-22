@@ -9,6 +9,8 @@
 workspace.code-workspace
 .DS_STORE
 LICENSE
+dist
+CHANGELOG.md
 
 # Hardhat
 artifacts

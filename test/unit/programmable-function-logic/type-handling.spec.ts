@@ -1,5 +1,5 @@
 import chai, { expect } from 'chai';
-import { lopt, FakeContract } from '@lib';
+import { lopt, FakeContract } from '@src';
 import { Returner } from '@typechained';
 import { BigNumber, utils } from 'ethers';
 import { toPlainObject } from 'lodash';

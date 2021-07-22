@@ -11,6 +11,7 @@
     "strictPropertyInitialization": false,
     "baseUrl": ".",
     "paths": {
+      "@src": ["src"],
       "@typechained": ["typechained/index"],
       "@test-utils": ["test/utils/index"]
     },

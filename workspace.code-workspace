@@ -8,7 +8,8 @@
     "eslint.workingDirectories": [{ "mode": "auto" }],
     "editor.codeActionsOnSave": { "source.fixAll.eslint": true },
     "solidity.packageDefaultDependenciesContractsDirectory": "",
-    "solidity.packageDefaultDependenciesDirectory": "node_modules"
+    "solidity.packageDefaultDependenciesDirectory": "node_modules",
+    "restructuredtext.languageServer.disabled": true
   },
   "extensions": {
     "recommendations": [

@@ -1,6 +1,6 @@
 import { ethers } from 'hardhat';
 import chai, { expect } from 'chai';
-import { FakeContract, lopt } from '@lib';
+import { FakeContract, lopt } from '@src';
 import { Caller, Caller__factory, Receiver } from '@typechained';
 import { BaseContract } from 'ethers';
 
