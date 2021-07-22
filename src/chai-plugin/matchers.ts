@@ -1,5 +1,5 @@
-import { WatchableContractFunction } from '@lib';
-import { WatchableFunctionLogic } from 'src/logic/watchable-function-logic';
+import { WatchableContractFunction } from '../index';
+import { WatchableFunctionLogic } from '../logic/watchable-function-logic';
 import { formatters } from './formatter';
 
 const TIME_WORDS = [, 'once', 'twice', 'thrice'];

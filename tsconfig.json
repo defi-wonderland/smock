@@ -1,23 +1,22 @@
 {
   "compilerOptions": {
-    "target": "es2018",
+    "target": "es2017",
     "module": "commonjs",
+    "sourceMap": true,
+    "declaration": true,
+    "removeComments": true,
     "strict": true,
     "esModuleInterop": true,
     "resolveJsonModule": true,
     "strictPropertyInitialization": false,
-    "outDir": "dist",
     "baseUrl": ".",
     "paths": {
-      "@lib": ["src/index"],
-      "@utils": ["src/utils"],
-      "@mock/*": ["src/mock/*"],
-      "@chai-plugin/*": ["src/chai-plugin/*"],
+      "@src": ["src"],
       "@typechained": ["typechained/index"],
       "@test-utils": ["test/utils/index"]
     },
-    "noImplicitThis": false
+    "noImplicitThis": false,
+    "typeRoots": ["node_modules/@types"]
   },
-  "include": ["./src", "./test"],
-  "files": ["./hardhat.config.ts"]
+  "exclude": ["node_modules", "dist"]
 }

@@ -4,7 +4,7 @@ import Message from '@nomiclabs/ethereumjs-vm/dist/evm/message';
 import { Transaction } from 'ethers';
 import { Observable, Subject } from 'rxjs';
 import { filter, share } from 'rxjs/operators';
-import { LoptVMManager } from '@lib';
+import { LoptVMManager } from './types';
 
 export class ObservableVM {
   private vm: VM;

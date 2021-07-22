@@ -1,5 +1,5 @@
 import chai, { expect } from 'chai';
-import { FakeContract, lopt } from '@lib';
+import { FakeContract, lopt } from '@src';
 import { Returner } from '@typechained';
 
 chai.should();

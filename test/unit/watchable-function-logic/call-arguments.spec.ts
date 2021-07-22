@@ -1,6 +1,6 @@
 import { ethers } from 'hardhat';
 import chai, { AssertionError, expect } from 'chai';
-import { FakeContract, lopt } from '@lib';
+import { FakeContract, lopt } from '@src';
 import { Caller, Caller__factory, Receiver } from '@typechained';
 
 chai.should();
@@ -111,6 +111,19 @@ describe('WatchableFunctionLogic: Call arguments', () => {
     it('should not throw when the watchablecontract is called once with the correct arguments', async () => {
       await sendBooleanToWatchableContract(true);
       fake.receiveBoolean.should.have.been.calledOnceWith(true);
+    });
+  });
+
+  describe('getCall', () => {
+    it('should provide call arguments', async () => {
+      await sendBooleanToWatchableContract(true);
+      fake.receiveBoolean.getCall(0).args.should.deep.equal([true]);
+    });
+
+    it('should provide call nonce', async () => {
+      await sendBooleanToWatchableContract(true);
+      await sendBooleanToWatchableContract(true);
+      fake.receiveBoolean.getCall(1).nonce.should.be.gt(fake.receiveBoolean.getCall(0).nonce);
     });
   });
 

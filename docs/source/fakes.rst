@@ -208,6 +208,17 @@ Call order
     expect(fake.myFunction).to.always.have.been.calledImmediatelyAfter(otherFake.otherFunction);
 
 
+Get call
+----------
+
+.. container:: code-explanation
+
+  Return all the details of an specific call, **arguments** and **nonce** (call order)
+
+  .. code-block:: javascript
+
+    expect(fake.myFunction.getCall(0).args[0]).to.be.gt(50);
+
 
 Returns
 -------

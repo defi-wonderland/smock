@@ -1,6 +1,6 @@
 import { ethers } from 'hardhat';
 import chai, { expect } from 'chai';
-import { MockContract, lopt } from '@lib';
+import { MockContract, lopt } from '@src';
 import { Counter, Counter__factory } from '@typechained';
 
 chai.should();

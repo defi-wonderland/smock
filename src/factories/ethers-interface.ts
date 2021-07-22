@@ -1,7 +1,7 @@
 import hre from 'hardhat';
 import { Contract, ContractFactory, ethers } from 'ethers';
 import { Artifact } from 'hardhat/types';
-import { FakeContractSpec } from 'src/types';
+import { FakeContractSpec } from '../types';
 
 export async function ethersInterfaceFromSpec(spec: FakeContractSpec): Promise<ethers.utils.Interface> {
   if (spec instanceof Contract) {
