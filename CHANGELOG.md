@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.3](https://github.com/defi-wonderland/lopt/compare/v0.0.2...v0.0.3) (2021-07-23)
+
+
+### Features
+
+* fallback function support ([#5](https://github.com/defi-wonderland/lopt/issues/5)) ([c43c7ef](https://github.com/defi-wonderland/lopt/commit/c43c7ef113f0cd17b1bb2d9dfe323d5a2dc715c8))
+
 ### [0.0.2](https://github.com/defi-wonderland/lopt/compare/v0.0.1...v0.0.2) (2021-07-22)
 
 ### 0.0.1 (2021-07-22)
