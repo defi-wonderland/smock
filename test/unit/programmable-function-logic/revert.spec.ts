@@ -1,34 +1,59 @@
 import chai, { expect } from 'chai';
 import { FakeContract, lopt } from '@src';
 import { Returner } from '@typechained';
+import { ethers } from 'hardhat';
 
 chai.should();
 chai.use(lopt.matchers);
 
-describe('ProgrammableFunctionLogic: Reset', () => {
+describe('ProgrammableFunctionLogic: Revert', () => {
   let fake: FakeContract<Returner>;
 
   beforeEach(async () => {
     fake = await lopt.fake<Returner>('Returner');
   });
 
-  it('should be able to revert without reason', async () => {
-    fake.getBoolean.reverts();
+  context('with any normal function', () => {
+    it('should be able to revert without reason', async () => {
+      fake.getBoolean.reverts();
 
-    await expect(fake.callStatic.getBoolean()).to.be.reverted;
+      await expect(fake.callStatic.getBoolean()).to.be.reverted;
+    });
+
+    it('should be able to cancel revert with a reset', async () => {
+      fake.getBoolean.reverts();
+      fake.getBoolean.reset();
+
+      await expect(fake.callStatic.getBoolean()).to.not.be.reverted;
+    });
+
+    it('should be able to revert with a string value', async () => {
+      const reason = 'a crazy problem';
+      fake.getBoolean.reverts(reason);
+
+      await expect(fake.callStatic.getBoolean()).to.be.revertedWith(reason);
+    });
   });
 
-  it('should be able to cancel revert with a reset', async () => {
-    fake.getBoolean.reverts();
-    fake.getBoolean.reset();
+  context('with fallback function', () => {
+    it('should be able to revert without reason', async () => {
+      fake.fallback.reverts();
 
-    await expect(fake.callStatic.getBoolean()).to.not.be.reverted;
-  });
+      await expect(ethers.provider.call({ to: fake.address })).to.be.reverted;
+    });
 
-  it('should be able to revert with a string value', async () => {
-    const reason = 'a crazy problem';
-    fake.getBoolean.reverts(reason);
+    it('should be able to cancel revert with a reset', async () => {
+      fake.fallback.reverts();
+      fake.fallback.reset();
 
-    await expect(fake.callStatic.getBoolean()).to.be.revertedWith(reason);
+      await expect(ethers.provider.call({ to: fake.address })).to.not.be.reverted;
+    });
+
+    it('should be able to revert with a string value', async () => {
+      const reason = 'a crazy problem';
+      fake.fallback.reverts(reason);
+
+      await expect(ethers.provider.call({ to: fake.address })).to.be.revertedWith(reason);
+    });
   });
 });

@@ -28,7 +28,7 @@ export class ProgrammableFunctionLogic extends WatchableFunctionLogic {
     name: string,
     calls$: Observable<ContractCall>,
     results$: Observable<EVMResult>,
-    encoder: (values?: ReadonlyArray<any>) => string
+    encoder: (values?: ProgrammedReturnValue) => string
   ) {
     super(name, calls$);
 
@@ -79,18 +79,14 @@ export class ProgrammableFunctionLogic extends WatchableFunctionLogic {
 
     let encodedReturnValue: string = '0x';
     try {
-      encodedReturnValue = this.encoder([value]);
+      encodedReturnValue = this.encoder(value);
     } catch (err) {
       if (err.code === 'INVALID_ARGUMENT') {
-        try {
-          encodedReturnValue = this.encoder(value);
-        } catch {
-          if (typeof value !== 'string') {
-            throw new Error(`Failed to encode mock return value for ${this.name}`);
-          }
-
-          encodedReturnValue = value;
+        if (typeof value !== 'string') {
+          throw new Error(`Failed to encode return value for ${this.name}`);
         }
+
+        encodedReturnValue = value;
       } else {
         throw err;
       }

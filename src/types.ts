@@ -19,10 +19,6 @@ export interface LoptVMManager {
   putContractCode: (address: Buffer, code: Buffer) => Promise<void>;
 }
 
-export interface SignerContract {
-  wallet: Signer;
-}
-
 export interface WatchableContractFunction {
   _watchable: WatchableFunctionLogic;
   atCall: (index: number) => WatchableFunctionLogic;
@@ -30,7 +26,7 @@ export interface WatchableContractFunction {
 }
 
 export interface ContractCall {
-  args: unknown[];
+  args: unknown[] | string;
   nonce: number;
   target: string;
 }
@@ -45,14 +41,18 @@ export interface ProgrammableContractFunction extends WatchableContractFunction 
 
 export type FakeContract<Type extends BaseContract> = BaseContract &
   Type &
-  SignerContract &
   {
     [Property in keyof Type['functions']]: ProgrammableContractFunction;
+  } & {
+    wallet: Signer;
+    fallback: ProgrammableContractFunction;
   };
 
 export type MockContract<Contract extends BaseContract> = BaseContract &
   Contract &
-  SignerContract &
   {
     [Property in keyof Contract['functions']]: ProgrammableContractFunction;
+  } & {
+    wallet: Signer;
+    fallback: ProgrammableContractFunction;
   };
