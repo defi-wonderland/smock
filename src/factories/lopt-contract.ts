@@ -3,7 +3,7 @@ import { toHexString, toFancyAddress, fromFancyAddress, impersonate } from '../u
 import { BaseContract, ethers } from 'ethers';
 import { Interface } from 'ethers/lib/utils';
 import { distinct, filter, map, share, withLatestFrom } from 'rxjs/operators';
-import { MockContract, ContractCall, FakeContract, ProgrammableContractFunction } from '../types';
+import { MockContract, ContractCall, FakeContract, ProgrammableContractFunction, ProgrammedReturnValue } from '../types';
 import { ObservableVM } from '../observable-vm';
 import { Observable } from 'rxjs';
 import { SafeProgrammableContract, ProgrammableFunctionLogic } from '../logic/programmable-function-logic';
@@ -17,8 +17,9 @@ export async function createFakeContract<Contract extends BaseContract>(
 ): Promise<FakeContract<Contract>> {
   const fake = await initContract<FakeContract<Contract>>(vm, address, contractInterface, provider);
   const uniqueFns = getUniqueFunctionNamesBySighash(contractInterface, Object.keys(fake.functions));
+  const fnsToFill: [string | null, string][] = [...Object.entries(uniqueFns), [null, 'fallback']];
 
-  Object.entries(uniqueFns).forEach(([sighash, name]) => {
+  fnsToFill.forEach(([sighash, name]) => {
     const { encoder, calls$, results$ } = getFunctionEventData(vm, contractInterface, fake.address, sighash);
 
     const functionLogic = new SafeProgrammableContract(name, calls$, results$, encoder);
@@ -31,8 +32,9 @@ export async function createFakeContract<Contract extends BaseContract>(
 export async function createMockContract<Contract extends BaseContract>(vm: ObservableVM, contract: Contract): Promise<MockContract<Contract>> {
   const mock = contract as MockContract<Contract>;
   const uniqueFns = getUniqueFunctionNamesBySighash(mock.interface, Object.keys(mock.functions));
+  const fnsToFill: [string | null, string][] = [...Object.entries(uniqueFns), [null, 'fallback']];
 
-  Object.entries(uniqueFns).forEach(([sighash, name]) => {
+  fnsToFill.forEach(([sighash, name]) => {
     const { encoder, calls$, results$ } = getFunctionEventData(vm, mock.interface, mock.address, sighash);
 
     const functionLogic = new ProgrammableFunctionLogic(name, calls$, results$, encoder);
@@ -61,10 +63,8 @@ async function initContract<T extends BaseContract>(
   return contract;
 }
 
-function getFunctionEventData(vm: ObservableVM, contractInterface: ethers.utils.Interface, contractAddress: string, sighash: string) {
-  const fnFragment = contractInterface.getFunction(sighash);
-  const encoder = (values?: ReadonlyArray<any>) => contractInterface.encodeFunctionResult(fnFragment, values);
-
+function getFunctionEventData(vm: ObservableVM, contractInterface: ethers.utils.Interface, contractAddress: string, sighash: string | null) {
+  const encoder = getFunctionEncoder(contractInterface, sighash);
   // Filter only the calls that correspond to this function, from vm beforeMessages
   const calls$ = parseAndFilterBeforeMessages(vm.getBeforeMessages(), contractInterface, contractAddress, sighash);
   // Get every result that comes right after a call to this function
@@ -77,16 +77,39 @@ function getFunctionEventData(vm: ObservableVM, contractInterface: ethers.utils.
   return { encoder, calls$, results$ };
 }
 
+function getFunctionEncoder(contractInterface: ethers.utils.Interface, sighash: string | null): (values?: ProgrammedReturnValue) => string {
+  if (sighash === null) {
+    // if it is a fallback function, return simplest encoder
+    return (values) => values;
+  } else {
+    const fnFragment = contractInterface.getFunction(sighash);
+    return (values) => {
+      try {
+        return contractInterface.encodeFunctionResult(fnFragment, [values]);
+      } catch {
+        return contractInterface.encodeFunctionResult(fnFragment, values);
+      }
+    };
+  }
+}
+
 function parseAndFilterBeforeMessages(
   messages$: Observable<Message>,
   contractInterface: ethers.utils.Interface,
   contractAddress: string,
-  sighash: string
+  sighash: string | null
 ) {
   // Get from the vm an observable from the messages that belong to this contract function
   return messages$.pipe(
     // Ensure the message has the same sighash than the function
-    filter((message) => toHexString(message.data.slice(0, 4)) === sighash),
+    filter((message) => {
+      if (sighash === null) {
+        // sighash of callback
+        return message.data.length === 0; // data is empty when it is from a callback function
+      } else {
+        return toHexString(message.data.slice(0, 4)) === sighash;
+      }
+    }),
     // Ensure the message is directed to this contract
     filter((message) => message.to.toString().toLowerCase() === contractAddress.toLowerCase()),
     map((message) => parseMessage(message, contractInterface, sighash)),
@@ -127,9 +150,9 @@ function getUniqueFunctionNamesBySighash(contractInterface: ethers.utils.Interfa
   return result;
 }
 
-function parseMessage(message: Message, contractInterface: Interface, sighash: string): ContractCall {
+function parseMessage(message: Message, contractInterface: Interface, sighash: string | null): ContractCall {
   return {
-    args: getMessageArgs(message.data, contractInterface, sighash),
+    args: sighash === null ? toHexString(message.data) : getMessageArgs(message.data, contractInterface, sighash),
     nonce: Sandbox.getNextNonce(),
     target: fromFancyAddress(message.delegatecall ? message._codeAddress : message.to),
   };

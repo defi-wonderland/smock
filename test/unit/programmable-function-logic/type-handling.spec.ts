@@ -4,6 +4,7 @@ import { Returner } from '@typechained';
 import { BigNumber, utils } from 'ethers';
 import { toPlainObject } from 'lodash';
 import { BYTES32_EXAMPLE, BYTES_EXAMPLE, STRUCT_DYNAMIC_SIZE_EXAMPLE, STRUCT_FIXED_SIZE_EXAMPLE } from 'test/utils';
+import { ethers } from 'hardhat';
 
 chai.should();
 chai.use(lopt.matchers);
@@ -150,6 +151,45 @@ describe('ProgrammableFunctionLogic: Type Handling', () => {
           }
         }
       });
+    });
+  });
+
+  context('fallback function', () => {
+    const EMPTY_ANSWER = '0x' + '00'.repeat(2048);
+
+    it('should return with no data by default', async () => {
+      expect(await ethers.provider.call({ to: fake.address })).to.equal(EMPTY_ANSWER);
+    });
+
+    it('should be able to return with empty data', async () => {
+      fake.fallback.returns();
+
+      expect(
+        await ethers.provider.call({
+          to: fake.address,
+        })
+      ).to.equal(EMPTY_ANSWER);
+    });
+
+    it('should be able to return simple data', async () => {
+      const expected = '0x1234123412341234';
+      fake.fallback.returns(expected);
+
+      expect(
+        await ethers.provider.call({
+          to: fake.address,
+        })
+      ).to.equal(expected);
+    });
+
+    it('should be able to return complex data as hex', async () => {
+      fake.fallback.returns([1, 2, 3]);
+
+      expect(
+        await ethers.provider.call({
+          to: fake.address,
+        })
+      ).to.equal('0x010203');
     });
   });
 });
