@@ -172,7 +172,7 @@ describe('ProgrammableFunctionLogic: Type Handling', () => {
     });
 
     it('should be able to return simple data', async () => {
-      const expected = '0x1234123412341234';
+      const expected = '0x1234';
       fake.fallback.returns(expected);
 
       expect(
@@ -190,6 +190,16 @@ describe('ProgrammableFunctionLogic: Type Handling', () => {
           to: fake.address,
         })
       ).to.equal('0x010203');
+    });
+
+    it('should be able to return string data as hex', async () => {
+      fake.fallback.returns('hello');
+
+      expect(
+        await ethers.provider.call({
+          to: fake.address,
+        })
+      ).to.equal('0x68656c6c6f');
     });
   });
 });
