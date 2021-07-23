@@ -324,3 +324,20 @@ Reset
 
       fake.getUint256.reset();
       await fake.callStatic.getUint256(); // returns 0
+
+
+Fallback functions
+------------------
+
+
+.. container:: code-explanation
+
+  Fallback functions behave almost like any other function, the only difference is that their returned value will be hexified.
+
+  .. code-block:: javascript
+
+    fake.fallback.returns('0x1234');
+    await ethers.provider.call({ to: fake.address }); // will return 0x1234
+    
+    fake.fallback.returns([1, 2, 3]);
+    await ethers.provider.call({ to: fake.address }); // will return 0x010203
