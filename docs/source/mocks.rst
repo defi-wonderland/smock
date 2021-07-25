@@ -37,17 +37,15 @@ How to use
 
   .. code-block:: javascript
 
-    import { MyOracle, Counter, Counter__factory } from '@typechained';
-    import { MockContract, lopt } from '@defi-wonderland/lopt';
-
-    chai.use(lopt.matchers);
+    import { Counter } from '@typechained';
+    import { MockContract, MockContractFactory, lopt } from '@defi-wonderland/lopt';
 
     describe('Counter', () => {
-      let counterFactory: Counter__factory;
+      let counterFactory: MockContractFactory<Counter>;
       let counter: MockContract<Counter>;
 
       before(async () => {
-        counterFactory = (await ethers.getContractFactory('Counter')) as Counter__factory;
+        counterFactory = await lopt.mock<Counter>('Counter');
       });
 
       beforeEach(async () => {
