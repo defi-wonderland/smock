@@ -56,3 +56,7 @@ export type MockContract<Contract extends BaseContract> = BaseContract &
     wallet: Signer;
     fallback: ProgrammableContractFunction;
   };
+
+export interface MockContractFactory<Contract extends BaseContract> extends ContractFactory {
+  deploy: (...args: Array<any>) => Promise<MockContract<Contract>>
+};

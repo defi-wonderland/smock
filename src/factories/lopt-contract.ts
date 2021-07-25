@@ -1,12 +1,14 @@
 import Message from '@nomiclabs/ethereumjs-vm/dist/evm/message';
 import { BaseContract, ethers } from 'ethers';
 import { Interface } from 'ethers/lib/utils';
+import { ethers as hardhatEthers } from 'hardhat';
 import { Observable } from 'rxjs';
 import { distinct, filter, map, share, withLatestFrom } from 'rxjs/operators';
+import { getStorageLayout } from 'src/utils/storage';
 import { ProgrammableFunctionLogic, SafeProgrammableContract } from '../logic/programmable-function-logic';
 import { ObservableVM } from '../observable-vm';
 import { Sandbox } from '../sandbox';
-import { ContractCall, FakeContract, MockContract, ProgrammableContractFunction, ProgrammedReturnValue } from '../types';
+import { ContractCall, FakeContract, MockContract, MockContractFactory, ProgrammableContractFunction, ProgrammedReturnValue } from '../types';
 import { fromFancyAddress, impersonate, toFancyAddress, toHexString } from '../utils';
 
 export async function createFakeContract<Contract extends BaseContract>(
@@ -16,12 +18,11 @@ export async function createFakeContract<Contract extends BaseContract>(
   provider: ethers.providers.Provider
 ): Promise<FakeContract<Contract>> {
   const fake = await initContract<FakeContract<Contract>>(vm, address, contractInterface, provider);
-  const uniqueFns = getUniqueFunctionNamesBySighash(contractInterface, Object.keys(fake.functions));
-  const fnsToFill: [string | null, string][] = [...Object.entries(uniqueFns), [null, 'fallback']];
+  const contractFunctions = getContractFunctionsNameAndSighash(contractInterface, Object.keys(fake.functions));
 
-  fnsToFill.forEach(([sighash, name]) => {
+  // attach to every contract function, all the programmable and watchable logic
+  contractFunctions.forEach(([sighash, name]) => {
     const { encoder, calls$, results$ } = getFunctionEventData(vm, contractInterface, fake.address, sighash);
-
     const functionLogic = new SafeProgrammableContract(name, calls$, results$, encoder);
     fillProgrammableContractFunction(fake[name], functionLogic);
   });
@@ -29,19 +30,25 @@ export async function createFakeContract<Contract extends BaseContract>(
   return fake;
 }
 
-export async function createMockContract<Contract extends BaseContract>(vm: ObservableVM, contract: Contract): Promise<MockContract<Contract>> {
-  const mock = contract as MockContract<Contract>;
-  const uniqueFns = getUniqueFunctionNamesBySighash(mock.interface, Object.keys(mock.functions));
-  const fnsToFill: [string | null, string][] = [...Object.entries(uniqueFns), [null, 'fallback']];
+export async function createMockContractFactory<Contract extends BaseContract>(vm: ObservableVM, contractName: string): Promise<MockContractFactory<Contract>> {
+  const factory = (await hardhatEthers.getContractFactory(contractName)) as MockContractFactory<Contract>;
+  
+  const realDeploy = factory.deploy;
+  factory.deploy = async (...args) => {
+    const mock = (await realDeploy.apply(factory, args)) as MockContract<Contract>;
+    const contractFunctions = getContractFunctionsNameAndSighash(mock.interface, Object.keys(mock.functions));
+  
+    // attach to every contract function, all the programmable and watchable logic
+    contractFunctions.forEach(([sighash, name]) => {
+      const { encoder, calls$, results$ } = getFunctionEventData(vm, mock.interface, mock.address, sighash);
+      const functionLogic = new ProgrammableFunctionLogic(name, calls$, results$, encoder);
+      fillProgrammableContractFunction(mock[name], functionLogic);
+    });
+  
+    return mock;
+  };
 
-  fnsToFill.forEach(([sighash, name]) => {
-    const { encoder, calls$, results$ } = getFunctionEventData(vm, mock.interface, mock.address, sighash);
-
-    const functionLogic = new ProgrammableFunctionLogic(name, calls$, results$, encoder);
-    fillProgrammableContractFunction(mock[name], functionLogic);
-  });
-
-  return mock;
+  return factory;
 }
 
 async function initContract<T extends BaseContract>(
@@ -137,17 +144,19 @@ function fillProgrammableContractFunction(fn: ProgrammableContractFunction, logi
  *
  * @param contractInterface contract interface in order to get the sighash of a name
  * @param names function names to be filtered
- * @returns unique function names and its sighashes
+ * @returns array of sighash and function name
  */
-function getUniqueFunctionNamesBySighash(contractInterface: ethers.utils.Interface, names: string[]): { [sighash: string]: string } {
-  let result: { [sighash: string]: string } = {};
+function getContractFunctionsNameAndSighash(contractInterface: ethers.utils.Interface, names: string[]): [string | null, string][] {
+  let functions: { [sighash: string]: string } = {};
+
   names.forEach((name) => {
     const sighash = contractInterface.getSighash(name);
-    if (!result[sighash] || !name.includes('(')) {
-      result[sighash] = name;
+    if (!functions[sighash] || !name.includes('(')) {
+      functions[sighash] = name;
     }
   });
-  return result;
+
+  return [...Object.entries(functions), [null, 'fallback']];
 }
 
 function parseMessage(message: Message, contractInterface: Interface, sighash: string | null): ContractCall {
