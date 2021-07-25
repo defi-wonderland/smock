@@ -6,12 +6,18 @@ struct SimpleStruct {
   bool valueB;
 }
 
+struct PackedStruct {
+  bool packedA;
+  address packedB;
+}
+
 contract StorageGetter {
   address internal _address;
   uint256 internal _constructorUint256;
   uint256 internal _uint256;
   bool internal _bool;
   SimpleStruct internal _simpleStruct;
+  PackedStruct internal _packedStruct;
   mapping(uint256 => uint256) _uint256Map;
   mapping(uint256 => mapping(uint256 => uint256)) _uint256NestedMap;
   mapping(bytes5 => bool) _bytes5ToBoolMap;
@@ -32,6 +38,14 @@ contract StorageGetter {
 
   function getUint256() public view returns (uint256 _out) {
     return _uint256;
+  }
+
+  function setPackedA(bool _val) external {
+    _packedA = _val;
+  }
+
+  function setPackedB(address _val) external {
+    _packedB = _val;
   }
 
   function setUint256(uint256 _in) public {

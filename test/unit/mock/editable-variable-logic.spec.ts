@@ -1,8 +1,9 @@
 import { lopt, MockContract, MockContractFactory } from '@src';
 import { convertStructToPojo } from '@src/utils';
+import { ADDRESS_EXAMPLE } from '@test-utils';
 import { StorageGetter } from '@typechained';
 import { expect } from 'chai';
-import { BigNumber } from 'ethers';
+import { BigNumber, utils } from 'ethers';
 
 describe('Mock: Editable internal variables', () => {
   let storageGetterFactory: MockContractFactory<StorageGetter>;
@@ -17,8 +18,9 @@ describe('Mock: Editable internal variables', () => {
   });
 
   it('should be able to set a uint256', async () => {
-    await mock.storage.set('_uint256', 1234);
-    expect(await mock.getUint256()).to.equal(1234);
+    const value = utils.parseUnits('123');
+    await mock.storage.set('_uint256', value);
+    expect(await mock.getUint256()).to.equal(value);
   });
 
   it('should be able to set a boolean', async () => {
@@ -27,18 +29,25 @@ describe('Mock: Editable internal variables', () => {
   });
 
   it('should be able to set an address', async () => {
-    const address = '0x558ba9b8d78713fbf768c1f8a584485B4003f43F';
-    await mock.storage.set('_address', address);
+    await mock.storage.set('_address', ADDRESS_EXAMPLE);
 
-    expect(await mock.getAddress()).to.equal(address);
+    expect(await mock.getAddress()).to.equal(ADDRESS_EXAMPLE);
   });
 
-  // TODO: Need to solve this with a rewrite.
   it.skip('should be able to set an address in a packed storage slot', async () => {
-    const ret = '0x558ba9b8d78713fbf768c1f8a584485B4003f43F';
-    await mock.storage.set('_packedB', ret);
+    await mock.storage.set('_packedB', ADDRESS_EXAMPLE);
 
-    expect(await mock.getPackedAddress()).to.equal(ret);
+    expect(await mock.getPackedAddress()).to.equal(ADDRESS_EXAMPLE);
+  });
+
+  it.skip('should be able to set an address in a packed struct', async () => {
+    const struct = {
+      packedA: true,
+      packedB: ADDRESS_EXAMPLE,
+    };
+    await mock.storage.set('_packedStruct', struct);
+
+    expect(convertStructToPojo(await mock.getPackedAddress())).to.equal(struct);
   });
 
   it('should be able to set a simple struct', async () => {
@@ -94,7 +103,7 @@ describe('Mock: Editable internal variables', () => {
   });
 
   it('should be able to set values in a address => bool mapping', async () => {
-    const mapKey = '0x558ba9b8d78713fbf768c1f8a584485B4003f43F';
+    const mapKey = ADDRESS_EXAMPLE;
     const mapValue = true;
     await mock.storage.set('_addressToBoolMap', { [mapKey]: mapValue });
 
@@ -102,7 +111,7 @@ describe('Mock: Editable internal variables', () => {
   });
 
   it('should be able to set values in a address => address mapping', async () => {
-    const mapKey = '0x558ba9b8d78713fbf768c1f8a584485B4003f43F';
+    const mapKey = ADDRESS_EXAMPLE;
     const mapValue = '0x063bE0Af9711a170BE4b07028b320C90705fec7C';
     await mock.storage.set('_addressToAddressMap', { [mapKey]: mapValue });
 

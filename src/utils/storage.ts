@@ -45,23 +45,21 @@ export const getStorageLayout = async (name: string): Promise<any> => {
  * @param obj Storage object to convert.
  * @returns List of storage slots.
  */
-export const getStorageSlots = (storageLayout: any, variableName: string, value: any): StorageSlot[] => {
+export const convertToStorageSlots = (storageLayout: any, variableName: string, value: any): StorageSlot[] => {
   const slots: StorageSlot[] = [];
-  const flat: any = flatten({ [variableName]: value });
 
-  for (const key of Object.keys(flat)) {
+  const variableDef = storageLayout.storage.find((vDef: any) => vDef.label === variableName);
+  if (!variableDef) throw new Error(`Could not find a matching variable definition for ${variableName}`);
+
+  const baseSlot = parseInt(variableDef.slot, 10);
+  const baseDepth = (variableDef.type.match(/t_mapping/g) || []).length;
+
+  Object.entries(flatten({ [variableName]: value })).forEach(([key, value]) => {
     const path = key.split('.');
 
-    const variableDef = storageLayout.storage.find((vDef: any) => vDef.label === variableName);
-
-    if (!variableDef) throw new Error(`Could not find a matching variable definition for ${variableName}`);
-
-    const baseSlot = parseInt(variableDef.slot, 10);
-    const baseDepth = (variableDef.type.match(/t_mapping/g) || []).length;
     const slotLabel = path.length > 1 + baseDepth ? path[path.length - 1] : 'default';
 
     const inputSlot = getInputSlots(storageLayout, variableDef.type).find((iSlot) => iSlot.label === slotLabel);
-
     if (!inputSlot) throw new Error(`Could not find a matching slot definition for ${slotLabel}`);
 
     let slotHash = toHexString32(baseSlot);
@@ -74,9 +72,9 @@ export const getStorageSlots = (storageLayout: any, variableName: string, value:
     slots.push({
       label: key,
       hash: slotHash,
-      value: toHexString32(flat[key]),
+      value: toHexString32(value),
     });
-  }
+  });
 
   return slots;
 };
