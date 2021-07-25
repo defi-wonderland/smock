@@ -8,42 +8,32 @@ import { BigNumber } from 'ethers';
 
 export class WatchableFunctionLogic {
   protected name: string;
-  protected calls: ContractCall[] = [];
-  protected callCount$ = new BehaviorSubject<number>(0);
-  protected called$ = new BehaviorSubject<boolean>(false);
-  protected calledOnce$ = new BehaviorSubject<boolean>(false);
-  protected calledTwice$ = new BehaviorSubject<boolean>(false);
-  protected calledThrice$ = new BehaviorSubject<boolean>(false);
+  protected callHistory: ContractCall[] = [];
 
   constructor(name: string, calls$: Observable<ContractCall>) {
     this.name = name;
 
-    calls$.subscribe((call) => this.calls.push(call));
-    calls$.pipe(this.count()).subscribe(this.callCount$);
-    this.assertCallCount(calls$, (times) => times > 0).subscribe(this.called$);
-    this.assertCallCount(calls$, (times) => times === 1).subscribe(this.calledOnce$);
-    this.assertCallCount(calls$, (times) => times === 2).subscribe(this.calledTwice$);
-    this.assertCallCount(calls$, (times) => times === 3).subscribe(this.calledThrice$);
+    calls$.subscribe((call) => this.callHistory.push(call));
   }
 
   atCall(index: number): WatchableFunctionLogic {
     if (!this.getCall(index))
       throw new Error(
-        `expected ${this.name} to have been called ${humanizeTimes(index + 1)}, but it was called ${humanizeTimes(this.calls.length)}`
+        `expected ${this.name} to have been called ${humanizeTimes(index + 1)}, but it was called ${humanizeTimes(this.getCallCount())}`
       );
     return new WatchableFunctionLogic(this.name, of(this.getCall(index)));
   }
 
   getCall(index: number): ContractCall {
-    return this.calls[index];
+    return this.callHistory[index];
   }
 
   calledWith(...expectedCallArgs: unknown[]): boolean {
-    return !!this.calls.find((call) => isEqualWith(call.args, expectedCallArgs, this.isEqualCustomizer.bind(this)));
+    return !!this.callHistory.find((call) => isEqualWith(call.args, expectedCallArgs, this.isEqualCustomizer.bind(this)));
   }
 
   alwaysCalledWith(...expectedCallArgs: unknown[]): boolean {
-    const callWithOtherArgs = this.calls.find((call) => !isEqualWith(call.args, expectedCallArgs, this.isEqualCustomizer.bind(this)));
+    const callWithOtherArgs = this.callHistory.find((call) => !isEqualWith(call.args, expectedCallArgs, this.isEqualCustomizer.bind(this)));
     return this.getCalled() && !callWithOtherArgs;
   }
 
@@ -60,7 +50,7 @@ export class WatchableFunctionLogic {
   }
 
   alwaysCalledBefore(anotherWatchableContract: WatchableFunctionLogic): boolean {
-    return this.calls[this.calls.length - 1]?.nonce < anotherWatchableContract.calls[0]?.nonce;
+    return this.callHistory[this.getCallCount() - 1]?.nonce < anotherWatchableContract.callHistory[0]?.nonce;
   }
 
   calledAfter(anotherWatchableContract: WatchableFunctionLogic): boolean {
@@ -72,7 +62,7 @@ export class WatchableFunctionLogic {
   }
 
   alwaysCalledAfter(anotherWatchableContract: WatchableFunctionLogic): boolean {
-    return this.calls[0]?.nonce > anotherWatchableContract.calls[anotherWatchableContract.calls.length - 1]?.nonce;
+    return this.callHistory[0]?.nonce > anotherWatchableContract.callHistory[anotherWatchableContract.getCallCount() - 1]?.nonce;
   }
 
   calledImmediatelyBefore(anotherWatchableContract: WatchableFunctionLogic): boolean {
@@ -84,9 +74,9 @@ export class WatchableFunctionLogic {
   }
 
   alwaysCalledImmediatelyBefore(anotherWatchableContract: WatchableFunctionLogic): boolean {
-    if (this.calls.length === 0 || this.calls.length != anotherWatchableContract.calls.length) return false;
-    return !this.calls.find((thisCall, index) => {
-      return thisCall.nonce !== anotherWatchableContract.calls[index].nonce - 1;
+    if (this.getCallCount() === 0 || this.getCallCount() != anotherWatchableContract.getCallCount()) return false;
+    return !this.callHistory.find((thisCall, index) => {
+      return thisCall.nonce !== anotherWatchableContract.callHistory[index].nonce - 1;
     });
   }
 
@@ -99,9 +89,9 @@ export class WatchableFunctionLogic {
   }
 
   alwaysCalledImmediatelyAfter(anotherWatchableContract: WatchableFunctionLogic): boolean {
-    if (this.calls.length === 0 || this.calls.length != anotherWatchableContract.calls.length) return false;
-    return !this.calls.find((thisCall, index) => {
-      return thisCall.nonce !== anotherWatchableContract.calls[index].nonce + 1;
+    if (this.getCallCount() === 0 || this.getCallCount() != anotherWatchableContract.getCallCount()) return false;
+    return !this.callHistory.find((thisCall, index) => {
+      return thisCall.nonce !== anotherWatchableContract.callHistory[index].nonce + 1;
     });
   }
 
@@ -110,34 +100,23 @@ export class WatchableFunctionLogic {
   }
 
   getCallCount(): number {
-    return this.callCount$.getValue();
+    return this.callHistory.length;
   }
 
   getCalled(): boolean {
-    return this.called$.getValue();
+    return this.getCallCount() > 0;
   }
 
   getCalledOnce(): boolean {
-    return this.calledOnce$.getValue();
+    return this.getCallCount() === 1;
   }
 
   getCalledTwice(): boolean {
-    return this.calledTwice$.getValue();
+    return this.getCallCount() === 2;
   }
 
   getCalledThrice(): boolean {
-    return this.calledThrice$.getValue();
-  }
-
-  private count(): OperatorFunction<unknown, number> {
-    return scan((acc) => acc + 1, 0);
-  }
-
-  private assertCallCount<T>(calls$: Observable<T>, assertion: (times: number) => boolean): Observable<boolean> {
-    return calls$.pipe(
-      this.count(),
-      map((times) => assertion(times))
-    );
+    return this.getCallCount() === 3;
   }
 
   private compareWatchableContractNonces(
@@ -145,8 +124,8 @@ export class WatchableFunctionLogic {
     watchablecontractB: WatchableFunctionLogic,
     comparison: (nonceA: number, nonceB: number) => boolean
   ): boolean {
-    return !!watchablecontractA.calls.find((watchablecontractACall) => {
-      return watchablecontractB.calls.find((watchablecontractBCall) => {
+    return !!watchablecontractA.callHistory.find((watchablecontractACall) => {
+      return watchablecontractB.callHistory.find((watchablecontractBCall) => {
         return comparison(watchablecontractACall.nonce, watchablecontractBCall.nonce);
       });
     });
