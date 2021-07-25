@@ -4,12 +4,13 @@ import { Interface } from 'ethers/lib/utils';
 import { ethers as hardhatEthers } from 'hardhat';
 import { Observable } from 'rxjs';
 import { distinct, filter, map, share, withLatestFrom } from 'rxjs/operators';
-import { getStorageLayout } from 'src/utils/storage';
+import { EditableVariableLogic } from '../logic/editable-variable-logic';
 import { ProgrammableFunctionLogic, SafeProgrammableContract } from '../logic/programmable-function-logic';
 import { ObservableVM } from '../observable-vm';
 import { Sandbox } from '../sandbox';
 import { ContractCall, FakeContract, MockContract, MockContractFactory, ProgrammableContractFunction, ProgrammedReturnValue } from '../types';
 import { fromFancyAddress, impersonate, toFancyAddress, toHexString } from '../utils';
+import { getStorageLayout } from '../utils/storage';
 
 export async function createFakeContract<Contract extends BaseContract>(
   vm: ObservableVM,
@@ -30,21 +31,27 @@ export async function createFakeContract<Contract extends BaseContract>(
   return fake;
 }
 
-export async function createMockContractFactory<Contract extends BaseContract>(vm: ObservableVM, contractName: string): Promise<MockContractFactory<Contract>> {
+export async function createMockContractFactory<Contract extends BaseContract>(
+  vm: ObservableVM,
+  contractName: string
+): Promise<MockContractFactory<Contract>> {
   const factory = (await hardhatEthers.getContractFactory(contractName)) as MockContractFactory<Contract>;
-  
+
   const realDeploy = factory.deploy;
   factory.deploy = async (...args) => {
     const mock = (await realDeploy.apply(factory, args)) as MockContract<Contract>;
     const contractFunctions = getContractFunctionsNameAndSighash(mock.interface, Object.keys(mock.functions));
-  
+
     // attach to every contract function, all the programmable and watchable logic
     contractFunctions.forEach(([sighash, name]) => {
       const { encoder, calls$, results$ } = getFunctionEventData(vm, mock.interface, mock.address, sighash);
       const functionLogic = new ProgrammableFunctionLogic(name, calls$, results$, encoder);
       fillProgrammableContractFunction(mock[name], functionLogic);
     });
-  
+
+    // attach to every internal variable, all the editable logic
+    mock.storage = new EditableVariableLogic(await getStorageLayout(contractName), vm.getManager(), mock.address);
+
     return mock;
   };
 

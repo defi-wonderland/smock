@@ -57,7 +57,7 @@ export const getHardhatBaseProvider = async (runtime: HardhatRuntimeEnvironment)
  * @param address String address to convert into the fancy new address type.
  * @returns Fancified address.
  */
-export const toFancyAddress = (address: string): any => {
+export const toFancyAddress = (address: string): Buffer => {
   const fancyAddress = fromHexString(address);
   (fancyAddress as any).buf = fromHexString(address);
   (fancyAddress as any).toString = (encoding?: any) => {

@@ -4,6 +4,7 @@ import { Provider } from '@ethersproject/abstract-provider';
 import { Signer } from '@ethersproject/abstract-signer';
 import { BaseContract, Contract, ContractFactory, ethers } from 'ethers';
 import { Artifact } from 'hardhat/types';
+import { EditableVariableLogic } from './logic/editable-variable-logic';
 import { WatchableFunctionLogic } from './logic/watchable-function-logic';
 
 export type FakeContractSpec = Artifact | Contract | ContractFactory | ethers.utils.Interface | string | (JsonFragment | Fragment | string)[];
@@ -17,6 +18,7 @@ export type ProgrammedReturnValue = any;
 
 export interface LoptVMManager {
   putContractCode: (address: Buffer, code: Buffer) => Promise<void>;
+  putContractStorage: (address: Buffer, slotHash: Buffer, slotValue: Buffer) => Promise<void>;
 }
 
 export interface WatchableContractFunction {
@@ -55,8 +57,9 @@ export type MockContract<Contract extends BaseContract> = BaseContract &
   } & {
     wallet: Signer;
     fallback: ProgrammableContractFunction;
+    storage: EditableVariableLogic;
   };
 
 export interface MockContractFactory<Contract extends BaseContract> extends ContractFactory {
-  deploy: (...args: Array<any>) => Promise<MockContract<Contract>>
-};
+  deploy: (...args: Array<any>) => Promise<MockContract<Contract>>;
+}

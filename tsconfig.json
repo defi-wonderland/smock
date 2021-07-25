@@ -13,6 +13,7 @@
     "baseUrl": ".",
     "paths": {
       "@src": ["src"],
+      "@src/*": ["src/*"],
       "@typechained": ["typechained/index"],
       "@test-utils": ["test/utils/index"]
     },
