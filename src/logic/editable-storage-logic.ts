@@ -1,7 +1,7 @@
 import { LoptVMManager } from '../types';
 import { convertToStorageSlots, fromHexString, toFancyAddress } from '../utils';
 
-export class EditableVariableLogic {
+export class EditableStorageLogic {
   private storageLayout: any;
   private contractAddress: string;
   private vmManager: LoptVMManager;
@@ -12,7 +12,7 @@ export class EditableVariableLogic {
     this.contractAddress = contractAddress;
   }
 
-  async set(variableName: string, value: any) {
+  async setVariable(variableName: string, value: any) {
     if (value === undefined || value === null) return;
 
     const slots = convertToStorageSlots(this.storageLayout, variableName, value);

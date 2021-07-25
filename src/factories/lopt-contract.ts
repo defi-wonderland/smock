@@ -4,7 +4,7 @@ import { Interface } from 'ethers/lib/utils';
 import { ethers as hardhatEthers } from 'hardhat';
 import { Observable } from 'rxjs';
 import { distinct, filter, map, share, withLatestFrom } from 'rxjs/operators';
-import { EditableVariableLogic } from '../logic/editable-variable-logic';
+import { EditableStorageLogic as EditableStorage } from '../logic/editable-storage-logic';
 import { ProgrammableFunctionLogic, SafeProgrammableContract } from '../logic/programmable-function-logic';
 import { ObservableVM } from '../observable-vm';
 import { Sandbox } from '../sandbox';
@@ -50,7 +50,8 @@ export async function createMockContractFactory<Contract extends BaseContract>(
     });
 
     // attach to every internal variable, all the editable logic
-    mock.storage = new EditableVariableLogic(await getStorageLayout(contractName), vm.getManager(), mock.address);
+    const editableStorage = new EditableStorage(await getStorageLayout(contractName), vm.getManager(), mock.address);
+    mock.setVariable = editableStorage.setVariable.bind(editableStorage);
 
     return mock;
   };

@@ -4,7 +4,7 @@ import { Provider } from '@ethersproject/abstract-provider';
 import { Signer } from '@ethersproject/abstract-signer';
 import { BaseContract, Contract, ContractFactory, ethers } from 'ethers';
 import { Artifact } from 'hardhat/types';
-import { EditableVariableLogic } from './logic/editable-variable-logic';
+import { EditableStorageLogic } from './logic/editable-storage-logic';
 import { WatchableFunctionLogic } from './logic/watchable-function-logic';
 
 export type FakeContractSpec = Artifact | Contract | ContractFactory | ethers.utils.Interface | string | (JsonFragment | Fragment | string)[];
@@ -58,7 +58,7 @@ export type MockContract<Contract extends BaseContract> = BaseContract &
   } & {
     wallet: Signer;
     fallback: ProgrammableContractFunction;
-    storage: EditableVariableLogic;
+    setVariable: EditableStorageLogic['setVariable'];
   };
 
 export interface MockContractFactory<Contract extends BaseContract> extends ContractFactory {
