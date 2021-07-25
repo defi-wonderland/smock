@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.0.0-rc.0](https://github.com/defi-wonderland/lopt/compare/v0.0.3...v1.0.0-rc.0) (2021-07-25)
+
+
+### Features
+
+* mocks can now edit internal variables ([#7](https://github.com/defi-wonderland/lopt/issues/7)) ([c4bfac6](https://github.com/defi-wonderland/lopt/commit/c4bfac6a9ab222f6899301f30cdb70f271b2e146))
+
 ### [0.0.4-rc.0](https://github.com/defi-wonderland/lopt/compare/v0.0.3...v0.0.4-rc.0) (2021-07-25)
 
 ### [0.0.3](https://github.com/defi-wonderland/lopt/compare/v0.0.2...v0.0.3) (2021-07-23)

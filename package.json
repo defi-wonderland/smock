@@ -1,6 +1,6 @@
 {
   "name": "@defi-wonderland/lopt",
-  "version": "0.0.4-rc.0",
+  "version": "1.0.0-rc.0",
   "description": "Mocking framework for Solidity contracts",
   "keywords": [
     "ethereum",
