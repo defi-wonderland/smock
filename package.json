@@ -1,6 +1,6 @@
 {
   "name": "@defi-wonderland/lopt",
-  "version": "0.0.3",
+  "version": "0.0.4-rc.0",
   "description": "Mocking framework for Solidity contracts",
   "keywords": [
     "ethereum",
@@ -51,16 +51,15 @@
     "@ethereumjs/vm": "5.3.1"
   },
   "dependencies": {
-    "@nomiclabs/ethereumjs-vm": "^4.2.2",
     "diff": "^5.0.0",
-    "ethers": "5.4.1",
-    "hardhat": "2.3.0",
-    "lodash": "4.17.21",
+    "lodash.isequal": "^4.5.0",
+    "lodash.isequalwith": "^4.4.0",
     "rxjs": "^7.2.0"
   },
   "devDependencies": {
     "@commitlint/cli": "12.1.4",
     "@commitlint/config-conventional": "12.1.4",
+    "@nomiclabs/ethereumjs-vm": "^4.2.2",
     "@nomiclabs/hardhat-ethers": "2.0.2",
     "@nomiclabs/hardhat-waffle": "2.0.1",
     "@typechain/ethers-v5": "7.0.1",
@@ -68,17 +67,22 @@
     "@types/chai": "4.2.18",
     "@types/diff": "^5.0.1",
     "@types/lodash": "4.14.170",
+    "@types/lodash.isequal": "^4.5.5",
+    "@types/lodash.isequalwith": "^4.4.6",
     "@types/mocha": "8.2.2",
     "@types/node": "15.12.2",
     "chai": "4.3.4",
     "cross-env": "7.0.3",
     "ethereum-waffle": "3.4.0",
+    "ethers": "5.4.1",
+    "hardhat": "2.3.0",
     "hardhat-preprocessor": "0.1.4",
     "husky": "6.0.0",
     "inquirer": "8.1.0",
     "mocha": "9.0.0",
     "pinst": "2.1.6",
     "prettier": "2.3.1",
+    "prettier-plugin-organize-imports": "2.3.3",
     "prettier-plugin-solidity": "1.0.0-beta.13",
     "solhint": "3.3.6",
     "solhint-plugin-prettier": "0.0.5",
@@ -88,5 +92,14 @@
     "tsconfig-paths": "^3.9.0",
     "typechain": "5.1.1",
     "typescript": "4.3.2"
+  },
+  "peerDependencies": {
+    "@ethersproject/abi": "^5",
+    "@ethersproject/abstract-provider": "^5",
+    "@ethersproject/abstract-signer": "^5",
+    "@nomiclabs/ethereumjs-vm": "^4",
+    "@nomiclabs/hardhat-ethers": "^2",
+    "ethers": "^5",
+    "hardhat": "^2"
   }
 }

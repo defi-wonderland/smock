@@ -1,11 +1,11 @@
-import hre from 'hardhat';
 import VM from '@nomiclabs/ethereumjs-vm';
 import { BaseContract } from 'ethers';
-import { FakeContract, FakeContractOptions, FakeContractSpec, MockContract } from './types';
-import { makeRandomAddress, getHardhatBaseProvider } from './utils';
-import { ObservableVM } from './observable-vm';
-import { createMockContract, createFakeContract } from './factories/lopt-contract';
+import hre from 'hardhat';
 import { ethersInterfaceFromSpec } from './factories/ethers-interface';
+import { createFakeContract, createMockContract } from './factories/lopt-contract';
+import { ObservableVM } from './observable-vm';
+import { FakeContract, FakeContractOptions, FakeContractSpec, MockContract } from './types';
+import { getHardhatBaseProvider, makeRandomAddress } from './utils';
 
 // Handle hardhat ^2.4.0
 let decodeRevertReason: (value: Buffer) => string;

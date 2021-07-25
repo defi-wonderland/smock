@@ -1,6 +1,6 @@
-import chai, { expect } from 'chai';
 import { FakeContract, lopt } from '@src';
 import { Returner } from '@typechained';
+import chai, { expect } from 'chai';
 import { ethers } from 'hardhat';
 
 chai.should();

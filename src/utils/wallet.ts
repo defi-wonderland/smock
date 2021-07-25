@@ -1,5 +1,5 @@
-import { ethers, network } from 'hardhat';
 import { JsonRpcSigner } from '@ethersproject/providers';
+import { ethers, network } from 'hardhat';
 
 export const impersonate = async (address: string): Promise<JsonRpcSigner> => {
   await network.provider.request({
