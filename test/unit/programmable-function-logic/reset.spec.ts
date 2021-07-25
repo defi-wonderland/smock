@@ -1,8 +1,8 @@
-import chai, { expect } from 'chai';
-import { lopt, FakeContract } from '@src';
+import { FakeContract, lopt } from '@src';
 import { Returner } from '@typechained';
-import { BYTES32_EXAMPLE } from 'test/utils';
+import chai, { expect } from 'chai';
 import { BigNumber } from 'ethers';
+import { BYTES32_EXAMPLE } from 'test/utils';
 
 chai.should();
 chai.use(lopt.matchers);

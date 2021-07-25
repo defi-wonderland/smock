@@ -1,9 +1,9 @@
 /* Imports: External */
-import { Artifact } from 'hardhat/types';
-import { BaseContract, Contract, ContractFactory, ethers } from 'ethers';
-import { Signer } from '@ethersproject/abstract-signer';
+import { Fragment, JsonFragment } from '@ethersproject/abi';
 import { Provider } from '@ethersproject/abstract-provider';
-import { JsonFragment, Fragment } from '@ethersproject/abi';
+import { Signer } from '@ethersproject/abstract-signer';
+import { BaseContract, Contract, ContractFactory, ethers } from 'ethers';
+import { Artifact } from 'hardhat/types';
 import { WatchableFunctionLogic } from './logic/watchable-function-logic';
 
 export type FakeContractSpec = Artifact | Contract | ContractFactory | ethers.utils.Interface | string | (JsonFragment | Fragment | string)[];

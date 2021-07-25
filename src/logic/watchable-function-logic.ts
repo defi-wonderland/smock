@@ -1,10 +1,9 @@
-import { ContractCall } from '../types';
-import { convertStructToPojo, getObjectAndStruct, humanizeTimes } from '../utils';
-import { BehaviorSubject, OperatorFunction, Observable, of } from 'rxjs';
-import { map, scan } from 'rxjs/operators';
+import { BigNumber } from 'ethers';
 import isEqual from 'lodash.isequal';
 import isEqualWith from 'lodash.isequalwith';
-import { BigNumber } from 'ethers';
+import { Observable, of } from 'rxjs';
+import { ContractCall } from '../types';
+import { convertStructToPojo, getObjectAndStruct, humanizeTimes } from '../utils';
 
 export class WatchableFunctionLogic {
   protected name: string;

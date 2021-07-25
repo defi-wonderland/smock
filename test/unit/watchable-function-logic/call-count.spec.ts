@@ -1,7 +1,7 @@
-import { ethers } from 'hardhat';
-import chai, { AssertionError, expect } from 'chai';
 import { FakeContract, lopt } from '@src';
 import { Caller, Caller__factory, Receiver } from '@typechained';
+import chai, { AssertionError, expect } from 'chai';
+import { ethers } from 'hardhat';
 
 chai.should();
 chai.use(lopt.matchers);

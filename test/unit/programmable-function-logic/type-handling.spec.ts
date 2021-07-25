@@ -1,10 +1,10 @@
-import chai, { expect } from 'chai';
-import { lopt, FakeContract } from '@src';
+import { FakeContract, lopt } from '@src';
 import { Returner } from '@typechained';
+import chai, { expect } from 'chai';
 import { BigNumber, utils } from 'ethers';
+import { ethers } from 'hardhat';
 import { toPlainObject } from 'lodash';
 import { BYTES32_EXAMPLE, BYTES_EXAMPLE, STRUCT_DYNAMIC_SIZE_EXAMPLE, STRUCT_FIXED_SIZE_EXAMPLE } from 'test/utils';
-import { ethers } from 'hardhat';
 
 chai.should();
 chai.use(lopt.matchers);

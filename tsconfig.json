@@ -9,13 +9,13 @@
     "esModuleInterop": true,
     "resolveJsonModule": true,
     "strictPropertyInitialization": false,
+    "noImplicitThis": false,
     "baseUrl": ".",
     "paths": {
       "@src": ["src"],
       "@typechained": ["typechained/index"],
       "@test-utils": ["test/utils/index"]
     },
-    "noImplicitThis": false,
     "typeRoots": ["node_modules/@types"]
   },
   "exclude": ["node_modules", "dist"]

@@ -1,7 +1,7 @@
-import { ethers } from 'hardhat';
-import chai, { expect } from 'chai';
-import { MockContract, lopt } from '@src';
+import { lopt, MockContract } from '@src';
 import { Counter, Counter__factory } from '@typechained';
+import chai, { expect } from 'chai';
+import { ethers } from 'hardhat';
 
 chai.should();
 chai.use(lopt.matchers);

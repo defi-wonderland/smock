@@ -1,6 +1,6 @@
 /* Imports: External */
-import { Artifact, HardhatRuntimeEnvironment } from 'hardhat/types';
 import { HardhatNetworkProvider } from 'hardhat/internal/hardhat-network/provider/provider';
+import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import { fromHexString, toHexString } from '.';
 
 /**

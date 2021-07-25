@@ -1,7 +1,7 @@
-import { FakeContract, FakeContractOptions, FakeContractSpec, MockContract } from './types';
 import { BaseContract } from 'ethers';
-import { Sandbox } from './sandbox';
 import { matchers } from './chai-plugin/matchers';
+import { Sandbox } from './sandbox';
+import { FakeContract, FakeContractOptions, FakeContractSpec, MockContract } from './types';
 
 let sandbox: Sandbox;
 

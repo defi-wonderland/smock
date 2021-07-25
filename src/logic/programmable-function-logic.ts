@@ -1,11 +1,11 @@
-import { ProgrammedReturnValue, ContractCall } from '../index';
 import { EVMResult } from '@nomiclabs/ethereumjs-vm/dist/evm/evm';
-import { WatchableFunctionLogic } from '../logic/watchable-function-logic';
-import { map, Observable } from 'rxjs';
 import { VmError } from '@nomiclabs/ethereumjs-vm/dist/exceptions';
-import { fromHexString } from '../utils';
 import BN from 'bn.js';
 import { ethers } from 'ethers';
+import { map, Observable } from 'rxjs';
+import { ContractCall, ProgrammedReturnValue } from '../index';
+import { WatchableFunctionLogic } from '../logic/watchable-function-logic';
+import { fromHexString } from '../utils';
 
 const EMPTY_ANSWER: Buffer = fromHexString('0x' + '00'.repeat(2048));
 

@@ -1,11 +1,11 @@
 'use strict';
 
-import * as color from './color';
 // import { createMatcher as match } from '@sinonjs/samsam';
 import { diffJson } from 'diff';
 import { inspect } from 'util';
-import { convertStructToPojo, humanizeTimes, isStruct } from '../utils';
 import { WatchableFunctionLogic } from '../logic/watchable-function-logic';
+import { convertStructToPojo, humanizeTimes, isStruct } from '../utils';
+import * as color from './color';
 
 function sinonFormat(...args: any[]) {
   return (inspect as any)(...args);

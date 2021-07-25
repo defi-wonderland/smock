@@ -1,5 +1,5 @@
-import hre from 'hardhat';
 import { Contract, ContractFactory, ethers } from 'ethers';
+import hre from 'hardhat';
 import { Artifact } from 'hardhat/types';
 import { FakeContractSpec } from '../types';
 
