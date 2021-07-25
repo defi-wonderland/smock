@@ -2,9 +2,9 @@ import VM from '@nomiclabs/ethereumjs-vm';
 import { BaseContract } from 'ethers';
 import hre from 'hardhat';
 import { ethersInterfaceFromSpec } from './factories/ethers-interface';
-import { createFakeContract, createMockContract } from './factories/lopt-contract';
+import { createFakeContract, createMockContractFactory } from './factories/lopt-contract';
 import { ObservableVM } from './observable-vm';
-import { FakeContract, FakeContractOptions, FakeContractSpec, MockContract } from './types';
+import { FakeContract, FakeContractOptions, FakeContractSpec, MockContractFactory } from './types';
 import { getHardhatBaseProvider, makeRandomAddress } from './utils';
 
 // Handle hardhat ^2.4.0
@@ -44,8 +44,8 @@ export class Sandbox {
     );
   }
 
-  async mock<Contract extends BaseContract>(contract: Contract): Promise<MockContract<Contract>> {
-    return createMockContract(this.vm, contract);
+  async mock<Contract extends BaseContract>(contractName: string): Promise<MockContractFactory<Contract>> {
+    return createMockContractFactory(this.vm, contractName);
   }
 
   static async create(): Promise<Sandbox> {

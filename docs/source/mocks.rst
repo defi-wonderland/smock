@@ -7,7 +7,7 @@ What are they
 Mocks are deployed contract wrappers that have all of the fake's functionality and even more.
 
 Because they are actually deployed contract, they can have actual **logic inside** that can be called through.
-And because they have an state, **internal variable values can be overwritten** 🥳
+And because they have a storage, **internal variable values can be overwritten** 🥳
 
 
 How to use
@@ -37,17 +37,15 @@ How to use
 
   .. code-block:: javascript
 
-    import { MyOracle, Counter, Counter__factory } from '@typechained';
-    import { MockContract, lopt } from '@defi-wonderland/lopt';
-
-    chai.use(lopt.matchers);
+    import { Counter } from '@typechained';
+    import { MockContract, MockContractFactory, lopt } from '@defi-wonderland/lopt';
 
     describe('Counter', () => {
-      let counterFactory: Counter__factory;
+      let counterFactory: MockContractFactory<Counter>;
       let counter: MockContract<Counter>;
 
       before(async () => {
-        counterFactory = (await ethers.getContractFactory('Counter')) as Counter__factory;
+        counterFactory = await lopt.mock<Counter>('Counter');
       });
 
       beforeEach(async () => {
@@ -86,10 +84,19 @@ Internal variables override
 
 .. container:: code-explanation
 
-  **Not yet developed**, but it should look something like this (open to new ideas)
+  Set the value of an internal variable
 
   .. code-block:: javascript
 
-    await mock.shouldGetCrazy(); // returns false
-    await mock._myInternalVariable.set(true);
-    await mock.shouldGetCrazy(); // returns true
+    await mock.setVariable('_myInternalVariable', true);
+
+.. container:: code-explanation
+
+  Set the value of an internal struct
+
+  .. code-block:: javascript
+
+    await mock.setVariable('_myInternalStruct', {
+      _valueA: true,
+      _valueB: 123
+    });

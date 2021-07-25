@@ -1,21 +1,20 @@
-import { lopt, MockContract } from '@src';
-import { Counter, Counter__factory } from '@typechained';
+import { lopt, MockContract, MockContractFactory } from '@src';
+import { Counter } from '@typechained';
 import chai, { expect } from 'chai';
-import { ethers } from 'hardhat';
 
 chai.should();
 chai.use(lopt.matchers);
 
 describe('Mock: Call through', () => {
-  let counterFactory: Counter__factory;
+  let counterFactory: MockContractFactory<Counter>;
   let mock: MockContract<Counter>;
 
   before(async () => {
-    counterFactory = (await ethers.getContractFactory('Counter')) as Counter__factory;
+    counterFactory = await lopt.mock<Counter>('Counter');
   });
 
   beforeEach(async () => {
-    mock = await lopt.mock(await counterFactory.deploy(1));
+    mock = await counterFactory.deploy(1);
   });
 
   it('should call getters', async () => {
