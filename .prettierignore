@@ -6,7 +6,7 @@
 .gitattributes
 .env.example
 .env
-workspace.code-workspace
+*.code-workspace
 .DS_STORE
 LICENSE
 dist
