@@ -103,4 +103,18 @@ describe('ProgrammableFunctionLogic: Reset', () => {
       expect(await fake.callStatic.getBytes32()).to.equal(expected3);
     });
   });
+
+  it('should reset call index', async () => {
+    fake.getString.returnsAtCall(0, 'a');
+    fake.getString.reset();
+    fake.getString.returnsAtCall(0, 'b');
+    expect(await fake.callStatic.getString()).to.equal('b');
+  });
+
+  it('should reset call count', async () => {
+    await fake.callStatic.getString();
+    fake.getString.reset();
+    await fake.callStatic.getString();
+    expect(fake.getString).to.have.been.calledOnce;
+  });
 });

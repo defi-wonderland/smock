@@ -2,7 +2,7 @@ import { EVMResult } from '@nomiclabs/ethereumjs-vm/dist/evm/evm';
 import { VmError } from '@nomiclabs/ethereumjs-vm/dist/exceptions';
 import BN from 'bn.js';
 import { ethers } from 'ethers';
-import { map, Observable } from 'rxjs';
+import { Observable } from 'rxjs';
 import { ContractCall, ProgrammedReturnValue } from '../index';
 import { WatchableFunctionLogic } from '../logic/watchable-function-logic';
 import { fromHexString } from '../utils';
@@ -35,10 +35,9 @@ export class ProgrammableFunctionLogic extends WatchableFunctionLogic {
     this.encoder = encoder;
 
     // Intercept every result of this programmableFunctionLogic
-    let count = 0;
-    results$.pipe(map((result) => ({ result, callIndex: count++ }))).subscribe(async ({ result, callIndex }) => {
+    results$.subscribe(async (result) => {
       // Modify it with the corresponding answer
-      await this.modifyAnswer(result, callIndex);
+      await this.modifyAnswer(result);
     });
   }
 
@@ -59,12 +58,13 @@ export class ProgrammableFunctionLogic extends WatchableFunctionLogic {
   }
 
   reset(): void {
+    super.reset();
     this.defaultAnswer = undefined;
     this.answerByIndex = {};
   }
 
-  private async modifyAnswer(result: EVMResult, index: number): Promise<void> {
-    const answer = this.answerByIndex[index] || this.defaultAnswer;
+  private async modifyAnswer(result: EVMResult): Promise<void> {
+    const answer = this.answerByIndex[this.getCallCount() - 1] || this.defaultAnswer;
 
     if (answer) {
       result.gasUsed = new BN(0);

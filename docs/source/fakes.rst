@@ -315,7 +315,7 @@ Reset
 
 .. container:: code-explanation
 
-  For example:
+  If affects pre-programmed return values:
 
   .. code-block:: javascript
 
@@ -324,6 +324,19 @@ Reset
 
       fake.getUint256.reset();
       await fake.callStatic.getUint256(); // returns 0
+
+
+.. container:: code-explanation
+
+  And as well call counts:
+
+  .. code-block:: javascript
+
+      await fake.callStatic.getUint256();
+      fake.getUint256.reset();
+      await fake.callStatic.getUint256();
+      
+      expect(fake.getUint256).to.have.been.calledOnce; // true
 
 
 Fallback functions

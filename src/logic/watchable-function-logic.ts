@@ -118,6 +118,10 @@ export class WatchableFunctionLogic {
     return this.getCallCount() === 3;
   }
 
+  protected reset() {
+    this.callHistory = [];
+  }
+
   private compareWatchableContractNonces(
     watchablecontractA: WatchableFunctionLogic,
     watchablecontractB: WatchableFunctionLogic,
