@@ -1,13 +1,13 @@
 /* Imports: External */
-import { Fragment, JsonFragment } from '@ethersproject/abi';
+import { Fragment, Interface, JsonFragment } from '@ethersproject/abi';
 import { Provider } from '@ethersproject/abstract-provider';
 import { Signer } from '@ethersproject/abstract-signer';
-import { BaseContract, Contract, ContractFactory, ethers } from 'ethers';
-import { Artifact } from 'hardhat/types';
+import { BaseContract, ContractFactory, ethers } from 'ethers';
 import { EditableStorageLogic } from './logic/editable-storage-logic';
 import { WatchableFunctionLogic } from './logic/watchable-function-logic';
 
-export type FakeContractSpec = Artifact | Contract | ContractFactory | ethers.utils.Interface | string | (JsonFragment | Fragment | string)[];
+type Abi = ReadonlyArray<Fragment | JsonFragment | string>;
+export type FakeContractSpec = { abi?: Abi; interface?: Interface } | Abi | ethers.utils.Interface | string;
 
 export interface FakeContractOptions {
   provider?: Provider;
