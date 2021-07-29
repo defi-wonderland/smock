@@ -10,11 +10,11 @@ import { fromHexString } from '../utils';
 const EMPTY_ANSWER: Buffer = fromHexString('0x' + '00'.repeat(2048));
 
 class ProgrammedAnswer {
-  encodedValue: Buffer;
+  value?: any;
   shouldRevert: boolean;
 
-  constructor(encodedValue: Buffer = EMPTY_ANSWER, shouldRevert: boolean = false) {
-    this.encodedValue = encodedValue;
+  constructor(value?: any, shouldRevert: boolean = false) {
+    this.value = value;
     this.shouldRevert = shouldRevert;
   }
 }
@@ -42,19 +42,19 @@ export class ProgrammableFunctionLogic extends WatchableFunctionLogic {
   }
 
   returns(value?: ProgrammedReturnValue): void {
-    this.defaultAnswer = new ProgrammedAnswer(this.encodeValue(value), false);
+    this.defaultAnswer = new ProgrammedAnswer(value, false);
   }
 
   returnsAtCall(callIndex: number, value?: ProgrammedReturnValue): void {
-    this.answerByIndex[callIndex] = new ProgrammedAnswer(this.encodeValue(value), false);
+    this.answerByIndex[callIndex] = new ProgrammedAnswer(value, false);
   }
 
   reverts(reason?: string): void {
-    this.defaultAnswer = new ProgrammedAnswer(reason ? this.encodeRevertReason(reason) : EMPTY_ANSWER, true);
+    this.defaultAnswer = new ProgrammedAnswer(reason, true);
   }
 
   revertsAtCall(callIndex: number, reason?: string): void {
-    this.answerByIndex[callIndex] = new ProgrammedAnswer(reason ? this.encodeRevertReason(reason) : EMPTY_ANSWER, true);
+    this.answerByIndex[callIndex] = new ProgrammedAnswer(reason, true);
   }
 
   reset(): void {
@@ -68,9 +68,13 @@ export class ProgrammableFunctionLogic extends WatchableFunctionLogic {
 
     if (answer) {
       result.gasUsed = new BN(0);
-      result.execResult.returnValue = answer.encodedValue;
       result.execResult.gasUsed = new BN(0);
-      result.execResult.exceptionError = answer.shouldRevert ? new VmError('lopt revert' as any) : undefined;
+      if (answer.shouldRevert) {
+        result.execResult.exceptionError = new VmError('lopt revert' as any);
+        result.execResult.returnValue = this.encodeRevertReason(answer.value);
+      } else {
+        result.execResult.returnValue = this.encodeValue(answer.value);
+      }
     }
   }
 
@@ -96,6 +100,8 @@ export class ProgrammableFunctionLogic extends WatchableFunctionLogic {
   }
 
   private encodeRevertReason(reason: string): Buffer {
+    if (reason === undefined) return EMPTY_ANSWER;
+
     const errorInterface = new ethers.utils.Interface([
       {
         inputs: [
