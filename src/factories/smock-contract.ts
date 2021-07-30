@@ -8,7 +8,7 @@ import { EditableStorageLogic as EditableStorage } from '../logic/editable-stora
 import { ProgrammableFunctionLogic, SafeProgrammableContract } from '../logic/programmable-function-logic';
 import { ObservableVM } from '../observable-vm';
 import { Sandbox } from '../sandbox';
-import { ContractCall, FakeContract, MockContract, MockContractFactory, ProgrammableContractFunction, ProgrammedReturnValue } from '../types';
+import { ContractCall, FakeContract, MockContractFactory, ProgrammableContractFunction, ProgrammedReturnValue } from '../types';
 import { fromFancyAddress, impersonate, toFancyAddress, toHexString } from '../utils';
 import { getStorageLayout } from '../utils/storage';
 
@@ -39,7 +39,7 @@ export async function createMockContractFactory<T extends ContractFactory>(
 
   const realDeploy = factory.deploy;
   factory.deploy = async (...args: Parameters<T['deploy']>) => {
-    const mock = (await realDeploy.apply(factory, args));
+    const mock = await realDeploy.apply(factory, args);
     const contractFunctions = getContractFunctionsNameAndSighash(mock.interface, Object.keys(mock.functions));
 
     // attach to every contract function, all the programmable and watchable logic

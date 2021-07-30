@@ -64,5 +64,5 @@ export type MockContract<Contract extends BaseContract> = BaseContract &
 type ThenArg<T> = T extends PromiseLike<infer U> ? U : T;
 
 export type MockContractFactory<F extends ContractFactory> = Omit<F, 'deploy'> & {
-  deploy: (...args: Parameters<F['deploy']>) => Promise<MockContract<ThenArg<ReturnType<F['deploy']>>>>
-}
+  deploy: (...args: Parameters<F['deploy']>) => Promise<MockContract<ThenArg<ReturnType<F['deploy']>>>>;
+};

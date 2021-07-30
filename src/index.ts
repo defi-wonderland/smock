@@ -10,7 +10,6 @@ async function fake<T extends BaseContract>(spec: FakeContractSpec, opts: FakeCo
   return await sandbox.fake(spec, opts);
 }
 
-
 async function mock<T extends ContractFactory>(contractName: string): Promise<MockContractFactory<T>> {
   if (!sandbox) sandbox = await Sandbox.create();
   return await sandbox.mock(contractName);
