@@ -4,7 +4,6 @@ import receiverArtifact from 'artifacts/test/contracts/watchable-function-logic/
 import chai, { expect } from 'chai';
 import { ethers } from 'hardhat';
 
-chai.should();
 chai.use(lopt.matchers);
 
 describe('Fake: Initialization', () => {
@@ -31,9 +30,26 @@ describe('Fake: Initialization', () => {
     expect(fake.receiveEmpty._watchable).not.to.be.undefined;
   });
 
+  it(`should work with the contract interface`, async () => {
+    const factory = (await ethers.getContractFactory('Receiver')) as Receiver__factory;
+    fake = await lopt.fake<Receiver>(factory.interface);
+    expect(fake.receiveEmpty._watchable).not.to.be.undefined;
+  });
+
   it(`should work with the contract`, async () => {
     const factory = (await ethers.getContractFactory('Receiver')) as Receiver__factory;
     fake = await lopt.fake<Receiver>(await factory.deploy());
+    expect(fake.receiveEmpty._watchable).not.to.be.undefined;
+  });
+
+  it(`should work with the contract full path`, async () => {
+    const factory = (await ethers.getContractFactory('test/contracts/watchable-function-logic/Receiver.sol:Receiver')) as Receiver__factory;
+    fake = await lopt.fake<Receiver>(await factory.deploy());
+    expect(fake.receiveEmpty._watchable).not.to.be.undefined;
+  });
+
+  it(`should work with any object thas has an abi inside`, async () => {
+    fake = await lopt.fake<Receiver>({ abi: receiverArtifact.abi });
     expect(fake.receiveEmpty._watchable).not.to.be.undefined;
   });
 });
