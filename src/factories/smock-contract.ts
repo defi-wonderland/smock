@@ -1,5 +1,5 @@
 import Message from '@nomiclabs/ethereumjs-vm/dist/evm/message';
-import { BaseContract, ethers } from 'ethers';
+import { BaseContract, ContractFactory, ethers } from 'ethers';
 import { Interface } from 'ethers/lib/utils';
 import { ethers as hardhatEthers } from 'hardhat';
 import { Observable } from 'rxjs';
@@ -31,15 +31,15 @@ export async function createFakeContract<Contract extends BaseContract>(
   return fake;
 }
 
-export async function createMockContractFactory<Contract extends BaseContract>(
+export async function createMockContractFactory<T extends ContractFactory>(
   vm: ObservableVM,
   contractName: string
-): Promise<MockContractFactory<Contract>> {
-  const factory = (await hardhatEthers.getContractFactory(contractName)) as MockContractFactory<Contract>;
+): Promise<MockContractFactory<T>> {
+  const factory = (await hardhatEthers.getContractFactory(contractName)) as MockContractFactory<T>;
 
   const realDeploy = factory.deploy;
-  factory.deploy = async (...args) => {
-    const mock = (await realDeploy.apply(factory, args)) as MockContract<Contract>;
+  factory.deploy = async (...args: Parameters<T['deploy']>) => {
+    const mock = (await realDeploy.apply(factory, args));
     const contractFunctions = getContractFunctionsNameAndSighash(mock.interface, Object.keys(mock.functions));
 
     // attach to every contract function, all the programmable and watchable logic

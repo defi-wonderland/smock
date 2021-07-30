@@ -1,16 +1,17 @@
-import { BaseContract } from 'ethers';
+import { BaseContract, ContractFactory } from 'ethers';
 import { matchers } from './chai-plugin/matchers';
 import { Sandbox } from './sandbox';
 import { FakeContract, FakeContractOptions, FakeContractSpec, MockContractFactory } from './types';
 
 let sandbox: Sandbox;
 
-async function fake<Type extends BaseContract>(spec: FakeContractSpec, opts: FakeContractOptions = {}): Promise<FakeContract<Type>> {
+async function fake<T extends BaseContract>(spec: FakeContractSpec, opts: FakeContractOptions = {}): Promise<FakeContract<T>> {
   if (!sandbox) sandbox = await Sandbox.create();
   return await sandbox.fake(spec, opts);
 }
 
-async function mock<Contract extends BaseContract>(contractName: string): Promise<MockContractFactory<Contract>> {
+
+async function mock<T extends ContractFactory>(contractName: string): Promise<MockContractFactory<T>> {
   if (!sandbox) sandbox = await Sandbox.create();
   return await sandbox.mock(contractName);
 }

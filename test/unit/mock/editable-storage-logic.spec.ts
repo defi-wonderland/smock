@@ -1,16 +1,16 @@
 import { MockContract, MockContractFactory, smock } from '@src';
 import { convertStructToPojo } from '@src/utils';
 import { ADDRESS_EXAMPLE } from '@test-utils';
-import { StorageGetter } from '@typechained';
+import { StorageGetter, StorageGetter__factory } from '@typechained';
 import { expect } from 'chai';
 import { BigNumber, utils } from 'ethers';
 
 describe('Mock: Editable storage logic', () => {
-  let storageGetterFactory: MockContractFactory<StorageGetter>;
+  let storageGetterFactory: MockContractFactory<StorageGetter__factory>;
   let mock: MockContract<StorageGetter>;
 
   before(async () => {
-    storageGetterFactory = await smock.mock<StorageGetter>('StorageGetter');
+    storageGetterFactory = await smock.mock('StorageGetter');
   });
 
   beforeEach(async () => {
