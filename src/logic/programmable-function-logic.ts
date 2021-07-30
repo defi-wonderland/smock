@@ -2,7 +2,7 @@ import { EVMResult } from '@nomiclabs/ethereumjs-vm/dist/evm/evm';
 import { VmError } from '@nomiclabs/ethereumjs-vm/dist/exceptions';
 import BN from 'bn.js';
 import { ethers } from 'ethers';
-import { Observable } from 'rxjs';
+import { Observable, withLatestFrom } from 'rxjs';
 import { ContractCall, ProgrammedReturnValue } from '../index';
 import { WatchableFunctionLogic } from '../logic/watchable-function-logic';
 import { fromHexString } from '../utils';
@@ -10,11 +10,11 @@ import { fromHexString } from '../utils';
 const EMPTY_ANSWER: Buffer = fromHexString('0x' + '00'.repeat(2048));
 
 class ProgrammedAnswer {
-  encodedValue: Buffer;
+  value?: any;
   shouldRevert: boolean;
 
-  constructor(encodedValue: Buffer = EMPTY_ANSWER, shouldRevert: boolean = false) {
-    this.encodedValue = encodedValue;
+  constructor(value?: any, shouldRevert: boolean = false) {
+    this.value = value;
     this.shouldRevert = shouldRevert;
   }
 }
@@ -35,26 +35,26 @@ export class ProgrammableFunctionLogic extends WatchableFunctionLogic {
     this.encoder = encoder;
 
     // Intercept every result of this programmableFunctionLogic
-    results$.subscribe(async (result) => {
+    results$.pipe(withLatestFrom(calls$)).subscribe(async ([result, call]) => {
       // Modify it with the corresponding answer
-      await this.modifyAnswer(result);
+      await this.modifyAnswer(result, call);
     });
   }
 
   returns(value?: ProgrammedReturnValue): void {
-    this.defaultAnswer = new ProgrammedAnswer(this.encodeValue(value), false);
+    this.defaultAnswer = new ProgrammedAnswer(value, false);
   }
 
   returnsAtCall(callIndex: number, value?: ProgrammedReturnValue): void {
-    this.answerByIndex[callIndex] = new ProgrammedAnswer(this.encodeValue(value), false);
+    this.answerByIndex[callIndex] = new ProgrammedAnswer(value, false);
   }
 
   reverts(reason?: string): void {
-    this.defaultAnswer = new ProgrammedAnswer(reason ? this.encodeRevertReason(reason) : EMPTY_ANSWER, true);
+    this.defaultAnswer = new ProgrammedAnswer(reason, true);
   }
 
   revertsAtCall(callIndex: number, reason?: string): void {
-    this.answerByIndex[callIndex] = new ProgrammedAnswer(reason ? this.encodeRevertReason(reason) : EMPTY_ANSWER, true);
+    this.answerByIndex[callIndex] = new ProgrammedAnswer(reason, true);
   }
 
   reset(): void {
@@ -63,30 +63,36 @@ export class ProgrammableFunctionLogic extends WatchableFunctionLogic {
     this.answerByIndex = {};
   }
 
-  private async modifyAnswer(result: EVMResult): Promise<void> {
+  private async modifyAnswer(result: EVMResult, call: ContractCall): Promise<void> {
     const answer = this.answerByIndex[this.getCallCount() - 1] || this.defaultAnswer;
 
     if (answer) {
       result.gasUsed = new BN(0);
-      result.execResult.returnValue = answer.encodedValue;
       result.execResult.gasUsed = new BN(0);
-      result.execResult.exceptionError = answer.shouldRevert ? new VmError('lopt revert' as any) : undefined;
+      if (answer.shouldRevert) {
+        result.execResult.exceptionError = new VmError('lopt revert' as any);
+        result.execResult.returnValue = this.encodeRevertReason(answer.value);
+      } else {
+        result.execResult.returnValue = await this.encodeValue(answer.value, call);
+      }
     }
   }
 
-  private encodeValue(value?: ProgrammedReturnValue): Buffer {
+  private async encodeValue(value: ProgrammedReturnValue, call: ContractCall): Promise<Buffer> {
     if (value === undefined) return EMPTY_ANSWER;
+
+    let toEncode = typeof value === 'function' ? await value(call.args) : value;
 
     let encodedReturnValue: string = '0x';
     try {
-      encodedReturnValue = this.encoder(value);
+      encodedReturnValue = this.encoder(toEncode);
     } catch (err) {
       if (err.code === 'INVALID_ARGUMENT') {
-        if (typeof value !== 'string') {
+        if (typeof toEncode !== 'string') {
           throw new Error(`Failed to encode return value for ${this.name}`);
         }
 
-        encodedReturnValue = value;
+        encodedReturnValue = toEncode;
       } else {
         throw err;
       }
@@ -96,6 +102,8 @@ export class ProgrammableFunctionLogic extends WatchableFunctionLogic {
   }
 
   private encodeRevertReason(reason: string): Buffer {
+    if (reason === undefined) return EMPTY_ANSWER;
+
     const errorInterface = new ethers.utils.Interface([
       {
         inputs: [

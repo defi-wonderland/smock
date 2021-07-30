@@ -10,7 +10,7 @@ All of their functions can be watched and pre-programmed. When calling a functio
 
 
 How to use
------------------
+----------
 
 Fakes can be initialized using the: **contract name**, **abi**, **factory** or even a **deployed contract**.
 
@@ -254,6 +254,15 @@ Returns
     await fake.getString(); // will return 'b'
     await fake.getString(); // will return 'a'
 
+
+.. container:: code-explanation
+
+  Changes the return value depending on the call arguments (also works with async functions)
+
+  .. code-block:: javascript
+
+    fake.myFunction.returns(myNumber => myNumber * 10);
+    await fake.myFunction(25); // will return 250
 
 
 Reverts

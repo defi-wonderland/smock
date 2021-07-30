@@ -202,4 +202,18 @@ describe('ProgrammableFunctionLogic: Type Handling', () => {
       ).to.equal('0x68656c6c6f');
     });
   });
+
+  context('function value', () => {
+    it('should pass the argument to the function and return the result', async () => {
+      fake.getInputtedUint256.returns((number: number) => number * 10);
+
+      expect(await fake.callStatic.getInputtedUint256(10)).to.equal(100);
+    });
+
+    it('should wait for result as promise', async () => {
+      fake.getInputtedUint256.returns(async (number: number) => number * 10);
+
+      expect(await fake.callStatic.getInputtedUint256(10)).to.equal(100);
+    });
+  });
 });
