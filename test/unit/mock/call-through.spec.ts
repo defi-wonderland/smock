@@ -1,4 +1,4 @@
-import { smock, MockContract, MockContractFactory } from '@src';
+import { MockContract, MockContractFactory, smock } from '@src';
 import { Counter } from '@typechained';
 import chai, { expect } from 'chai';
 

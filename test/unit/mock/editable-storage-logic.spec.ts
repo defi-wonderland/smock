@@ -1,4 +1,4 @@
-import { smock, MockContract, MockContractFactory } from '@src';
+import { MockContract, MockContractFactory, smock } from '@src';
 import { convertStructToPojo } from '@src/utils';
 import { ADDRESS_EXAMPLE } from '@test-utils';
 import { StorageGetter } from '@typechained';
