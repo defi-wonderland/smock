@@ -54,7 +54,7 @@ export const matchers: Chai.ChaiPlugin = (chai: Chai.ChaiStatic, utils: Chai.Cha
     };
   }
 
-  function loptProperty(name: string, action: string, nonNegatedSuffix: string) {
+  function smockProperty(name: string, action: string, nonNegatedSuffix: string) {
     addChaiProperty(name, (assertion) => {
       const watchablecontract: WatchableFunctionLogic = findWatchableContract(assertion._obj);
 
@@ -68,7 +68,7 @@ export const matchers: Chai.ChaiPlugin = (chai: Chai.ChaiStatic, utils: Chai.Cha
     return 'get' + name.charAt(0).toUpperCase() + name.slice(1);
   }
 
-  function loptPropertyAsBooleanMethod(name: string, action: string, nonNegatedSuffix: string) {
+  function smockPropertyAsBooleanMethod(name: string, action: string, nonNegatedSuffix: string) {
     addChaiMethod(name, (assertion: any, arg: any) => {
       const watchablecontract: WatchableFunctionLogic = findWatchableContract(assertion._obj);
 
@@ -78,18 +78,18 @@ export const matchers: Chai.ChaiPlugin = (chai: Chai.ChaiStatic, utils: Chai.Cha
     });
   }
 
-  function createLoptMethodHandler(loptName: string, action: string, nonNegatedSuffix: string) {
+  function createSmockMethodHandler(smockName: string, action: string, nonNegatedSuffix: string) {
     return (assertion: any, ...args: unknown[]) => {
       const watchablecontract: WatchableFunctionLogic = findWatchableContract(assertion._obj);
 
-      let methodToCall = loptName;
+      let methodToCall = smockName;
       let shouldBeAlways = false;
 
       // support always flag
       if (utils.flag(assertion, 'always')) {
-        const alwaysMethod = 'always' + loptName[0].toUpperCase() + loptName.substring(1);
+        const alwaysMethod = 'always' + smockName[0].toUpperCase() + smockName.substring(1);
         if (typeof (watchablecontract as any)[alwaysMethod] !== 'function') {
-          throw Error(`always flag is not supported for method ${loptName}`);
+          throw Error(`always flag is not supported for method ${smockName}`);
         }
 
         methodToCall = alwaysMethod;
@@ -101,13 +101,13 @@ export const matchers: Chai.ChaiPlugin = (chai: Chai.ChaiStatic, utils: Chai.Cha
     };
   }
 
-  function loptMethod(name: string, action: string, nonNegatedSuffix: string = '') {
-    const handler = createLoptMethodHandler(name, action, nonNegatedSuffix);
+  function smockMethod(name: string, action: string, nonNegatedSuffix: string = '') {
+    const handler = createSmockMethodHandler(name, action, nonNegatedSuffix);
     addChaiMethod(name, handler);
   }
 
-  function loptMethodWithWatchableContractArg(name: string, action: string, nonNegatedSuffix: string = '') {
-    const handler = createLoptMethodHandler(name, action, nonNegatedSuffix);
+  function smockMethodWithWatchableContractArg(name: string, action: string, nonNegatedSuffix: string = '') {
+    const handler = createSmockMethodHandler(name, action, nonNegatedSuffix);
     addChaiMethod(name, (assertion, arg: WatchableContractFunction) => handler(assertion, arg._watchable));
   }
 
@@ -126,15 +126,15 @@ export const matchers: Chai.ChaiPlugin = (chai: Chai.ChaiStatic, utils: Chai.Cha
   }
 
   addChaiProperty('always', (assertion) => utils.flag(assertion, 'always', true));
-  loptProperty('called', 'been called', ' at least once, but it was never called');
-  loptPropertyAsBooleanMethod('callCount', 'been called exactly %1', ', but it was called %c%C');
-  loptProperty('calledOnce', 'been called exactly once', ', but it was called %c%C');
-  loptProperty('calledTwice', 'been called exactly twice', ', but it was called %c%C');
-  loptProperty('calledThrice', 'been called exactly thrice', ', but it was called %c%C');
-  loptMethodWithWatchableContractArg('calledBefore', 'been called before %1');
-  loptMethodWithWatchableContractArg('calledAfter', 'been called after %1');
-  loptMethodWithWatchableContractArg('calledImmediatelyBefore', 'been called immediately before %1');
-  loptMethodWithWatchableContractArg('calledImmediatelyAfter', 'been called immediately after %1');
-  loptMethod('calledWith', 'been called with arguments %*', '%D');
-  loptMethod('calledOnceWith', 'been called exactly once with arguments %*', '%D');
+  smockProperty('called', 'been called', ' at least once, but it was never called');
+  smockPropertyAsBooleanMethod('callCount', 'been called exactly %1', ', but it was called %c%C');
+  smockProperty('calledOnce', 'been called exactly once', ', but it was called %c%C');
+  smockProperty('calledTwice', 'been called exactly twice', ', but it was called %c%C');
+  smockProperty('calledThrice', 'been called exactly thrice', ', but it was called %c%C');
+  smockMethodWithWatchableContractArg('calledBefore', 'been called before %1');
+  smockMethodWithWatchableContractArg('calledAfter', 'been called after %1');
+  smockMethodWithWatchableContractArg('calledImmediatelyBefore', 'been called immediately before %1');
+  smockMethodWithWatchableContractArg('calledImmediatelyAfter', 'been called immediately after %1');
+  smockMethod('calledWith', 'been called with arguments %*', '%D');
+  smockMethod('calledOnceWith', 'been called exactly once with arguments %*', '%D');
 };

@@ -70,7 +70,7 @@ export class ProgrammableFunctionLogic extends WatchableFunctionLogic {
       result.gasUsed = new BN(0);
       result.execResult.gasUsed = new BN(0);
       if (answer.shouldRevert) {
-        result.execResult.exceptionError = new VmError('lopt revert' as any);
+        result.execResult.exceptionError = new VmError('smock revert' as any);
         result.execResult.returnValue = this.encodeRevertReason(answer.value);
       } else {
         result.execResult.returnValue = await this.encodeValue(answer.value, call);

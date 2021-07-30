@@ -16,7 +16,7 @@ export interface FakeContractOptions {
 
 export type ProgrammedReturnValue = any;
 
-export interface LoptVMManager {
+export interface SmockVMManager {
   putContractCode: (address: Buffer, code: Buffer) => Promise<void>;
   getContractStorage: (address: Buffer, slotHash: Buffer) => Promise<Buffer>;
   putContractStorage: (address: Buffer, slotHash: Buffer, slotValue: Buffer) => Promise<void>;

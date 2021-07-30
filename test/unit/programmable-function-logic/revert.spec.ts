@@ -1,16 +1,16 @@
-import { FakeContract, lopt } from '@src';
+import { FakeContract, smock } from '@src';
 import { Returner } from '@typechained';
 import chai, { expect } from 'chai';
 import { ethers } from 'hardhat';
 
 chai.should();
-chai.use(lopt.matchers);
+chai.use(smock.matchers);
 
 describe('ProgrammableFunctionLogic: Revert', () => {
   let fake: FakeContract<Returner>;
 
   beforeEach(async () => {
-    fake = await lopt.fake<Returner>('Returner');
+    fake = await smock.fake<Returner>('Returner');
   });
 
   context('with any normal function', () => {

@@ -2,7 +2,7 @@ import VM from '@nomiclabs/ethereumjs-vm';
 import { BaseContract } from 'ethers';
 import hre from 'hardhat';
 import { ethersInterfaceFromSpec } from './factories/ethers-interface';
-import { createFakeContract, createMockContractFactory } from './factories/lopt-contract';
+import { createFakeContract, createMockContractFactory } from './factories/smock-contract';
 import { ObservableVM } from './observable-vm';
 import { FakeContract, FakeContractOptions, FakeContractSpec, MockContractFactory } from './types';
 import { getHardhatBaseProvider, makeRandomAddress } from './utils';
@@ -51,7 +51,7 @@ export class Sandbox {
   static async create(): Promise<Sandbox> {
     // Only support native hardhat runtime, haven't bothered to figure it out for anything else.
     if (hre.network.name !== 'hardhat') {
-      throw new Error(`Lopt is only compatible with the "hardhat" network, got: ${hre.network.name}`);
+      throw new Error(`Smock is only compatible with the "hardhat" network, got: ${hre.network.name}`);
     }
 
     const provider: any = await getHardhatBaseProvider(hre);
@@ -66,7 +66,7 @@ export class Sandbox {
     // with stack traces so we need to help hardhat out a bit when it comes to smock-specific errors.
     const originalManagerErrorsFn = node._manageErrors.bind(node);
     node._manageErrors = async (vmResult: any, vmTrace: any, vmTracerError?: any): Promise<any> => {
-      if (vmResult.exceptionError && vmResult.exceptionError.error === 'lopt revert') {
+      if (vmResult.exceptionError && vmResult.exceptionError.error === 'smock revert') {
         return new TransactionExecutionError(`VM Exception while processing transaction: revert ${decodeRevertReason(vmResult.returnValue)}`);
       }
 

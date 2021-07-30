@@ -16,4 +16,4 @@ async function mock<Contract extends BaseContract>(contractName: string): Promis
 }
 
 export * from './types';
-export const lopt = { fake, mock, matchers };
+export const smock = { fake, mock, matchers };

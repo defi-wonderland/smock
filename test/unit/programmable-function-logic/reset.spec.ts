@@ -1,17 +1,17 @@
-import { FakeContract, lopt } from '@src';
+import { FakeContract, smock } from '@src';
 import { Returner } from '@typechained';
 import chai, { expect } from 'chai';
 import { BigNumber } from 'ethers';
 import { BYTES32_EXAMPLE } from 'test/utils';
 
 chai.should();
-chai.use(lopt.matchers);
+chai.use(smock.matchers);
 
 describe('ProgrammableFunctionLogic: Reset', () => {
   let fake: FakeContract<Returner>;
 
   beforeEach(async () => {
-    fake = await lopt.fake<Returner>('Returner');
+    fake = await smock.fake<Returner>('Returner');
   });
 
   describe('for a boolean', () => {

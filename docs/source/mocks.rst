@@ -38,14 +38,14 @@ How to use
   .. code-block:: javascript
 
     import { Counter } from '@typechained';
-    import { MockContract, MockContractFactory, lopt } from '@defi-wonderland/lopt';
+    import { MockContract, MockContractFactory, smock } from '@defi-wonderland/smock';
 
     describe('Counter', () => {
       let counterFactory: MockContractFactory<Counter>;
       let counter: MockContract<Counter>;
 
       before(async () => {
-        counterFactory = await lopt.mock<Counter>('Counter');
+        counterFactory = await smock.mock<Counter>('Counter');
       });
 
       beforeEach(async () => {

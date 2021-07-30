@@ -1,5 +1,5 @@
 {
-  "name": "@defi-wonderland/lopt",
+  "name": "@defi-wonderland/smock",
   "version": "1.0.0",
   "description": "Mocking framework for Solidity contracts",
   "keywords": [
@@ -13,13 +13,13 @@
     "mocks",
     "chai"
   ],
-  "homepage": "https://github.com/defi-wonderland/lopt#readme",
+  "homepage": "https://github.com/defi-wonderland/smock#readme",
   "bugs": {
-    "url": "https://github.com/defi-wonderland/lopt/issues"
+    "url": "https://github.com/defi-wonderland/smock/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/defi-wonderland/lopt.git"
+    "url": "git+https://github.com/defi-wonderland/smock.git"
   },
   "license": "MIT",
   "author": "DeFi Wonderland",

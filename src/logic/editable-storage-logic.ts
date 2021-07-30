@@ -1,12 +1,12 @@
-import { LoptVMManager } from '../types';
+import { SmockVMManager } from '../types';
 import { convertToStorageSlots, fromHexString, toFancyAddress } from '../utils';
 
 export class EditableStorageLogic {
   private storageLayout: any;
   private contractAddress: string;
-  private vmManager: LoptVMManager;
+  private vmManager: SmockVMManager;
 
-  constructor(storageLayout: any, vmManager: LoptVMManager, contractAddress: string) {
+  constructor(storageLayout: any, vmManager: SmockVMManager, contractAddress: string) {
     this.storageLayout = storageLayout;
     this.vmManager = vmManager;
     this.contractAddress = contractAddress;
