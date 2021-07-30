@@ -83,22 +83,22 @@ export class ProgrammableFunctionLogic extends WatchableFunctionLogic {
 
     let toEncode = typeof value === 'function' ? await value(call.args) : value;
 
-    let encoded: string = '0x';
+    let encodedReturnValue: string = '0x';
     try {
-      encoded = this.encoder(toEncode);
+      encodedReturnValue = this.encoder(toEncode);
     } catch (err) {
       if (err.code === 'INVALID_ARGUMENT') {
         if (typeof toEncode !== 'string') {
           throw new Error(`Failed to encode return value for ${this.name}`);
         }
 
-        encoded = toEncode;
+        encodedReturnValue = toEncode;
       } else {
         throw err;
       }
     }
 
-    return fromHexString(encoded);
+    return fromHexString(encodedReturnValue);
   }
 
   private encodeRevertReason(reason: string): Buffer {
