@@ -1,5 +1,5 @@
 Smock Documentation
-==================
+===================
 
 smock is a utility package that can generate mock Solidity contracts in the form of :code:`fakes` and :code:`mocks`.
 
