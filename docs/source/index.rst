@@ -31,3 +31,9 @@ Loki is the God of Mischief, a trickster, and the purpose of mocking libraries i
    fakes.rst
    mocks.rst
    development.rst
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Migrations:
+
+   migrations/v1-to-v2.rst
