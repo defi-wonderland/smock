@@ -1,0 +1,8 @@
+.document ul.simple li {
+  list-style: disc;
+  margin-left: 16px;
+}
+
+.document ul.simple li:not(:last-child) > p {
+  margin-bottom: 10px;
+}
