@@ -4,7 +4,7 @@ import Message from '@nomiclabs/ethereumjs-vm/dist/evm/message';
 import { Transaction } from 'ethers';
 import { Observable, Subject } from 'rxjs';
 import { filter, share } from 'rxjs/operators';
-import { LoptVMManager } from './types';
+import { SmockVMManager } from './types';
 
 export class ObservableVM {
   private vm: VM;
@@ -21,8 +21,8 @@ export class ObservableVM {
     this.afterMessage$ = ObservableVM.fromEvent<EVMResult>(vm, 'afterMessage');
   }
 
-  getManager(): LoptVMManager {
-    return (this.vm.pStateManager || this.vm.stateManager) as LoptVMManager;
+  getManager(): SmockVMManager {
+    return (this.vm.pStateManager || this.vm.stateManager) as SmockVMManager;
   }
 
   getBeforeTx(): Observable<Transaction> {

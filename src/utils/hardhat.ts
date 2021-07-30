@@ -34,7 +34,7 @@ export const getHardhatBaseProvider = async (runtime: HardhatRuntimeEnvironment)
     // Just throw if we ever end up in (what seems to be) an infinite loop.
     currentLoopIterations += 1;
     if (currentLoopIterations > maxLoopIterations) {
-      throw new Error(`[lopt]: unable to find base hardhat provider. are you sure you're running locally?`);
+      throw new Error(`[smock]: unable to find base hardhat provider. are you sure you're running locally?`);
     }
   }
 

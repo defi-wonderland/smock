@@ -1,15 +1,15 @@
-import { FakeContract, lopt } from '@src';
+import { FakeContract, smock } from '@src';
 import { Returner } from '@typechained';
 import chai, { expect } from 'chai';
 
 chai.should();
-chai.use(lopt.matchers);
+chai.use(smock.matchers);
 
 describe('ProgrammableFunctionLogic: At call', () => {
   let fake: FakeContract<Returner>;
 
   beforeEach(async () => {
-    fake = await lopt.fake<Returner>('Returner');
+    fake = await smock.fake<Returner>('Returner');
   });
 
   describe('returns', () => {

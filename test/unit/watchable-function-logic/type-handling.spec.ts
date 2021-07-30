@@ -1,4 +1,4 @@
-import { FakeContract, lopt } from '@src';
+import { FakeContract, smock } from '@src';
 import { BYTES32_EXAMPLE, BYTES_EXAMPLE, STRUCT_DYNAMIC_SIZE_EXAMPLE, STRUCT_FIXED_SIZE_EXAMPLE } from '@test-utils';
 import { Caller, Caller__factory, Receiver } from '@typechained';
 import chai from 'chai';
@@ -6,7 +6,7 @@ import { BigNumber } from 'ethers';
 import { ethers } from 'hardhat';
 
 chai.should();
-chai.use(lopt.matchers);
+chai.use(smock.matchers);
 
 describe('WatchableFunctionLogic: Type handling', () => {
   let fake: FakeContract<Receiver>;
@@ -18,7 +18,7 @@ describe('WatchableFunctionLogic: Type handling', () => {
   });
 
   beforeEach(async () => {
-    fake = await lopt.fake<Receiver>('Receiver');
+    fake = await smock.fake<Receiver>('Receiver');
   });
 
   it('should handle no arguments', async () => {

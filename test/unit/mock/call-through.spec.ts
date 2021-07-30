@@ -1,16 +1,16 @@
-import { lopt, MockContract, MockContractFactory } from '@src';
+import { smock, MockContract, MockContractFactory } from '@src';
 import { Counter } from '@typechained';
 import chai, { expect } from 'chai';
 
 chai.should();
-chai.use(lopt.matchers);
+chai.use(smock.matchers);
 
 describe('Mock: Call through', () => {
   let counterFactory: MockContractFactory<Counter>;
   let mock: MockContract<Counter>;
 
   before(async () => {
-    counterFactory = await lopt.mock<Counter>('Counter');
+    counterFactory = await smock.mock<Counter>('Counter');
   });
 
   beforeEach(async () => {

@@ -17,7 +17,7 @@
 
 # -- Project information -----------------------------------------------------
 
-project = 'lopt'
+project = 'smock'
 copyright = '2021, DeFi Wonderland'
 author = 'DeFi Wonderland'
 

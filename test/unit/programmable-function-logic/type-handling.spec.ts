@@ -1,4 +1,4 @@
-import { FakeContract, lopt } from '@src';
+import { FakeContract, smock } from '@src';
 import { Returner } from '@typechained';
 import chai, { expect } from 'chai';
 import { BigNumber, utils } from 'ethers';
@@ -7,13 +7,13 @@ import { toPlainObject } from 'lodash';
 import { BYTES32_EXAMPLE, BYTES_EXAMPLE, STRUCT_DYNAMIC_SIZE_EXAMPLE, STRUCT_FIXED_SIZE_EXAMPLE } from 'test/utils';
 
 chai.should();
-chai.use(lopt.matchers);
+chai.use(smock.matchers);
 
 describe('ProgrammableFunctionLogic: Type Handling', () => {
   let fake: FakeContract<Returner>;
 
   beforeEach(async () => {
-    fake = await lopt.fake<Returner>('Returner');
+    fake = await smock.fake<Returner>('Returner');
   });
 
   context('fixed data types', () => {

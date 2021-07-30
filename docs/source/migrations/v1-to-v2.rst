@@ -28,7 +28,7 @@ With Typechain:
 
 .. code-block:: typescript
   
-  import { FakeContract } from '@defi-wonderland/lopt';
+  import { FakeContract } from '@defi-wonderland/smock';
   import { CookieEater } from '@typechained';
 
   let cookieEater: FakeContract<CookieEater>; // will extend all of the CookieEater method types
@@ -37,7 +37,7 @@ Without Typechain:
 
 .. code-block:: typescript
   
-  import { FakeContract } from '@defi-wonderland/lopt';
+  import { FakeContract } from '@defi-wonderland/smock';
   import { Contract } from 'ethers';
 
   let cookieEater: FakeContract<Contract>; // will extend all of the CookieEater method types
@@ -72,13 +72,13 @@ Install the new one
 
     .. code-block:: text
 
-      yarn add --dev @defi-wonderland/lopt
+      yarn add --dev @defi-wonderland/smock
 
   .. group-tab:: npm
 
     .. code-block:: text
 
-      npm install --save-dev @defi-wonderland/lopt
+      npm install --save-dev @defi-wonderland/smock
 
 
 ==========================
@@ -122,10 +122,10 @@ Smockit initialization
 
   .. code-block:: typescript
 
-    import { lopt } from '@defi-wonderland/lopt';
+    import { smock } from '@defi-wonderland/smock';
     import { MyContract } from '@typechained';
 
-    const myFakeContract = await lopt.fake<MyContract>('MyContract');
+    const myFakeContract = await smock.fake<MyContract>('MyContract');
 
 
 Returns
@@ -233,9 +233,9 @@ Creating a modifiable contract
   .. code-block:: typescript
 
     import { MyContract } from '@typechained';
-    import { MockContract, MockContractFactory, lopt } from '@defi-wonderland/lopt';
+    import { MockContract, MockContractFactory, smock } from '@defi-wonderland/smock';
 
-    const myMockContractFactory: MockContractFactory<MyContract> = await lopt.mock('MyContract');
+    const myMockContractFactory: MockContractFactory<MyContract> = await smock.mock('MyContract');
     const myMockContract: MockContract<MyContract> = await myMockContractFactory.deploy(...);
 
 

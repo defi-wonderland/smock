@@ -1,10 +1,10 @@
-import { FakeContract, lopt } from '@src';
+import { FakeContract, smock } from '@src';
 import { Caller, Caller__factory, Receiver } from '@typechained';
 import chai, { expect } from 'chai';
 import { ethers } from 'hardhat';
 
 chai.should();
-chai.use(lopt.matchers);
+chai.use(smock.matchers);
 
 describe('WatchableFunctionLogic: Miscellaneous', () => {
   let fake: FakeContract<Receiver>;
@@ -16,11 +16,11 @@ describe('WatchableFunctionLogic: Miscellaneous', () => {
   });
 
   beforeEach(async () => {
-    fake = await lopt.fake<Receiver>('Receiver');
+    fake = await smock.fake<Receiver>('Receiver');
   });
 
   it('should separate calls from different spies with the same factory', async () => {
-    const otherWatchableContract = await lopt.fake<Receiver>('Receiver');
+    const otherWatchableContract = await smock.fake<Receiver>('Receiver');
     await caller.call(fake.address, fake.interface.encodeFunctionData('receiveBoolean', [true]));
     otherWatchableContract.receiveBoolean.should.not.have.been.called;
   });

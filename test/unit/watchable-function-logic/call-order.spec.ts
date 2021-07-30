@@ -1,11 +1,11 @@
-import { FakeContract, lopt } from '@src';
+import { FakeContract, smock } from '@src';
 import { Caller, Caller__factory, Receiver } from '@typechained';
 import chai, { expect } from 'chai';
 import { BaseContract } from 'ethers';
 import { ethers } from 'hardhat';
 
 chai.should();
-chai.use(lopt.matchers);
+chai.use(smock.matchers);
 
 describe('WatchableFunctionLogic: Call arguments', () => {
   let fakeA: FakeContract<Receiver>;
@@ -18,8 +18,8 @@ describe('WatchableFunctionLogic: Call arguments', () => {
   });
 
   beforeEach(async () => {
-    fakeA = await lopt.fake<Receiver>('Receiver');
-    fakeB = await lopt.fake<Receiver>('Receiver');
+    fakeA = await smock.fake<Receiver>('Receiver');
+    fakeB = await smock.fake<Receiver>('Receiver');
   });
 
   describe('calledBefore', async () => {

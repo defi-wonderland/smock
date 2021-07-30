@@ -1,4 +1,4 @@
-import { lopt, MockContract, MockContractFactory } from '@src';
+import { smock, MockContract, MockContractFactory } from '@src';
 import { convertStructToPojo } from '@src/utils';
 import { ADDRESS_EXAMPLE } from '@test-utils';
 import { StorageGetter } from '@typechained';
@@ -10,7 +10,7 @@ describe('Mock: Editable storage logic', () => {
   let mock: MockContract<StorageGetter>;
 
   before(async () => {
-    storageGetterFactory = await lopt.mock<StorageGetter>('StorageGetter');
+    storageGetterFactory = await smock.mock<StorageGetter>('StorageGetter');
   });
 
   beforeEach(async () => {

@@ -4,7 +4,7 @@ Getting Started
 Installation
 ------------
 
-To get started, install :code:`lopt`:
+To get started, install :code:`smock`:
 
 .. tabs::
 
@@ -12,13 +12,13 @@ To get started, install :code:`lopt`:
 
     .. code-block:: text
 
-      yarn add --dev lopt
+      yarn add --dev smock
 
   .. group-tab:: npm
 
     .. code-block:: text
 
-      npm install --save-dev lopt
+      npm install --save-dev smock
 
 Enabling mocks
 --------------

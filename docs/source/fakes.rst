@@ -17,9 +17,9 @@ Fakes can be initialized using the: **contract name**, **abi**, **factory** or e
 .. code-block:: javascript
 
   import { MyOracle, MyContract, MyContract__factory } from '@typechained';
-  import { FakeContract, lopt } from '@defi-wonderland/lopt';
+  import { FakeContract, smock } from '@defi-wonderland/smock';
 
-  chai.use(lopt.matchers);
+  chai.use(smock.matchers);
 
   describe('MyContract', () => {
     let myContractFactory: MyContract__factory;
@@ -32,7 +32,7 @@ Fakes can be initialized using the: **contract name**, **abi**, **factory** or e
     });
 
     beforeEach(async () => {
-      cookiesOracle = await lopt.fake<CookiesOracle>('CookiesOracle');
+      cookiesOracle = await smock.fake<CookiesOracle>('CookiesOracle');
       myContract = await myContractFactory.deploy(cookiesOracle.address);
     });
 

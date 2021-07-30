@@ -1,12 +1,12 @@
-# lopt
+# smock
 
-[![NPM Package](https://img.shields.io/npm/v/@defi-wonderland/lopt.svg?style=flat-square)](https://www.npmjs.org/package/@defi-wonderland/lopt)
+[![NPM Package](https://img.shields.io/npm/v/@defi-wonderland/smock.svg?style=flat-square)](https://www.npmjs.org/package/@defi-wonderland/smock)
 
-`lopt` is a utility package that can generate mock Solidity contracts in the form of `fakes` and `mocks`.
+`smock` is a utility package that can generate mock Solidity contracts in the form of `fakes` and `mocks`.
 
-`lopt` is based in [@eth-optimism/smock](https://github.com/ethereum-optimism/optimism/tree/develop/packages/smock), [sinon](https://sinonjs.org/) and [sinon-chai](https://www.chaijs.com/plugins/sinon-chai/).
+`smock` is based in [@eth-optimism/smock](https://github.com/ethereum-optimism/optimism/tree/develop/packages/smock), [sinon](https://sinonjs.org/) and [sinon-chai](https://www.chaijs.com/plugins/sinon-chai/).
 
-Some benefits of using `lopt`:
+Some benefits of using `smock`:
 
 - Test syntax is easy to understand, just like `sinon-chai`
 - Supports both chai `expect` and `should` syntax
@@ -19,22 +19,22 @@ Some benefits of using `lopt`:
 
 ## Documentation
 
-Documentation is available [here](https://lopt.readthedocs.io/en/latest/).
+Documentation is available [here](https://smock.readthedocs.io/en/latest/).
 
 ---
 
 ## Installation
 
-You can easily install `lopt` via npm:
+You can easily install `smock` via npm:
 
 ```
-npm install --save-dev @defi-wonderland/lopt
+npm install --save-dev @defi-wonderland/smock
 ```
 
 Or via yarn:
 
 ```
-yarn add --dev @defi-wonderland/lopt
+yarn add --dev @defi-wonderland/smock
 ```
 
 ---
@@ -43,17 +43,17 @@ yarn add --dev @defi-wonderland/lopt
 
 ```typescript
 ...
-import { FakeContract, lopt } from '@defi-wonderland/lopt';
+import { FakeContract, smock } from '@defi-wonderland/smock';
 
 chai.should(); // if you like should syntax
-chai.use(lopt.matchers);
+chai.use(smock.matchers);
 
 describe('MyContract', () => {
     let myContractFake: FakeContract<MyContract>;
 
     beforeEach(async () => {
         ...
-        myContractFake = await lopt.fake<MyContract>('MyContract');
+        myContractFake = await smock.fake<MyContract>('MyContract');
     });
 
     it('some test', () => {
@@ -65,8 +65,8 @@ describe('MyContract', () => {
 
 ---
 
-## Why the name `lopt`?
+## Why the name `smock`?
 
-Loki's alternative name is Lopt, and Loki was obviously taken.
+Loki's alternative name is Smock, and Loki was obviously taken.
 
 Loki is the God of Mischief, a trickster, and the purpose of mocking libraries is basically to trick the tests.
