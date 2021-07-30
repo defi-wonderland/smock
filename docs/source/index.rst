@@ -13,14 +13,8 @@ Some benefits
 * Well documented,
 * Mock and assert contract calls,
 * Preprogram returns and reverts,
+* It sounds cool,
 * And more...
-
-Why the name smock?
-------------------
-
-Loki's alternative name is Smock, and Loki was obviously taken.
-
-Loki is the God of Mischief, a trickster, and the purpose of mocking libraries is basically to trick the tests.
 
 
 .. toctree::

@@ -14,6 +14,7 @@ Some benefits of using `smock`:
 - Mock and assert contract calls, without the need of even deploying it by using `fakes`
 - If you need your contract logic, just wrap it in a `mock` and start asserting calls or changing behaviour
 - Fully tested library
+- It sounds cool
 
 ---
 
@@ -62,11 +63,3 @@ describe('MyContract', () => {
     });
 });
 ```
-
----
-
-## Why the name `smock`?
-
-Loki's alternative name is Smock, and Loki was obviously taken.
-
-Loki is the God of Mischief, a trickster, and the purpose of mocking libraries is basically to trick the tests.
