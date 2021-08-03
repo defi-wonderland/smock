@@ -1,6 +1,6 @@
 {
   "name": "@defi-wonderland/smock",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Mocking framework for Solidity contracts",
   "keywords": [
     "ethereum",
