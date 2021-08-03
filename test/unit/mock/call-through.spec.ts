@@ -1,16 +1,16 @@
 import { MockContract, MockContractFactory, smock } from '@src';
-import { Counter } from '@typechained';
+import { Counter, Counter__factory } from '@typechained';
 import chai, { expect } from 'chai';
 
 chai.should();
 chai.use(smock.matchers);
 
 describe('Mock: Call through', () => {
-  let counterFactory: MockContractFactory<Counter>;
+  let counterFactory: MockContractFactory<Counter__factory>;
   let mock: MockContract<Counter>;
 
   before(async () => {
-    counterFactory = await smock.mock<Counter>('Counter');
+    counterFactory = await smock.mock('Counter');
   });
 
   beforeEach(async () => {

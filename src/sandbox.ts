@@ -1,5 +1,5 @@
 import VM from '@nomiclabs/ethereumjs-vm';
-import { BaseContract } from 'ethers';
+import { BaseContract, ContractFactory } from 'ethers';
 import hre from 'hardhat';
 import { ethersInterfaceFromSpec } from './factories/ethers-interface';
 import { createFakeContract, createMockContractFactory } from './factories/smock-contract';
@@ -44,7 +44,7 @@ export class Sandbox {
     );
   }
 
-  async mock<Contract extends BaseContract>(contractName: string): Promise<MockContractFactory<Contract>> {
+  async mock<T extends ContractFactory>(contractName: string): Promise<MockContractFactory<T>> {
     return createMockContractFactory(this.vm, contractName);
   }
 

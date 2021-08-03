@@ -37,15 +37,15 @@ How to use
 
   .. code-block:: javascript
 
-    import { Counter } from '@typechained';
+    import { Counter, Counter__factory } from '@typechained';
     import { MockContract, MockContractFactory, smock } from '@defi-wonderland/smock';
 
     describe('Counter', () => {
-      let counterFactory: MockContractFactory<Counter>;
+      let counterFactory: MockContractFactory<Counter__factory>;
       let counter: MockContract<Counter>;
 
       before(async () => {
-        counterFactory = await smock.mock<Counter>('Counter');
+        counterFactory = await smock.mock('Counter');
       });
 
       beforeEach(async () => {
