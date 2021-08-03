@@ -34,7 +34,7 @@ describe('Mock: Editable storage logic', () => {
     expect(await mock.getAddress()).to.equal(ADDRESS_EXAMPLE);
   });
 
-  it.skip('should be able to set an address in a packed storage slot', async () => {
+  it('should be able to set an address in a packed storage slot', async () => {
     await mock.setVariable('_packedB', ADDRESS_EXAMPLE);
 
     expect(await mock.getPackedAddress()).to.equal(ADDRESS_EXAMPLE);

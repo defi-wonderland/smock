@@ -68,11 +68,12 @@ export const convertToStorageSlots = (storageLayout: any, variableName: string, 
     }
 
     slotHash = toHexString32(ethers.BigNumber.from(slotHash).add(inputSlot.slot));
+    const slotValue = toHexString32(`0x` + toHexString32(value).slice(2 + variableDef.offset * 2));
 
     slots.push({
       label: key,
       hash: slotHash,
-      value: toHexString32(value),
+      value: slotValue,
     });
   });
 
@@ -96,6 +97,7 @@ const getInputSlots = (storageLayout: any, inputTypeName: string): InputSlot[] =
       return inputType.members.map((member: any) => {
         return {
           label: member.label,
+          offset: member.offset,
           slot: member.slot,
         };
       });
