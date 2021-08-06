@@ -12,13 +12,13 @@ To get started, install :code:`smock`:
 
     .. code-block:: text
 
-      yarn add --dev smock
+      yarn add --dev @defi-wonderland/smock
 
   .. group-tab:: npm
 
     .. code-block:: text
 
-      npm install --save-dev smock
+      npm install --save-dev @defi-wonderland/smock
 
 Enabling mocks
 --------------
