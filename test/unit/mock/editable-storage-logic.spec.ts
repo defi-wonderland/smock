@@ -34,20 +34,20 @@ describe('Mock: Editable storage logic', () => {
     expect(await mock.getAddress()).to.equal(ADDRESS_EXAMPLE);
   });
 
-  it.skip('should be able to set an address in a packed storage slot', async () => {
+  it('should be able to set an address in a packed storage slot', async () => {
     await mock.setVariable('_packedB', ADDRESS_EXAMPLE);
 
     expect(await mock.getPackedAddress()).to.equal(ADDRESS_EXAMPLE);
   });
 
-  it.skip('should be able to set an address in a packed struct', async () => {
+  it('should be able to set an address in a packed struct', async () => {
     const struct = {
       packedA: true,
       packedB: ADDRESS_EXAMPLE,
     };
     await mock.setVariable('_packedStruct', struct);
 
-    expect(convertStructToPojo(await mock.getPackedAddress())).to.equal(struct);
+    expect(convertStructToPojo(await mock.getPackedStruct())).to.deep.equal(struct);
   });
 
   it('should be able to set a simple struct', async () => {
