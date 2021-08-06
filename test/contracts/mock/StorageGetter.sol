@@ -64,6 +64,10 @@ contract StorageGetter {
     return _simpleStruct;
   }
 
+  function getPackedStruct() public view returns (PackedStruct memory _out) {
+    return _packedStruct;
+  }
+
   function getUint256MapValue(uint256 _key) public view returns (uint256 _out) {
     return _uint256Map[_key];
   }

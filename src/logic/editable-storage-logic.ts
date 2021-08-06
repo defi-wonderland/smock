@@ -1,5 +1,6 @@
 import { SmockVMManager } from '../types';
-import { convertToStorageSlots, fromHexString, toFancyAddress } from '../utils';
+import { fromHexString, toFancyAddress } from '../utils';
+import { computeStorageSlots } from '../utils/storage';
 
 export class EditableStorageLogic {
   private storageLayout: any;
@@ -15,14 +16,11 @@ export class EditableStorageLogic {
   async setVariable(variableName: string, value: any) {
     if (value === undefined || value === null) return;
 
-    const slots = convertToStorageSlots(this.storageLayout, variableName, value);
+    // const slots = convertToStorageSlots(this.storageLayout, variableName, value);
+    const slots = computeStorageSlots(this.storageLayout, { [variableName]: value });
 
     for (const slot of slots) {
-      await this.vmManager.putContractStorage(
-        toFancyAddress(this.contractAddress),
-        fromHexString(slot.hash.toLowerCase()),
-        fromHexString(slot.value)
-      );
+      await this.vmManager.putContractStorage(toFancyAddress(this.contractAddress), fromHexString(slot.key), fromHexString(slot.val));
     }
   }
 }
