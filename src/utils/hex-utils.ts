@@ -56,3 +56,48 @@ export const remove0x = (str: string): string => {
   }
   return str.startsWith('0x') ? str.slice(2) : str;
 };
+
+/**
+ * Turn big numbers into hex (positive and negative)
+ * Source: https://coolaj86.com/articles/convert-decimal-to-hex-with-js-bigints/
+ * @param bn big number to parse
+ * @returns hex representation of the big number
+ */
+export function bigNumberToHex(bn: BigNumber) {
+  let bi = BigInt(bn.toBigInt());
+
+  var pos = true;
+  if (bi < 0) {
+    pos = false;
+    bi = bitnot(bi);
+  }
+
+  var hex = bi.toString(16);
+  if (hex.length % 2) {
+    hex = '0' + hex;
+  }
+
+  if (pos && 0x80 & parseInt(hex.slice(0, 2), 16)) {
+    hex = '00' + hex;
+  }
+
+  return hex;
+}
+
+function bitnot(bi: BigInt) {
+  var bin = (-bi).toString(2);
+  var prefix = '';
+  while (bin.length % 8) {
+    bin = '0' + bin;
+  }
+  if ('1' === bin[0] && -1 !== bin.slice(1).indexOf('1')) {
+    prefix = '11111111';
+  }
+  bin = bin
+    .split('')
+    .map(function (i) {
+      return '0' === i ? '1' : '0';
+    })
+    .join('');
+  return BigInt('0b' + prefix + bin) + BigInt(1);
+}

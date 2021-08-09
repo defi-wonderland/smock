@@ -16,7 +16,6 @@ export class EditableStorageLogic {
   async setVariable(variableName: string, value: any) {
     if (value === undefined || value === null) return;
 
-    // const slots = convertToStorageSlots(this.storageLayout, variableName, value);
     const slots = computeStorageSlots(this.storageLayout, { [variableName]: value });
 
     for (const slot of slots) {
