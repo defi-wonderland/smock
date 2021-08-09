@@ -25,7 +25,7 @@
   "author": "DeFi Wonderland x Optimism PBC",
   "contributors": [
     "0xGorilla (https://github.com/0xGorilla)",
-    "smartcontracts (https://github.com/smartcontracts"
+    "smartcontracts (https://github.com/smartcontracts)"
   ],
   "main": "dist/src/index",
   "types": "dist/src/index",
