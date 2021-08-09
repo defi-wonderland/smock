@@ -50,6 +50,15 @@ describe('Mock: Editable storage logic', () => {
     expect(convertStructToPojo(await mock.getPackedStruct())).to.deep.equal(struct);
   });
 
+  it.only('should be able to set a int in a packed struct', async () => {
+    const struct = {
+      value: -1,
+    };
+    await mock.setVariable('_complexStruct', struct);
+
+    expect(convertStructToPojo(await mock.getComplexStruct())).to.deep.equal(struct);
+  });
+
   it('should be able to set a simple struct', async () => {
     const struct = {
       valueA: BigNumber.from(1234),

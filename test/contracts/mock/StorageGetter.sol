@@ -11,6 +11,10 @@ struct PackedStruct {
   address packedB;
 }
 
+struct ComplexStruct {
+  int56 value;
+}
+
 contract StorageGetter {
   address internal _address;
   uint256 internal _constructorUint256;
@@ -18,6 +22,7 @@ contract StorageGetter {
   bool internal _bool;
   SimpleStruct internal _simpleStruct;
   PackedStruct internal _packedStruct;
+  ComplexStruct internal _complexStruct;
   mapping(uint256 => uint256) _uint256Map;
   mapping(uint256 => mapping(uint256 => uint256)) _uint256NestedMap;
   mapping(bytes5 => bool) _bytes5ToBoolMap;
@@ -66,6 +71,10 @@ contract StorageGetter {
 
   function getPackedStruct() public view returns (PackedStruct memory _out) {
     return _packedStruct;
+  }
+
+  function getComplexStruct() public view returns (ComplexStruct memory _out) {
+    return _complexStruct;
   }
 
   function getUint256MapValue(uint256 _key) public view returns (uint256 _out) {
