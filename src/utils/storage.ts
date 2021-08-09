@@ -88,7 +88,7 @@ export function computeStorageSlots(storageLayout: SolidityStorageLayout, variab
 
     // Complain very loudly if attempting to set a variable that doesn't exist within this layout.
     if (!storageObj) {
-      throw new Error(`variable name not found in storage layout: ${variableName}`);
+      throw new Error(`Variable name not found in storage layout: ${variableName}`);
     }
 
     // Encode this variable as series of storage slot key/value pairs and save it.
