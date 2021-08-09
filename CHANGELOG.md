@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.0.0-rc.1](https://github.com/defi-wonderland/smock/compare/v2.0.0-rc.0...v2.0.0-rc.1) (2021-08-09)
+
+
+### Features
+
+* setVariable for ints supported ([37259d6](https://github.com/defi-wonderland/smock/commit/37259d6b3d6c88fc1477221b9095e3b80a0d315b))
+
 ## [2.0.0-rc.0](https://github.com/defi-wonderland/smock/compare/v1.0.1...v2.0.0-rc.0) (2021-08-09)
 
 
