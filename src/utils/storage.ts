@@ -1,9 +1,7 @@
-/* External Imports */
 import { fromHexString, remove0x } from '@eth-optimism/core-utils';
 import { BigNumber, ethers } from 'ethers';
 import semver from 'semver';
-/* Internal Imports */
-import { getBuildInfo, getContractArtifact } from './artifacts';
+import { artifacts } from 'hardhat';
 
 // Represents the JSON objects outputted by the Solidity compiler that describe the structure of
 // state within the contract. See
@@ -70,8 +68,10 @@ const padHexSlotValue = (val: string, offset: number): string => {
  * @return Storage layout object from the compiler output.
  */
 export const getStorageLayout = async (name: string): Promise<SolidityStorageLayout> => {
-  const { sourceName, contractName } = await getContractArtifact(name);
-  const buildInfo = await getBuildInfo(`${sourceName}:${contractName}`);
+  const { sourceName, contractName } = await artifacts.readArtifactSync(name);
+  const buildInfo = await artifacts.getBuildInfo(`${sourceName}:${contractName}`);
+  if (!buildInfo) throw new Error(`Build info not found for contract ${sourceName}:${contractName}`)
+
   const output = buildInfo.output.contracts[sourceName][contractName];
 
   if (!semver.satisfies(buildInfo.solcVersion, '>=0.4.x <0.9.x')) {
