@@ -1,6 +1,6 @@
-*************
-V1 to V2
-*************
+***********************
+Migrating from v1 to v2
+***********************
 
 `DeFi Wonderland <https://github.com/defi-wonderland>`_ and `Optimism <https://github.com/ethereum-optimism>`_ have decided to join forces with our shady-super-coder's magic to launch a new and improved version of the mocking library you |:heart:|
 

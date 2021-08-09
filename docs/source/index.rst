@@ -1,25 +1,8 @@
-Smock Documentation
-===================
-
-smock is a utility package that can generate mock Solidity contracts in the form of :code:`fakes` and :code:`mocks`.
-
-Some benefits
--------------
-
-* Sweet set of chai matchers,
-* Typescript compatible,
-* Typechain support,
-* Fully tested,
-* Well documented,
-* Mock and assert contract calls,
-* Preprogram returns and reverts,
-* It sounds cool,
-* And more...
-
+.. include:: ../../README.rst
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
+   :caption: Developer Docs
 
    getting-started.rst
    fakes.rst
@@ -28,6 +11,6 @@ Some benefits
 
 .. toctree::
    :maxdepth: 2
-   :caption: Migrations:
+   :caption: Migrations
 
    migrations/v1-to-v2.rst
