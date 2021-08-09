@@ -1,7 +1,7 @@
 import { BigNumber, ethers } from 'ethers';
 import { artifacts } from 'hardhat';
 import semver from 'semver';
-import { bnToHex, fromHexString, remove0x } from './hex-utils';
+import { bigNumberToHex, fromHexString, remove0x } from './hex-utils';
 
 // Represents the JSON objects outputted by the Solidity compiler that describe the structure of
 // state within the contract. See
@@ -149,31 +149,40 @@ export function computeStorageSlots(storageLayout: SolidityStorageLayout, variab
 }
 
 /**
- * Takes a slot value (in hex), left-pads it with zeros, and displaces it by a given offset.
+ * Takes number slot value (in hex), left-pads it with zeros or f (when negative),
+ * and displaces it by a given offset.
+ *
+ * @param val Number to pad.
+ * @param offset Number of bytes to offset from the right.
+ * @return Padded hex string.
+ */
+function padNumHexSlotValue(val: any, offset: number): string {
+  const bn = BigNumber.from(val);
+
+  return (
+    '0x' +
+    bigNumberToHex(bn)
+      .padStart(64 - offset * 2, bn.isNegative() ? 'f' : '0') // Pad the start with 64 - offset bytes
+      .padEnd(64, '0') // Pad the end (up to 64 bytes) with zero bytes.
+      .toLowerCase() // Making this lower case makes assertions more consistent later.
+  );
+}
+
+/**
+ * Takes bytes slot value (in hex), left-pads it with zeros, and displaces it by a given offset.
  *
  * @param val Hex string value to pad.
  * @param offset Number of bytes to offset from the right.
  * @return Padded hex string.
  */
-function padHexSlotValue(val: string, offset: number): string {
-  // if it is a negative number
-  if (val[0] === '-') {
-    return (
-      '0x' +
-      bnToHex(BigNumber.from(val))
-        .padStart(64 - offset * 2, 'f') // Pad the start with 64 - offset zero bytes.
-        .padEnd(64, '0') // Pad the end (up to 64 bytes) with zero bytes.
-        .toLowerCase() // Making this lower case makes assertions more consistent later.
-    );
-  } else {
-    return (
-      '0x' +
-      remove0x(val)
-        .padStart(64 - offset * 2, '0') // Pad the start with 64 - offset zero bytes.
-        .padEnd(64, '0') // Pad the end (up to 64 bytes) with zero bytes.
-        .toLowerCase() // Making this lower case makes assertions more consistent later.
-    );
-  }
+function padBytesHexSlotValue(val: string, offset: number): string {
+  return (
+    '0x' +
+    remove0x(val)
+      .padStart(64 - offset * 2, '0') // Pad the start with 64 - offset zero bytes.
+      .padEnd(64, '0') // Pad the end (up to 64 bytes) with zero bytes.
+      .toLowerCase() // Making this lower case makes assertions more consistent later.
+  );
 }
 
 /**
@@ -200,7 +209,8 @@ function encodeVariable(
   nestedSlotOffset = 0,
   baseSlotKey?: string
 ): StorageSlotPair[] {
-  let slotKey: string = '0x' +
+  let slotKey: string =
+    '0x' +
     remove0x(
       BigNumber.from(baseSlotKey || nestedSlotOffset)
         .add(BigNumber.from(parseInt(storageObj.slot, 10)))
@@ -217,7 +227,7 @@ function encodeVariable(
       return [
         {
           key: slotKey,
-          val: padHexSlotValue(variable, storageObj.offset),
+          val: padNumHexSlotValue(variable, storageObj.offset),
         },
       ];
     } else if (variableType.label === 'bool') {
@@ -238,7 +248,7 @@ function encodeVariable(
       return [
         {
           key: slotKey,
-          val: padHexSlotValue(variable ? '1' : '0', storageObj.offset),
+          val: padNumHexSlotValue(variable ? '1' : '0', storageObj.offset),
         },
       ];
     } else if (variableType.label.startsWith('bytes')) {
@@ -249,7 +259,7 @@ function encodeVariable(
       return [
         {
           key: slotKey,
-          val: padHexSlotValue(remove0x(variable).padEnd(parseInt(variableType.numberOfBytes, 10) * 2, '0'), storageObj.offset),
+          val: padBytesHexSlotValue(remove0x(variable).padEnd(parseInt(variableType.numberOfBytes, 10) * 2, '0'), storageObj.offset),
         },
       ];
     } else if (variableType.label.startsWith('uint')) {
@@ -260,7 +270,7 @@ function encodeVariable(
       return [
         {
           key: slotKey,
-          val: padHexSlotValue(BigNumber.from(variable).toHexString(), storageObj.offset),
+          val: padNumHexSlotValue(variable, storageObj.offset),
         },
       ];
     } else if (variableType.label.startsWith('int')) {
@@ -271,7 +281,7 @@ function encodeVariable(
       return [
         {
           key: slotKey,
-          val: padHexSlotValue(BigNumber.from(variable).toHexString(), storageObj.offset),
+          val: padNumHexSlotValue(variable, storageObj.offset),
         },
       ];
     } else if (variableType.label.startsWith('struct')) {
@@ -343,8 +353,8 @@ function encodeVariable(
       // Figure out the base slot key that the mapped values need to work off of.
       // If baseSlotKey is defined here, then we're inside of a nested mapping and we should work
       // off of that previous baseSlotKey. Otherwise the base slot will be the slot of this map.
-      const prevBaseSlotKey = baseSlotKey || padHexSlotValue(BigNumber.from(storageObj.slot).toHexString(), 0);
-      const nextBaseSlotKey = ethers.utils.keccak256(padHexSlotValue(key, 0) + remove0x(prevBaseSlotKey));
+      const prevBaseSlotKey = baseSlotKey || padNumHexSlotValue(storageObj.slot, 0);
+      const nextBaseSlotKey = ethers.utils.keccak256(padNumHexSlotValue(key, 0) + remove0x(prevBaseSlotKey));
 
       // Encode the value. We need to use a dummy storageObj here because the function expects it.
       // Of course, we're not mapping to a specific variable. We map to a variable /type/. So we
