@@ -1,7 +1,7 @@
 import { fromHexString, remove0x } from '@eth-optimism/core-utils';
 import { BigNumber, ethers } from 'ethers';
-import semver from 'semver';
 import { artifacts } from 'hardhat';
+import semver from 'semver';
 
 // Represents the JSON objects outputted by the Solidity compiler that describe the structure of
 // state within the contract. See
@@ -43,23 +43,6 @@ interface StorageSlotPair {
 }
 
 /**
- * Takes a slot value (in hex), left-pads it with zeros, and displaces it by a given offset.
- *
- * @param val Hex string value to pad.
- * @param offset Number of bytes to offset from the right.
- * @return Padded hex string.
- */
-const padHexSlotValue = (val: string, offset: number): string => {
-  return (
-    '0x' +
-    remove0x(val)
-      .padStart(64 - offset * 2, '0') // Pad the start with 64 - offset zero bytes.
-      .padEnd(64, '0') // Pad the end (up to 64 bytes) with zero bytes.
-      .toLowerCase() // Making this lower case makes assertions more consistent later.
-  );
-};
-
-/**
  * Retrieves the storageLayout portion of the compiler artifact for a given contract by name. This
  * function is hardhat specific.
  *
@@ -67,10 +50,10 @@ const padHexSlotValue = (val: string, offset: number): string => {
  * @param name Name of the contract to retrieve the storage layout for.
  * @return Storage layout object from the compiler output.
  */
-export const getStorageLayout = async (name: string): Promise<SolidityStorageLayout> => {
+export async function getStorageLayout(name: string): Promise<SolidityStorageLayout> {
   const { sourceName, contractName } = await artifacts.readArtifactSync(name);
   const buildInfo = await artifacts.getBuildInfo(`${sourceName}:${contractName}`);
-  if (!buildInfo) throw new Error(`Build info not found for contract ${sourceName}:${contractName}`)
+  if (!buildInfo) throw new Error(`Build info not found for contract ${sourceName}:${contractName}`);
 
   const output = buildInfo.output.contracts[sourceName][contractName];
 
@@ -80,12 +63,107 @@ export const getStorageLayout = async (name: string): Promise<SolidityStorageLay
 
   if (!('storageLayout' in output)) {
     throw new Error(
-      `Storage layout for ${name} not found. Did you forget to set the storage layout compiler option in your hardhat config? Read more: https://github.com/ethereum-optimism/smock#note-on-using-smoddit`
+      `Storage layout for ${name} not found. Did you forget to set the storage layout compiler option in your hardhat config? Read more: https://smock.readthedocs.io/en/latest/getting-started.html#enabling-mocks`
     );
   }
 
   return (output as any).storageLayout;
-};
+}
+
+/**
+ * Computes the key/value storage slot pairs that would be used if a given set of variable values
+ * were applied to a given contract.
+ *
+ * @param storageLayout Solidity storage layout to use as a template for determining storage slots.
+ * @param variables Variable values to apply against the given storage layout.
+ * @returns An array of key/value storage slot pairs that would result in the desired state.
+ */
+export function computeStorageSlots(storageLayout: SolidityStorageLayout, variables: any = {}): Array<StorageSlotPair> {
+  let slots: StorageSlotPair[] = [];
+  for (const [variableName, variableValue] of Object.entries(variables)) {
+    // Find the entry in the storage layout that corresponds to this variable name.
+    const storageObj = storageLayout.storage.find((entry) => {
+      return entry.label === variableName;
+    });
+
+    // Complain very loudly if attempting to set a variable that doesn't exist within this layout.
+    if (!storageObj) {
+      throw new Error(`variable name not found in storage layout: ${variableName}`);
+    }
+
+    // Encode this variable as series of storage slot key/value pairs and save it.
+    slots = slots.concat(encodeVariable(variableValue, storageObj, storageLayout.types));
+  }
+
+  // Dealing with packed storage slots now. We know that a storage slot is packed when two storage
+  // slots produced by the above encoding have the same key. In this case, we want to merge the two
+  // values into a single bytes32 value. We'll throw an error if the two values overlap (have some
+  // byte where both values are non-zero).
+  slots = slots.reduce((prevSlots: StorageSlotPair[], slot) => {
+    // Find some previous slot where we have the same key.
+    const prevSlot = prevSlots.find((otherSlot) => {
+      return otherSlot.key === slot.key;
+    });
+
+    if (prevSlot === undefined) {
+      // Slot doesn't share a key with any other slot so we can just push it and continue.
+      prevSlots.push(slot);
+    } else {
+      // Slot shares a key with some previous slot.
+      // First, we remove the previous slot from the list of slots since we'll be modifying it.
+      prevSlots = prevSlots.filter((otherSlot) => {
+        return otherSlot.key !== prevSlot.key;
+      });
+
+      // Now we'll generate a merged value by taking the non-zero bytes from both values. There's
+      // probably a more efficient way to do this, but this is relatively easy and straightforward.
+      let mergedVal = '0x';
+      const valA = remove0x(slot.val);
+      const valB = remove0x(prevSlot.val);
+      for (let i = 0; i < 64; i += 2) {
+        const byteA = valA.slice(i, i + 2);
+        const byteB = valB.slice(i, i + 2);
+
+        if (byteA === '00' && byteB === '00') {
+          mergedVal += '00';
+        } else if (byteA === '00' && byteB !== '00') {
+          mergedVal += byteB;
+        } else if (byteA !== '00' && byteB === '00') {
+          mergedVal += byteA;
+        } else {
+          // Should never happen, means our encoding is broken. Values should *never* overlap.
+          throw new Error('detected badly encoded packed value, should not happen');
+        }
+      }
+
+      prevSlots.push({
+        key: slot.key,
+        val: mergedVal,
+      });
+    }
+
+    return prevSlots;
+  }, []);
+
+  return slots;
+}
+
+/**
+ * Takes a slot value (in hex), left-pads it with zeros, and displaces it by a given offset.
+ *
+ * @param val Hex string value to pad.
+ * @param offset Number of bytes to offset from the right.
+ * @return Padded hex string.
+ */
+function padHexSlotValue(val: string, offset: number): string {
+  return (
+    '0x' +
+    remove0x(val)
+      .padStart(64 - offset * 2, '0') // Pad the start with 64 - offset zero bytes.
+      .padEnd(64, '0') // Pad the end (up to 64 bytes) with zero bytes.
+      .toLowerCase() // Making this lower case makes assertions more consistent later.
+  );
+}
 
 /**
  * Encodes a single variable as a series of key/value storage slot pairs using some storage layout
@@ -101,7 +179,7 @@ export const getStorageLayout = async (name: string): Promise<SolidityStorageLay
  * mapping need to work off of.
  * @returns Variable encoded as a series of key/value slot pairs.
  */
-const encodeVariable = (
+function encodeVariable(
   variable: any,
   storageObj: SolidityStorageObj,
   storageTypes: {
@@ -109,7 +187,7 @@ const encodeVariable = (
   },
   nestedSlotOffset = 0,
   baseSlotKey?: string
-): StorageSlotPair[] => {
+): StorageSlotPair[] {
   let slotKey: string; // bytes32
   if (baseSlotKey !== undefined) {
     // See https://docs.soliditylang.org/en/v0.8.6/internals/layout_in_storage.html#mappings-and-dynamic-arrays
@@ -292,82 +370,4 @@ const encodeVariable = (
   }
 
   throw new Error(`unknown unsupported type ${variableType.encoding} ${variableType.label}`);
-};
-
-/**
- * Computes the key/value storage slot pairs that would be used if a given set of variable values
- * were applied to a given contract.
- *
- * @param storageLayout Solidity storage layout to use as a template for determining storage slots.
- * @param variables Variable values to apply against the given storage layout.
- * @returns An array of key/value storage slot pairs that would result in the desired state.
- */
-export const computeStorageSlots = (storageLayout: SolidityStorageLayout, variables: any = {}): Array<StorageSlotPair> => {
-  let slots: StorageSlotPair[] = [];
-  for (const [variableName, variableValue] of Object.entries(variables)) {
-    // Find the entry in the storage layout that corresponds to this variable name.
-    const storageObj = storageLayout.storage.find((entry) => {
-      return entry.label === variableName;
-    });
-
-    // Complain very loudly if attempting to set a variable that doesn't exist within this layout.
-    if (!storageObj) {
-      throw new Error(`variable name not found in storage layout: ${variableName}`);
-    }
-
-    // Encode this variable as series of storage slot key/value pairs and save it.
-    slots = slots.concat(encodeVariable(variableValue, storageObj, storageLayout.types));
-  }
-
-  // Dealing with packed storage slots now. We know that a storage slot is packed when two storage
-  // slots produced by the above encoding have the same key. In this case, we want to merge the two
-  // values into a single bytes32 value. We'll throw an error if the two values overlap (have some
-  // byte where both values are non-zero).
-  slots = slots.reduce((prevSlots: StorageSlotPair[], slot) => {
-    // Find some previous slot where we have the same key.
-    const prevSlot = prevSlots.find((otherSlot) => {
-      return otherSlot.key === slot.key;
-    });
-
-    if (prevSlot === undefined) {
-      // Slot doesn't share a key with any other slot so we can just push it and continue.
-      prevSlots.push(slot);
-    } else {
-      // Slot shares a key with some previous slot.
-      // First, we remove the previous slot from the list of slots since we'll be modifying it.
-      prevSlots = prevSlots.filter((otherSlot) => {
-        return otherSlot.key !== prevSlot.key;
-      });
-
-      // Now we'll generate a merged value by taking the non-zero bytes from both values. There's
-      // probably a more efficient way to do this, but this is relatively easy and straightforward.
-      let mergedVal = '0x';
-      const valA = remove0x(slot.val);
-      const valB = remove0x(prevSlot.val);
-      for (let i = 0; i < 64; i += 2) {
-        const byteA = valA.slice(i, i + 2);
-        const byteB = valB.slice(i, i + 2);
-
-        if (byteA === '00' && byteB === '00') {
-          mergedVal += '00';
-        } else if (byteA === '00' && byteB !== '00') {
-          mergedVal += byteB;
-        } else if (byteA !== '00' && byteB === '00') {
-          mergedVal += byteA;
-        } else {
-          // Should never happen, means our encoding is broken. Values should *never* overlap.
-          throw new Error('detected badly encoded packed value, should not happen');
-        }
-      }
-
-      prevSlots.push({
-        key: slot.key,
-        val: mergedVal,
-      });
-    }
-
-    return prevSlots;
-  }, []);
-
-  return slots;
-};
+}
