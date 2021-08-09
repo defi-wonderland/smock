@@ -2,6 +2,29 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.0.0-rc.1](https://github.com/defi-wonderland/smock/compare/v2.0.0-rc.0...v2.0.0-rc.1) (2021-08-09)
+
+
+### Features
+
+* setVariable for ints supported ([37259d6](https://github.com/defi-wonderland/smock/commit/37259d6b3d6c88fc1477221b9095e3b80a0d315b))
+
+## [2.0.0-rc.0](https://github.com/defi-wonderland/smock/compare/v1.0.1...v2.0.0-rc.0) (2021-08-09)
+
+
+### ⚠ BREAKING CHANGES
+
+* making this in order to make a rc of 2.0.0
+
+### Features
+
+* refactor storage editing logic ([f95f236](https://github.com/defi-wonderland/smock/commit/f95f236349af73f376ba779a6751469f452141fc))
+
+
+### Bug Fixes
+
+* small change ([b499049](https://github.com/defi-wonderland/smock/commit/b4990496b9de49e991360f74125c6ee21a00b482))
+
 ## [1.0.0](https://github.com/defi-wonderland/smock/compare/v1.0.0-rc.0...v1.0.0) (2021-07-25)
 
 ## [1.0.0-rc.0](https://github.com/defi-wonderland/smock/compare/v0.0.3...v1.0.0-rc.0) (2021-07-25)

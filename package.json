@@ -1,6 +1,6 @@
 {
   "name": "@defi-wonderland/smock",
-  "version": "1.0.1",
+  "version": "2.0.0-rc.1",
   "description": "Mocking framework for Solidity contracts",
   "keywords": [
     "ethereum",
@@ -54,7 +54,8 @@
     "diff": "^5.0.0",
     "lodash.isequal": "^4.5.0",
     "lodash.isequalwith": "^4.4.0",
-    "rxjs": "^7.2.0"
+    "rxjs": "^7.2.0",
+    "semver": "^7.3.5"
   },
   "devDependencies": {
     "@commitlint/cli": "12.1.4",
@@ -71,6 +72,7 @@
     "@types/lodash.isequalwith": "^4.4.6",
     "@types/mocha": "8.2.2",
     "@types/node": "15.12.2",
+    "@types/semver": "^7.3.8",
     "chai": "4.3.4",
     "cross-env": "7.0.3",
     "ethereum-waffle": "3.4.0",

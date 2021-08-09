@@ -1,6 +1,6 @@
 import { MockContract, MockContractFactory, smock } from '@src';
 import { convertStructToPojo } from '@src/utils';
-import { ADDRESS_EXAMPLE } from '@test-utils';
+import { ADDRESS_EXAMPLE, BYTES32_EXAMPLE, BYTES_EXAMPLE } from '@test-utils';
 import { StorageGetter, StorageGetter__factory } from '@typechained';
 import { expect } from 'chai';
 import { BigNumber, utils } from 'ethers';
@@ -23,31 +23,52 @@ describe('Mock: Editable storage logic', () => {
     expect(await mock.getUint256()).to.equal(value);
   });
 
+  it('should be able to set a int56', async () => {
+    const value = -1;
+    await mock.setVariable('_int56', value);
+    expect(await mock.getInt56()).to.equal(value);
+  });
+
+  it('should be able to set a int256', async () => {
+    const value = utils.parseUnits('-1');
+    await mock.setVariable('_int256', value);
+    expect(await mock.getInt256()).to.equal(value);
+  });
+
   it('should be able to set a boolean', async () => {
     await mock.setVariable('_bool', true);
     expect(await mock.getBool()).to.equal(true);
   });
 
+  it.skip('should be able to set bytes', async () => {
+    await mock.setVariable('_bytes', BYTES_EXAMPLE);
+    expect(await mock.getBytes()).to.equal(BYTES_EXAMPLE);
+  });
+
+  it('should be able to set bytes32', async () => {
+    await mock.setVariable('_bytes32', BYTES32_EXAMPLE);
+    expect(await mock.getBytes32()).to.equal(BYTES32_EXAMPLE);
+  });
+
   it('should be able to set an address', async () => {
     await mock.setVariable('_address', ADDRESS_EXAMPLE);
-
     expect(await mock.getAddress()).to.equal(ADDRESS_EXAMPLE);
   });
 
-  it.skip('should be able to set an address in a packed storage slot', async () => {
+  it('should be able to set an address in a packed storage slot', async () => {
     await mock.setVariable('_packedB', ADDRESS_EXAMPLE);
 
     expect(await mock.getPackedAddress()).to.equal(ADDRESS_EXAMPLE);
   });
 
-  it.skip('should be able to set an address in a packed struct', async () => {
+  it('should be able to set an address in a packed struct', async () => {
     const struct = {
       packedA: true,
       packedB: ADDRESS_EXAMPLE,
     };
     await mock.setVariable('_packedStruct', struct);
 
-    expect(convertStructToPojo(await mock.getPackedAddress())).to.equal(struct);
+    expect(convertStructToPojo(await mock.getPackedStruct())).to.deep.equal(struct);
   });
 
   it('should be able to set a simple struct', async () => {
@@ -116,5 +137,10 @@ describe('Mock: Editable storage logic', () => {
     await mock.setVariable('_addressToAddressMap', { [mapKey]: mapValue });
 
     expect(await mock.getAddressToAddressMapValue(mapKey)).to.equal(mapValue);
+  });
+
+  it.skip('should be able to set a uint256[] variable', async () => {
+    await mock.setVariable('_uint256Array', [1, 2]);
+    expect(await mock.getUint256Array()).to.equal([1, 2]);
   });
 });
