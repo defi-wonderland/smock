@@ -14,6 +14,8 @@ struct PackedStruct {
 contract StorageGetter {
   address internal _address;
   uint256 internal _constructorUint256;
+  int56 internal _int56;
+  int256 internal _int256;
   uint256 internal _uint256;
   bool internal _bool;
   SimpleStruct internal _simpleStruct;
@@ -34,6 +36,14 @@ contract StorageGetter {
 
   function getConstructorUint256() public view returns (uint256 _out) {
     return _constructorUint256;
+  }
+
+  function getInt56() public view returns (int56 _out) {
+    return _int56;
+  }
+
+  function getInt256() public view returns (int256 _out) {
+    return _int256;
   }
 
   function getUint256() public view returns (uint256 _out) {

@@ -23,6 +23,18 @@ describe('Mock: Editable storage logic', () => {
     expect(await mock.getUint256()).to.equal(value);
   });
 
+  it('should be able to set a int56', async () => {
+    const value = -1;
+    await mock.setVariable('_int56', value);
+    expect(await mock.getInt56()).to.equal(value);
+  });
+
+  it('should be able to set a int256', async () => {
+    const value = utils.parseUnits('-1');
+    await mock.setVariable('_int256', value);
+    expect(await mock.getInt256()).to.equal(value);
+  });
+
   it('should be able to set a boolean', async () => {
     await mock.setVariable('_bool', true);
     expect(await mock.getBool()).to.equal(true);

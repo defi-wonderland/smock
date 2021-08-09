@@ -1,7 +1,7 @@
-import { fromHexString, remove0x } from '@eth-optimism/core-utils';
 import { BigNumber, ethers } from 'ethers';
 import { artifacts } from 'hardhat';
 import semver from 'semver';
+import { bnToHex, fromHexString, remove0x } from './hex-utils';
 
 // Represents the JSON objects outputted by the Solidity compiler that describe the structure of
 // state within the contract. See
@@ -156,13 +156,24 @@ export function computeStorageSlots(storageLayout: SolidityStorageLayout, variab
  * @return Padded hex string.
  */
 function padHexSlotValue(val: string, offset: number): string {
-  return (
-    '0x' +
-    remove0x(val)
-      .padStart(64 - offset * 2, '0') // Pad the start with 64 - offset zero bytes.
-      .padEnd(64, '0') // Pad the end (up to 64 bytes) with zero bytes.
-      .toLowerCase() // Making this lower case makes assertions more consistent later.
-  );
+  // if it is a negative number
+  if (val[0] === '-') {
+    return (
+      '0x' +
+      bnToHex(BigNumber.from(val))
+        .padStart(64 - offset * 2, 'f') // Pad the start with 64 - offset zero bytes.
+        .padEnd(64, '0') // Pad the end (up to 64 bytes) with zero bytes.
+        .toLowerCase() // Making this lower case makes assertions more consistent later.
+    );
+  } else {
+    return (
+      '0x' +
+      remove0x(val)
+        .padStart(64 - offset * 2, '0') // Pad the start with 64 - offset zero bytes.
+        .padEnd(64, '0') // Pad the end (up to 64 bytes) with zero bytes.
+        .toLowerCase() // Making this lower case makes assertions more consistent later.
+    );
+  }
 }
 
 /**
@@ -175,6 +186,7 @@ function padHexSlotValue(val: string, offset: number): string {
  * @param storageTypes Full list of storage types allowed for this encoding.
  * @param nestedSlotOffset Only used for structs. Since slots for struct members are 0-indexed, we
  * need to be keeping track of the slot offset of the parent struct to figure out the final slot.
+ * See https://docs.soliditylang.org/en/v0.8.6/internals/layout_in_storage.html#mappings-and-dynamic-arrays for additional info.
  * @param baseSlotKey Only used for maps. Keeps track of the base slot that other elements of the
  * mapping need to work off of.
  * @returns Variable encoded as a series of key/value slot pairs.
@@ -188,32 +200,12 @@ function encodeVariable(
   nestedSlotOffset = 0,
   baseSlotKey?: string
 ): StorageSlotPair[] {
-  let slotKey: string; // bytes32
-  if (baseSlotKey !== undefined) {
-    // See https://docs.soliditylang.org/en/v0.8.6/internals/layout_in_storage.html#mappings-and-dynamic-arrays
-    // for additional information about how mapping keys are determined. Note that baseSlotKey is
-    // NEVER defined at the first level of this recursive process. baseSlotKey will ONLY be defined
-    // if we're dealing with a mapping. And storageObj.slot will always be set to 0 (see logic for
-    // mappings below) unless we're encoding a field of a struct.
-    slotKey =
-      '0x' +
-      remove0x(
-        BigNumber.from(baseSlotKey)
-          .add(BigNumber.from(parseInt(storageObj.slot, 10)))
-          .toHexString()
-      ).padStart(64, '0');
-  } else {
-    // We're dealing with something other than a mapping. nestedSlotOffset only comes into play
-    // when dealing with structs. When the variable is not a struct, we're just going to use the
-    // slot assigned to that variable (there will not be an offset).
-    slotKey =
-      '0x' +
-      remove0x(
-        BigNumber.from(nestedSlotOffset)
-          .add(BigNumber.from(parseInt(storageObj.slot, 10)))
-          .toHexString()
-      ).padStart(64, '0');
-  }
+  let slotKey: string = '0x' +
+    remove0x(
+      BigNumber.from(baseSlotKey || nestedSlotOffset)
+        .add(BigNumber.from(parseInt(storageObj.slot, 10)))
+        .toHexString()
+    ).padStart(64, '0');
 
   const variableType = storageTypes[storageObj.type];
   if (variableType.encoding === 'inplace') {
@@ -261,6 +253,17 @@ function encodeVariable(
         },
       ];
     } else if (variableType.label.startsWith('uint')) {
+      if (remove0x(BigNumber.from(variable).toHexString()).length / 2 > parseInt(variableType.numberOfBytes, 10)) {
+        throw new Error(`provided ${variableType.label} is too big: ${variable}`);
+      }
+
+      return [
+        {
+          key: slotKey,
+          val: padHexSlotValue(BigNumber.from(variable).toHexString(), storageObj.offset),
+        },
+      ];
+    } else if (variableType.label.startsWith('int')) {
       if (remove0x(BigNumber.from(variable).toHexString()).length / 2 > parseInt(variableType.numberOfBytes, 10)) {
         throw new Error(`provided ${variableType.label} is too big: ${variable}`);
       }
