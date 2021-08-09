@@ -1,7 +1,7 @@
 {
   "name": "@defi-wonderland/smock",
   "version": "2.0.0-rc.2",
-  "description": "Mocking framework for Solidity contracts",
+  "description": "The Solidity mocking library",
   "keywords": [
     "ethereum",
     "smart-contracts",
@@ -22,9 +22,10 @@
     "url": "git+https://github.com/defi-wonderland/smock.git"
   },
   "license": "MIT",
-  "author": "DeFi Wonderland",
+  "author": "DeFi Wonderland x Optimism PBC",
   "contributors": [
-    "kiwi745 (https://github.com/kiwi745)"
+    "0xGorilla (https://github.com/0xGorilla)",
+    "smartcontracts (https://github.com/smartcontracts"
   ],
   "main": "dist/src/index",
   "types": "dist/src/index",
