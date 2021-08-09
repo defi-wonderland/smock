@@ -318,7 +318,9 @@ function encodeVariable(
       ];
     } else {
       // TODO: add support for large strings or byte arrays
-      throw new Error('large strings (>31 bytes) not supported');
+      throw new Error(
+        'large strings (> 31 bytes) not supported. Follow this issue for more info: https://github.com/defi-wonderland/smock/issues/30'
+      );
     }
   } else if (variableType.encoding === 'mapping') {
     if (variableType.key === undefined || variableType.value === undefined) {
@@ -368,7 +370,7 @@ function encodeVariable(
     return slots;
   } else if (variableType.encoding === 'dynamic_array') {
     // TODO: add support for array types
-    throw new Error('array types not yet supported');
+    throw new Error('array types not yet supported. Follow this issue for more info https://github.com/defi-wonderland/smock/issues/31');
   }
 
   throw new Error(`unknown unsupported type ${variableType.encoding} ${variableType.label}`);

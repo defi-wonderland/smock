@@ -51,7 +51,9 @@ export class Sandbox {
   static async create(): Promise<Sandbox> {
     // Only support native hardhat runtime, haven't bothered to figure it out for anything else.
     if (hre.network.name !== 'hardhat') {
-      throw new Error(`Smock is only compatible with the "hardhat" network, got: ${hre.network.name}`);
+      throw new Error(
+        `Smock is only compatible with the "hardhat" network, got: ${hre.network.name}. Follow this issue for more info: https://github.com/defi-wonderland/smock/issues/29`
+      );
     }
 
     const provider: any = await getHardhatBaseProvider(hre);
