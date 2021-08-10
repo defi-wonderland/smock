@@ -1,102 +1,73 @@
 Mocks
 =====
 
-What are they
--------------
+What are mocks?
+---------------
 
-Mocks are deployed contract wrappers that have all of the fake's functionality and even more.
+Mocks are extensions to smart contracts that have all of the functionality of a `fake <./fakes.html>`_ with some extra goodies.
+Behind every mock is a real smart contract (with actual Solidity code!) of your choosing.
+You can **modify the behavior of functions like a fake**, or you can leave the functions alone and calls will pass through to your actual contract code.
+And, with a little bit of smock magic, you can even **modify the value of variables within your contract**! 🥳
 
-Because they are actually deployed contract, they can have actual **logic inside** that can be called through.
-And because they have a storage, **internal variable values can be overwritten** 🥳
+When should I use a mock?
+-------------------------
 
+Generally speaking, mocks are more advanced versions of `fakes <./fakes.html>`_.
+Mocks are most effectively used when you need *some* behavior of a real smart contract but still want the ability to modify things on the fly.
 
-How to use
------------------
+One powerful feature of a mock is that you can modify the value of variables within the smart contract.
+You could, for example, use this feature to test the behavior of a function that changes behavior depending on the value of a variable.
 
-.. container:: code-explanation
+Using mocks
+-----------
 
-  Mocks can be initialized only from deployed contracts. If we would have this contract:
+Initialization
+**************
 
-  .. code-block:: solidity
+Initialize with a contract name
+###############################
 
-    contract Counter {
-      uint256 public count;
+.. code-block:: typescript
 
-      constructor(uint256 _startAt) {
-        count = _startAt;
-      }
+  const myContractFactory = await smock.mock("MyContract");
+  const myContract = await myContractFactory.deploy(...);
 
-      function add(uint256 _amount) external {
-        count += _amount;
-      }
-    }
+Using features of fakes
+***********************
 
-.. container:: code-explanation
-
-  We could do something like this, combining real and faked logic:
-
-  .. code-block:: javascript
-
-    import { Counter, Counter__factory } from '@typechained';
-    import { MockContract, MockContractFactory, smock } from '@defi-wonderland/smock';
-
-    describe('Counter', () => {
-      let counterFactory: MockContractFactory<Counter__factory>;
-      let counter: MockContract<Counter>;
-
-      before(async () => {
-        counterFactory = await smock.mock('Counter');
-      });
-
-      beforeEach(async () => {
-        counter = await counterFactory.deploy();
-      });
-
-      it('...', async () => {
-        await counter.add(10);
-        expect(await counter.count()).to.equal(11);
-
-        await counter.count.returns(1);
-        expect(await counter.count()).to.equal(1);
-      });
-    });
-
+Mocks can use any feature available to fakes.
+See the documentation of `fakes <./fakes.html>`_ for more information.
 
 Call through
-------------
+************
 
-.. container:: code-explanation
+Calls go through to contract by default
+#######################################
 
-  By default, mock functions will call the real contract logic.
+.. code-block:: typescript
 
-  .. code-block:: javascript
+  await myMock.add(10);
+  await myMock.count(); // returns 10
 
-    await mock.add(10);
-    await mock.count(); // returns 11
+  myMock.count.returns(1);
+  await myMock.count(); // returns 1
 
-    await mock.count.returns(1);
-    await mock.count(); // returns 1
+Manipulating variables
+**********************
 
+Setting the value of a variable
+###############################
 
+.. code-block:: typescript
 
-Internal variables override
----------------------------
+  await myMock.setVariable("myVariableName", 1234);
 
-.. container:: code-explanation
+Setting the value of a struct
+#############################
 
-  Set the value of an internal variable
+.. code-block:: typescript
 
-  .. code-block:: javascript
-
-    await mock.setVariable('_myInternalVariable', true);
-
-.. container:: code-explanation
-
-  Set the value of an internal struct
-
-  .. code-block:: javascript
-
-    await mock.setVariable('_myInternalStruct', {
-      _valueA: true,
-      _valueB: 123
-    });
+  await myMock.setVariable("myStruct", {
+    valueA: 1234,
+    valueB: true,
+  });
