@@ -4,8 +4,6 @@ Getting Started
 Installation
 ------------
 
-To get started, install :code:`smock`:
-
 .. tabs::
 
   .. group-tab:: yarn
@@ -20,30 +18,57 @@ To get started, install :code:`smock`:
 
       npm install --save-dev @defi-wonderland/smock
 
-Enabling mocks
---------------
+Required Config for Mocks
+-------------------------
 
-mocks require access to the internal storage layout of your smart contracts. The Solidity compiler exposes this via the storageLayout flag, which you need to enable at your hardhat config.
+`Mocks <./mocks.html>`_ allow you to manipulate any variable inside of a smart contract.
+If you'd like to use mocks, you **must** update your :code:`hardhat.config.<js/ts>` file to include the following:
 
-Here's an example :code:`hardhat.config.ts` that shows how to import the plugin:
 
-.. code-block:: javascript
+.. tabs::
 
-  import { HardhatUserConfig } from 'hardhat/config'
+  .. group-tab:: JavaScript
 
-  const config: HardhatUserConfig = {
-    ...
-    solidity: {
-      version: '0.8.4',
-      settings: {
-        outputSelection: {
-          "*": {
-              "*": ["storageLayout"],
-          },
-        },
+    .. code-block:: javascript
+
+      // hardhat.config.js
+
+      ... // your plugin imports and whatnot go here
+
+      module.exports = {
+        ... // your other hardhat settings go here
+        solidity: {
+          ... // your other Solidity settings go here
+          settings: {
+            outputSelection: {
+              "*": {
+                "*": ["storageLayout"]
+              }
+            }
+          }
+        }
       }
-    },
-    ...
-  };
 
-  export default config;
+  .. group-tab:: TypeScript
+
+    .. code-block:: typescript
+
+      // hardhat.config.js
+
+      ... // your plugin imports and whatnot go here
+
+      const config = {
+        ... // your other hardhat settings go here
+        solidity: {
+          ... // your other Solidity settings go here
+          settings: {
+            outputSelection: {
+              "*": {
+                "*": ["storageLayout"]
+              }
+            }
+          }
+        }
+      }
+
+      export default config

@@ -1,365 +1,322 @@
 Fakes
 =====
 
-What are they
--------------
+What are fakes?
+---------------
 
-Fakes are empty contracts that emulate a given interface.
+Fakes are JavaScript objects that emulate the interface of a given Solidity contract.
+You can use fakes to customize the behavior of any public method or variable that a smart contract exposes.
 
-All of their functions can be watched and pre-programmed. When calling a function of a fake, by default, it will return the return type zero-state.
+When should I use a fake?
+-------------------------
+
+Fakes are a powerful tool when you want to test how a smart contract will interact with other contracts.
+Instead of initalizing a full-fledged smart contract to interact with, you can simply create a fake that can provide pre-programmed responses.
+
+Fakes are especially useful when the contracts that you need to interact with are relatively complex.
+For example, imagine that you're testing a contract that needs to interact with another (very stateful) contract.
+Without :code:`smock`, you'll probably have to:
+
+1. Deploy the contract you need to interact with.
+2. Perform a series of transactions to get the contract into the relevant state.
+3. Run the test.
+4. Do this all over again for each test.
+
+This is annoying, slow, and brittle.
+You might have to update a bunch of tests if the behavior of the other contract ever changes.
+Developers usually end up using tricks like state snapshots and complex test fixtures to get around this problem.
+Instead, you can use :code:`smock`:
+
+1. Create a :code:`fake`.
+2. Make your :code:`fake` return the value you want it to return.
+3. Run the test.
+
+Using fakes
+-----------
+
+Initialization
+**************
+
+Initialize with a contract name
+###############################
+
+.. code-block:: typescript
+
+  const myFake = await smock.fake<MyContractType>("MyContract");
 
 
-How to use
-----------
+Initialize with a contract ABI
+##############################
 
-Fakes can be initialized using the: **contract name**, **abi**, **factory** or even a **deployed contract**.
+.. code-block:: typescript
 
-.. code-block:: javascript
+  const myFake = await smock.fake<MyContractType>([ { ... } ]);
 
-  import { MyOracle, MyContract, MyContract__factory } from '@typechained';
-  import { FakeContract, smock } from '@defi-wonderland/smock';
+Initialize with a contract factory
+##################################
 
-  chai.use(smock.matchers);
+.. code-block:: typescript
 
-  describe('MyContract', () => {
-    let myContractFactory: MyContract__factory;
+  const myContractFactory = await hre.ethers.getContractFactory("MyContract");
+  const myFake = await smock.fake<MyContractType>(myContractFactory);
 
-    let cookiesOracle: FakeContract<CookiesOracle>;
-    let myContract: MyContract;
+Initialize with a contract instance
+###################################
 
-    before(async () => {
-      myContractFactory = (await ethers.getContractFactory('MyContract')) as MyContract__factory;
-    });
+.. code-block:: typescript
 
-    beforeEach(async () => {
-      cookiesOracle = await smock.fake<CookiesOracle>('CookiesOracle');
-      myContract = await myContractFactory.deploy(cookiesOracle.address);
-    });
+  const myContractFactory = await hre.ethers.getContractFactory("MyContract");
+  const myContract = await myContractFactory.deploy();
+  const myFake = await smock.fake<MyContractType>(myContract);
 
-    it('should get data from the provided oracle', async () => {
-      await myContract.cookiesLeftInTheWorld();
-      expect(cookiesOracle.cookiesAmount).to.have.been.called;
-    });
+Making a function return
+************************
+
+Returning with the default value
+################################
+
+.. code-block:: typescript
+
+  myFake.myFunction.returns();
+
+Returning a fixed value
+#######################
+
+.. code-block:: typescript
+
+  myFake.myFunction.returns(42);
+
+Returning a struct
+##################
+
+.. code-block:: typescript
+
+  myFake.getStruct.returns({
+    valueA: 1234,
+    valueB: false,
   });
 
+Returning an array
+##################
 
-Call count
-----------
+.. code-block:: typescript
 
-.. container:: code-explanation
+  myFake.myFunctionArray.returns([1, 2, 3]);
 
-  Passes if the function was called at least once, with any arguments:
+Returning a dynamic value
+#########################
 
-  .. code-block:: javascript
+.. code-block:: typescript
 
-    expect(fake.myFunction).to.have.been.called;
+  myFake.myFunction.returns(() => {
+    if (Math.random() < 0.5) {
+      return 0;
+    } else {
+      return 1;
+    }
+  });
 
+Returning a value based on arguments
+####################################
 
-.. container:: code-explanation
+.. code-block:: typescript
 
-  Passes if the function was called exactly once, with any arguments:
-
-  .. code-block:: javascript
-
-    expect(fake.myFunction).to.have.been.calledOnce;
-
-
-.. container:: code-explanation
-
-  Passes if the function was called exactly twice, with any arguments:
-
-  .. code-block:: javascript
-
-    expect(fake.myFunction).to.have.been.calledTwice;
-
-
-.. container:: code-explanation
-
-  Passes if the function was called exactly three times, with any arguments:
-
-  .. code-block:: javascript
-
-    expect(fake.myFunction).to.have.been.calledThrice;
-
-
-.. container:: code-explanation
-
-  Passes if the function was called exactly 123 times, with any arguments:
-
-  .. code-block:: javascript
-
-    expect(fake.myFunction).to.have.callCount(123);
-
-
-Call arguments
---------------
-
-.. container:: code-explanation
-
-  Passes if the function was called at least once, with all of the provided arguments:
-
-  .. code-block:: javascript
-
-    expect(fake.myFunction).to.have.been.calledWith(123, true, 'abc');
-
-
-.. container:: code-explanation
-
-  It also work with structs, and nested structs 😉 :
-
-  .. code-block:: javascript
-
-    expect(fake.myFunction).to.have.been.calledWith({
-      importantData: [1, 2, 3],
-      someMore: {
-        isThisWild: true
-      }
-    });
-
-
-.. container:: code-explanation
-
-  Passes if the function was a second time, with all of the provided arguments:
-
-  .. code-block:: javascript
-
-    expect(fake.myFunction.atCall(2)).to.have.been.calledWith(123, true);
-
-
-.. container:: code-explanation
-
-  Passes if the function was always called, with all of the provided arguments:
-
-  .. code-block:: javascript
-
-    expect(fake.myFunction).to.always.have.been.calledWith(123, true);
-
-
-.. container:: code-explanation
-
-  Passes if the function was called exactly once, and that time, it had all of the provided arguments:
-
-  .. code-block:: javascript
-
-    expect(fake.myFunction).to.have.been.calledOnceWith(123, true);
-
-
-Call order
-----------
-
-.. container:: code-explanation
-
-  Passes if the function was, at least once, called before/after the other function:
-
-  .. code-block:: javascript
-
-    expect(fake.myFunction).to.have.been.calledBefore(otherFake.otherFunction);
-
-  .. code-block:: javascript
-
-    expect(fake.myFunction).to.have.been.calledAfter(otherFake.otherFunction);
-
-
-.. container:: code-explanation
-
-  The same can also be tested using another function of the same contract
-
-  .. code-block:: javascript
-
-    expect(fake.myFunction).to.have.been.calledBefore(fake.otherFunction);
-
-
-.. container:: code-explanation
-
-  Passes if the function was, always, called before/after the other function:
-
-  .. code-block:: javascript
-
-    expect(fake.myFunction).to.always.have.been.calledBefore(otherFake.otherFunction);
-
-  .. code-block:: javascript
-
-    expect(fake.myFunction).to.always.have.been.calledAfter(otherFake.otherFunction);
-
-
-.. container:: code-explanation
-
-  Passes if the function was, at least once, called immediately before/after the other function (without any other call **to a fake or a mock** in the middle):
-
-  .. code-block:: javascript
-
-    expect(fake.myFunction).to.have.been.calledImmediatelyBefore(otherFake.otherFunction);
-
-  .. code-block:: javascript
+  myFake.getDynamicInput.returns(arg1 => arg1 * 10);
   
-    expect(fake.myFunction).to.have.been.calledImmediatelyAfter(otherFake.otherFunction);
+  await myFake.getDynamicInput(123); // returns 1230
 
+Returning at a specific call count
+##################################
 
-.. container:: code-explanation
+.. code-block:: typescript
 
-  Passes if the function was, always, called immediately before/after the other function (without any other call **to a fake or a mock** in the middle):
+  myFake.myFunction.returnsAtCall(0, 5678);
+  myFake.myFunction.returnsAtCall(1, 1234);
 
-  .. code-block:: javascript
+  await myFake.myFunction(); // returns 5678
+  await myFake.myFunction(); // returns 1234
 
-    expect(fake.myFunction).to.always.have.been.calledImmediatelyBefore(otherFake.otherFunction);
+Making a function revert
+************************
 
-  .. code-block:: javascript
+Reverting with no data
+######################
 
-    expect(fake.myFunction).to.always.have.been.calledImmediatelyAfter(otherFake.otherFunction);
+.. code-block:: typescript
 
+  myFake.myFunction.reverts();
 
-Get call
-----------
+Reverting with a string message
+###############################
 
-.. container:: code-explanation
+.. code-block:: typescript
 
-  Return all the details of an specific call, **arguments** and **nonce** (call order)
+  myFake.myFunction.reverts("Something went wrong");
 
-  .. code-block:: javascript
+Reverting with bytes data
+#########################
 
-    expect(fake.myFunction.getCall(0).args[0]).to.be.gt(50);
+.. code-block:: typescript
 
+  myFake.myFunction.reverts("0x12341234");
 
-Returns
--------
+Reverting at a specific call count
+##################################
 
-.. container:: code-explanation
+.. code-block:: typescript
 
-  Forces the function to return the provided value
+  myFake.myFunction.returns(1234);
+  myFake.myFunction.revertsAtCall(1, "Something went wrong");
 
-  .. code-block:: javascript
+  await myFake.myFunction(); // returns 1234
+  await myFake.myFunction(); // reverts with "Something went wrong"
+  await myFake.myFunction(); // returns 1234
 
-    fake.getString.returns('a');
+Resetting function behavior
+***************************
 
+Resetting a function to original behavior
+#########################################
 
-.. container:: code-explanation
+.. code-block:: typescript
 
-  Forces the function, at the third call, to return the provided value
+  myFake.myFunction().reverts();
 
-  .. code-block:: javascript
+  await myFake.myFunction(); // reverts
 
-    fake.getString.returnsAtCall(3, 'b');
+  myFake.reset();
 
+  await myFake.myFunction(); // returns 0
 
-.. container:: code-explanation
+Asserting call count
+********************
 
-  So with the combination of boths you can achieve something like this:
+Any number of calls
+###################
 
-  .. code-block:: javascript
+.. code-block:: typescript
 
-    fake.getString.returns('a');
-    fake.getString.returnsAtCall(1, 'b');
+  expect(myFake.myFunction).to.have.been.called;
 
-    await fake.getString(); // will return 'a'
-    await fake.getString(); // will return 'b'
-    await fake.getString(); // will return 'a'
+Called once
+###########
 
+.. code-block:: typescript
 
-.. container:: code-explanation
+  expect(myFake.myFunction).to.have.been.calledOnce;
 
-  Changes the return value depending on the call arguments (also works with async functions)
+Called twice
+############
 
-  .. code-block:: javascript
+.. code-block:: typescript
 
-    fake.myFunction.returns(myNumber => myNumber * 10);
-    await fake.myFunction(25); // will return 250
+  expect(myFake.myFunction).to.have.been.calledTwice;
 
+Called three times
+##################
 
-Reverts
--------
+.. code-block:: typescript
 
-.. container:: code-explanation
+  expect(myFake.myFunction).to.have.been.calledThrice;
 
-  Forces the function to revert
+Called N times
+##############
 
-  .. code-block:: javascript
+.. code-block:: typescript
 
-    fake.getString.reverts();
+  expect(myFake.myFunction).to.have.callCount(123);
 
+Asserting call arguments
+************************
 
-.. container:: code-explanation
+Called with specific arguments
+##############################
 
-  Forces the function to revert with the provided message
+.. code-block:: typescript
 
-  .. code-block:: javascript
+  expect(myFake.myFunction).to.have.been.calledWith(123, true, "abcd");
 
-    fake.getString.reverts('something crazy');
+Called with struct arguments
+############################
 
+.. code-block:: typescript
 
-.. container:: code-explanation
+  expect(myFake.myFunction).to.have.been.calledWith({
+    myData: [1, 2, 3, 4],
+    myNestedStruct: {
+      otherValue: 5678
+    }
+  });
 
-  Forces the function, at the third call, to revert. You can provide a message as well.
+Called at a specific call index with arguments
+##############################################
 
-  .. code-block:: javascript
+.. code-block:: typescript
 
-    fake.getString.revertsAtCall(3);
+  expect(myFake.myFunction.atCall(2)).to.have.been.calledWith(1234, false);
 
+Called once with specific arguments
+###################################
 
-.. container:: code-explanation
+.. code-block:: typescript
 
-  So with the combination of boths you can achieve something like this:
+  expect(myFake.myFunction).to.have.been.calledOnceWith(1234, false);
 
-  .. code-block:: javascript
+Asserting call order
+********************
 
-    fake.getString.returns();
-    fake.getString.revertsAtCall(1);
+Called before other function
+############################
 
-    await fake.callStatic.getString(); // won't revert
-    await fake.callStatic.getString(); // will revert
-    await fake.callStatic.getString(); // won't revert
+.. code-block:: typescript
 
+  expect(myFake.myFunction).to.have.been.calledBefore(myFake.myOtherFunction);
 
+Called after other function
+###########################
 
-Reset
------
+.. code-block:: typescript
 
-.. container:: code-explanation
+  expect(myFake.myFunction).to.have.been.calledAfter(myFake.myOtherFunction);
 
-  Returns the function to it's original functionality
+Called immediately before other function
+########################################
 
-  .. code-block:: javascript
+.. code-block:: typescript
 
-    fake.getString.reset();
+  expect(myFake.myFunction).to.have.been.calledImmediatelyBefore(myFake.myOtherFunction);
 
+Called immediately after other function
+#######################################
 
-.. container:: code-explanation
+.. code-block:: typescript
 
-  If affects pre-programmed return values:
+  expect(myFake.myFunction).to.have.been.calledImmediatelyAfter(myFake.myOtherFunction);
 
-  .. code-block:: javascript
 
-      fake.getUint256.returns(123);
-      await fake.callStatic.getUint256(); // returns 123
+Querying call arguments
+***********************
 
-      fake.getUint256.reset();
-      await fake.callStatic.getUint256(); // returns 0
+Getting arguments at a specific call index
+##########################################
 
+.. code-block:: typescript
 
-.. container:: code-explanation
+  expect(myFake.myFunction.getCall(0).args[0]).to.be.gt(50);
 
-  And as well call counts:
+Manipulating fallback functions
+*******************************
 
-  .. code-block:: javascript
+Modifying the "fallback" function
+#################################
 
-      await fake.callStatic.getUint256();
-      fake.getUint256.reset();
-      await fake.callStatic.getUint256();
-      
-      expect(fake.getUint256).to.have.been.calledOnce; // true
+.. code-block:: typescript
 
+  myFake.fallback.returns();
 
-Fallback functions
-------------------
+Modifying the "receive" function
+################################
 
+.. code-block:: typescript
 
-.. container:: code-explanation
-
-  Fallback functions behave almost like any other function, the only difference is that their returned value will be hexified.
-
-  .. code-block:: javascript
-
-    fake.fallback.returns('0x1234');
-    await ethers.provider.call({ to: fake.address }); // will return 0x1234
-    
-    fake.fallback.returns([1, 2, 3]);
-    await ethers.provider.call({ to: fake.address }); // will return 0x010203
+  myFake.receive.returns();
