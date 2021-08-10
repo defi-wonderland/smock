@@ -18,7 +18,7 @@ jobs:
           args: --standalone --output=README.md README.rst
       - run: yarn
       - run: yarn build
-      - run: yarn version --prerelease --preid=canary
+      - run: yarn version --prerelease --preid=canary --no-git-tag-version
       - run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
