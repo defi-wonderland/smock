@@ -3,7 +3,7 @@
 
 .. raw:: html
 
-    <div align="center">
+    <div align="center" style="background-color:white;padding-top:15px;padding-bottom:15px;">
         <a href="https://github.com/defi-wonderland/smock">
             <img src="https://user-images.githubusercontent.com/14298799/128897259-1d2c43b5-9156-425e-82e0-ab13f259e57c.gif" width="400px">
         </a>
