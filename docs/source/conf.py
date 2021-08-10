@@ -58,3 +58,7 @@ html_css_files = [
 ]
 html_logo = '_static/smock.png'
 html_favicon = '_static/favicon.png'
+html_theme_options = {
+  'logo_only': True,
+  'style_nav_header_background': '#1d504b',
+}
