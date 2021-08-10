@@ -1,0 +1,21 @@
+name: Canary release
+
+on: workflow_dispatch
+
+jobs:
+  canary-publish:
+    name: Publish Packages (canary)
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: "14.x"
+          registry-url: "https://registry.npmjs.org"
+      - run: yarn
+      - run: yarn build
+      - run: yarn version --prerelease --preid=canary
+      - run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
