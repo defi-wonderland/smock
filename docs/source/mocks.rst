@@ -63,6 +63,9 @@ Calls go through to contract by default
 Manipulating variables
 **********************
 
+.. warning::
+  This is an experimental feature and it is subject to API changes in the near future
+
 Setting the value of a variable
 ###############################
 
