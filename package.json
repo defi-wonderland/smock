@@ -42,7 +42,7 @@
     "release": "yarn build && standard-version",
     "pre-release": "yarn build && standard-version --prerelease rc",
     "docs:install": "pip install -r docs/requirements.txt",
-    "docs:watch": "sphinx-autobuild -a docs/source docs/_build/html --watch docs/source"
+    "docs:watch": "sphinx-autobuild -a docs/source docs/_build/html --watch docs/source --watch README.rst"
   },
   "resolutions": {
     "@ethereumjs/block": "3.2.1",

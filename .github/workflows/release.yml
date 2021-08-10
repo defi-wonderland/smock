@@ -48,7 +48,7 @@ jobs:
           registry-url: "https://registry.npmjs.org"
       - uses: docker://pandoc/core:2.9
         with:
-          args: --standalone --output=README.md README.rst
+          args: --output=README.md README.rst
       - run: yarn
       - run: yarn build
       - run: npm publish --access public
