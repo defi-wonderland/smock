@@ -42,7 +42,7 @@ Initialize with a contract name
 
 .. code-block:: typescript
 
-  const myFake = await smock.fake<MyContractType>("MyContract");
+  const myFake = await smock.fake("MyContract");
 
 
 Initialize with a contract ABI
@@ -50,7 +50,7 @@ Initialize with a contract ABI
 
 .. code-block:: typescript
 
-  const myFake = await smock.fake<MyContractType>([ { ... } ]);
+  const myFake = await smock.fake([ { ... } ]);
 
 Initialize with a contract factory
 ##################################
@@ -58,7 +58,7 @@ Initialize with a contract factory
 .. code-block:: typescript
 
   const myContractFactory = await hre.ethers.getContractFactory("MyContract");
-  const myFake = await smock.fake<MyContractType>(myContractFactory);
+  const myFake = await smock.fake(myContractFactory);
 
 Initialize with a contract instance
 ###################################
@@ -67,7 +67,15 @@ Initialize with a contract instance
 
   const myContractFactory = await hre.ethers.getContractFactory("MyContract");
   const myContract = await myContractFactory.deploy();
-  const myFake = await smock.fake<MyContractType>(myContract);
+  const myFake = await smock.fake(myContract);
+
+Take full advantage of typescript and typechain
+###############################
+
+.. code-block:: typescript
+
+  const myFake = await smock.fake<MyContract>("MyContract");
+
 
 Making a function return
 ************************

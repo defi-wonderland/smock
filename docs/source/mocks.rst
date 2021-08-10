@@ -32,6 +32,14 @@ Initialize with a contract name
   const myContractFactory = await smock.mock("MyContract");
   const myContract = await myContractFactory.deploy(...);
 
+Take full advantage of typescript and typechain
+###############################################
+
+.. code-block:: typescript
+
+  await smock.mock<MyContract__factory>("MyContract");
+
+
 Using features of fakes
 ***********************
 
