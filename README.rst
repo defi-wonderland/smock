@@ -4,8 +4,6 @@ smock
 .. image:: https://img.shields.io/npm/v/@defi-wonderland/smock.svg?style=flat-square
     :target: https://www.npmjs.org/package/@defi-wonderland/smock
 
-|
-
 :code:`smock` is the **S**\ olidity **mock**\ ing library.
 It's a plugin for `hardhat <https://hardhat.org>`_ that can be used to create mock Solidity contracts entirely in JavaScript (or TypeScript!).
 With :code:`smock`, it's easier than ever to test your smart contracts.

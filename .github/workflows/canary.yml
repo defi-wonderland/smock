@@ -13,6 +13,9 @@ jobs:
         with:
           node-version: "14.x"
           registry-url: "https://registry.npmjs.org"
+      - uses: docker://pandoc/core:2.9
+        with:
+          args: --output=README.md README.rst
       - run: yarn
       - run: yarn build
       - run: yarn version --new-version "0.0.0-${GITHUB_SHA::8}" --no-git-tag-version
