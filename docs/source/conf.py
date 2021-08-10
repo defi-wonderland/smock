@@ -56,3 +56,5 @@ html_css_files = [
   'css/text.css',
   'css/fakes.css'
 ]
+html_logo = '_static/smock.png'
+html_favicon = '_static/favicon.png'

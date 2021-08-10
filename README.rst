@@ -1,16 +1,23 @@
-smock
-=====
-
 .. image:: https://img.shields.io/npm/v/@defi-wonderland/smock.svg?style=flat-square
     :target: https://www.npmjs.org/package/@defi-wonderland/smock
 
-:code:`smock` is the **S**\ olidity **mock**\ ing library.
+.. raw:: html
+
+    <div align="center">
+        <a href="https://github.com/defi-wonderland/smock">
+            <img src="https://user-images.githubusercontent.com/14298799/128897259-1d2c43b5-9156-425e-82e0-ab13f259e57c.gif" width="400px">
+        </a>
+    </div>
+    <br />
+    <br />
+
+**Smock** is the **S**\ olidity **mock**\ ing library.
 It's a plugin for `hardhat <https://hardhat.org>`_ that can be used to create mock Solidity contracts entirely in JavaScript (or TypeScript!).
-With :code:`smock`, it's easier than ever to test your smart contracts.
+With Smock, it's easier than ever to test your smart contracts.
 You'll never have to write another mock contract in Solidity again.
 
-:code:`smock` is inspired by `sinon <https://sinonjs.org>`_, `sinon-chai <https://www.chaijs.com/plugins/sinon-chai>`_, and Python's `unittest.mock <https://docs.python.org/3/library/unittest.mock.html>`_.
-Although :code:`smock` is currently only compatible with `hardhat <https://hardhat.org>`_, we plan to extend support to other testing frameworks like `Truffle <https://www.trufflesuite.com/>`_.
+Smock is inspired by `sinon <https://sinonjs.org>`_, `sinon-chai <https://www.chaijs.com/plugins/sinon-chai>`_, and Python's `unittest.mock <https://docs.python.org/3/library/unittest.mock.html>`_.
+Although Smock is currently only compatible with `hardhat <https://hardhat.org>`_, we plan to extend support to other testing frameworks like `Truffle <https://www.trufflesuite.com/>`_.
 
 Features
 --------
@@ -34,16 +41,16 @@ Quick Start
 Installation
 ************
 
-You can install :code:`smock` via npm or yarn:
+You can install Smock via npm or yarn:
 
 .. code-block:: console
 
-    $ npm install @defi-wonderland/smock
+    npm install @defi-wonderland/smock
 
 Basic Usage
 ***********
 
-:code:`smock` is dead simple to use.
+Smock is dead simple to use.
 Here's a basic example of how you might use it to streamline your tests.
 
 .. code-block:: typescript
@@ -72,7 +79,7 @@ Here's a basic example of how you might use it to streamline your tests.
 License
 -------
 
-:code:`smock` is released under the MIT license.
+Smock is released under the MIT license.
 Feel free to use, modify, and/or redistribute this software as you see fit.
 See the `LICENSE <https://github.com/defi-wonderland/smock/blob/main/LICENSE>`_ file for more information.
 
