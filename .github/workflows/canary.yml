@@ -16,6 +16,6 @@ jobs:
       - run: yarn
       - run: yarn build
       - run: yarn version --new-version "0.0.0-${GITHUB_SHA::8}" --no-git-tag-version
-      - run: npm publish --access public
+      - run: npm publish --access public --tag canary
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
