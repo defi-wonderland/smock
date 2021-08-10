@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.0.0](https://github.com/defi-wonderland/smock/compare/v2.0.0-rc.2...v2.0.0) (2021-08-09)
+
+
+### Features
+
+* add issue and PR templates ([#28](https://github.com/defi-wonderland/smock/issues/28)) ([fdcf8f3](https://github.com/defi-wonderland/smock/commit/fdcf8f3375fbd3a94c8a17f8e28b5b57193e4f34))
+
 ## [2.0.0-rc.1](https://github.com/defi-wonderland/smock/compare/v2.0.0-rc.0...v2.0.0-rc.1) (2021-08-09)
 
 
