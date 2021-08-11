@@ -97,11 +97,6 @@
     "typescript": "4.3.2"
   },
   "peerDependencies": {
-    "@ethersproject/abi": "^5",
-    "@ethersproject/abstract-provider": "^5",
-    "@ethersproject/abstract-signer": "^5",
-    "@nomiclabs/ethereumjs-vm": "^4",
-    "@nomiclabs/hardhat-ethers": "^2",
     "ethers": "^5",
     "hardhat": "^2"
   }
