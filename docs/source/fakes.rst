@@ -42,8 +42,7 @@ Initialize with a contract name
 
 .. code-block:: typescript
 
-  const myFake = await smock.fake("MyContract");
-
+  const myFake = await smock.fake('MyContract');
 
 Initialize with a contract ABI
 ##############################
@@ -57,7 +56,7 @@ Initialize with a contract factory
 
 .. code-block:: typescript
 
-  const myContractFactory = await hre.ethers.getContractFactory("MyContract");
+  const myContractFactory = await hre.ethers.getContractFactory('MyContract');
   const myFake = await smock.fake(myContractFactory);
 
 Initialize with a contract instance
@@ -65,16 +64,29 @@ Initialize with a contract instance
 
 .. code-block:: typescript
 
-  const myContractFactory = await hre.ethers.getContractFactory("MyContract");
+  const myContractFactory = await hre.ethers.getContractFactory('MyContract');
   const myContract = await myContractFactory.deploy();
   const myFake = await smock.fake(myContract);
 
 Take full advantage of typescript and typechain
-###############################
+###############################################
 
 .. code-block:: typescript
 
-  const myFake = await smock.fake<MyContract>("MyContract");
+  const myFake = await smock.fake<MyContract>('MyContract');
+
+Options
+#######
+
+.. code-block:: typescript
+
+  await smock.fake('MyContract', { ... }); // how to use
+
+  // options
+  {
+    address?: string; // initialize fake at a specific address
+    provider?: Provider; // initialize fake with a custom provider
+  }
 
 
 Making a function return
@@ -159,14 +171,14 @@ Reverting with a string message
 
 .. code-block:: typescript
 
-  myFake.myFunction.reverts("Something went wrong");
+  myFake.myFunction.reverts('Something went wrong');
 
 Reverting with bytes data
 #########################
 
 .. code-block:: typescript
 
-  myFake.myFunction.reverts("0x12341234");
+  myFake.myFunction.reverts('0x12341234');
 
 Reverting at a specific call count
 ##################################
@@ -174,10 +186,10 @@ Reverting at a specific call count
 .. code-block:: typescript
 
   myFake.myFunction.returns(1234);
-  myFake.myFunction.revertsAtCall(1, "Something went wrong");
+  myFake.myFunction.revertsAtCall(1, 'Something went wrong');
 
   await myFake.myFunction(); // returns 1234
-  await myFake.myFunction(); // reverts with "Something went wrong"
+  await myFake.myFunction(); // reverts with 'Something went wrong'
   await myFake.myFunction(); // returns 1234
 
 Resetting function behavior
@@ -242,7 +254,7 @@ Called with specific arguments
 
 .. code-block:: typescript
 
-  expect(myFake.myFunction).to.have.been.calledWith(123, true, "abcd");
+  expect(myFake.myFunction).to.have.been.calledWith(123, true, 'abcd');
 
 Called with struct arguments
 ############################
@@ -315,14 +327,14 @@ Getting arguments at a specific call index
 Manipulating fallback functions
 *******************************
 
-Modifying the "fallback" function
+Modifying the :code:`fallback` function
 #################################
 
 .. code-block:: typescript
 
   myFake.fallback.returns();
 
-Modifying the "receive" function
+Modifying the :code:`receive` function
 ################################
 
 .. code-block:: typescript
