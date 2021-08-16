@@ -1,5 +1,6 @@
 import { FakeContract, smock } from '@src';
-import { Receiver, Receiver__factory } from '@typechained';
+import { makeRandomAddress } from '@src/utils';
+import { Receiver, Receiver__factory, Returner } from '@typechained';
 import receiverArtifact from 'artifacts/test/contracts/watchable-function-logic/Receiver.sol/Receiver.json';
 import chai, { expect } from 'chai';
 import { ethers } from 'hardhat';
@@ -51,5 +52,15 @@ describe('Fake: Initialization', () => {
   it(`should work with any object thas has an abi inside`, async () => {
     fake = await smock.fake<Receiver>({ abi: receiverArtifact.abi });
     expect(fake.receiveEmpty._watchable).not.to.be.undefined;
+  });
+
+  it(`should be initializable in a given address`, async () => {
+    const targetAddress = makeRandomAddress();
+
+    const fakeReturner = await smock.fake<Returner>('Returner', { address: targetAddress });
+    fakeReturner.getBoolean.returns(true);
+
+    const returner = (await ethers.getContractAt('Returner', targetAddress)) as Returner;
+    expect(await returner.callStatic.getBoolean()).to.be.true;
   });
 });
