@@ -29,7 +29,7 @@ Initialize with a contract name
 
 .. code-block:: typescript
 
-  const myContractFactory = await smock.mock("MyContract");
+  const myContractFactory = await smock.mock('MyContract');
   const myContract = await myContractFactory.deploy(...);
 
 Take full advantage of typescript and typechain
@@ -37,7 +37,19 @@ Take full advantage of typescript and typechain
 
 .. code-block:: typescript
 
-  await smock.mock<MyContract__factory>("MyContract");
+  await smock.mock<MyContract__factory>('MyContract');
+
+Options
+#######
+
+.. code-block:: typescript
+
+  await smock.mock('MyContract', { ... }); // how to use
+
+  // options
+  {
+    provider?: Provider; // initialize mock with a custom provider
+  }
 
 
 Using features of fakes
@@ -71,14 +83,14 @@ Setting the value of a variable
 
 .. code-block:: typescript
 
-  await myMock.setVariable("myVariableName", 1234);
+  await myMock.setVariable('myVariableName', 1234);
 
 Setting the value of a struct
 #############################
 
 .. code-block:: typescript
 
-  await myMock.setVariable("myStruct", {
+  await myMock.setVariable('myStruct', {
     valueA: 1234,
     valueB: true,
   });
