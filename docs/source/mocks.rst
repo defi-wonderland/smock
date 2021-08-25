@@ -94,3 +94,25 @@ Setting the value of a struct
     valueA: 1234,
     valueB: true,
   });
+
+
+Setting the value of a mapping (won't affect other keys)
+#######################################################
+
+.. code-block:: typescript
+
+  await myMock.setVariable('myMapping', {
+    myKey: 1234
+  });
+
+
+Setting the value of a nested mapping
+#####################################
+
+.. code-block:: typescript
+
+  await myMock.setVariable('myMapping', {
+    myChildMapping: {
+      myKey: 1234
+    }
+  });
