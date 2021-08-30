@@ -1,18 +1,30 @@
 import { BaseContract, ContractFactory } from 'ethers';
+import hre from 'hardhat';
 import { matchers } from './chai-plugin/matchers';
 import { Sandbox } from './sandbox';
 import { FakeContract, FakeContractOptions, FakeContractSpec, MockContractFactory } from './types';
+import { getHardhatBaseProvider } from './utils';
 
 let sandbox: Sandbox;
 
 async function fake<T extends BaseContract>(spec: FakeContractSpec, opts: FakeContractOptions = {}): Promise<FakeContract<T>> {
-  if (!sandbox) sandbox = await Sandbox.create();
+  if (!sandbox) await init();
   return await sandbox.fake(spec, opts);
 }
 
 async function mock<T extends ContractFactory>(contractName: string): Promise<MockContractFactory<T>> {
-  if (!sandbox) sandbox = await Sandbox.create();
+  if (!sandbox) await init();
+
   return await sandbox.mock(contractName);
+}
+
+async function init() {
+  sandbox = await Sandbox.create();
+
+  // reinit in case there is an evm reset
+  (await getHardhatBaseProvider(hre)).on('hardhatNetworkReset', async () => {
+    sandbox = await Sandbox.create();
+  });
 }
 
 export * from './types';

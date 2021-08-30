@@ -3,7 +3,7 @@ import { makeRandomAddress } from '@src/utils';
 import { Receiver, Receiver__factory, Returner } from '@typechained';
 import receiverArtifact from 'artifacts/test/contracts/watchable-function-logic/Receiver.sol/Receiver.json';
 import chai, { expect } from 'chai';
-import { ethers } from 'hardhat';
+import { ethers, network } from 'hardhat';
 
 chai.use(smock.matchers);
 
@@ -62,5 +62,18 @@ describe('Fake: Initialization', () => {
 
     const returner = (await ethers.getContractAt('Returner', targetAddress)) as Returner;
     expect(await returner.callStatic.getBoolean()).to.be.true;
+  });
+
+  it('should handle evm resets', async () => {
+    const receiver1 = await smock.fake<Receiver>('Receiver');
+    await receiver1.callStatic.receiveEmpty();
+
+    await network.provider.request({
+      method: 'hardhat_reset',
+      params: [],
+    });
+
+    const receiver2 = await smock.fake<Returner>('Returner');
+    await expect(receiver2.callStatic.getBoolean()).not.to.be.reverted;
   });
 });
