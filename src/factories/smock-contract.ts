@@ -18,7 +18,7 @@ export async function createFakeContract<Contract extends BaseContract>(
   contractInterface: ethers.utils.Interface,
   provider: ethers.providers.Provider
 ): Promise<FakeContract<Contract>> {
-  const fake = await initContract<FakeContract<Contract>>(vm, address, contractInterface, provider);
+  const fake = (await initContract(vm, address, contractInterface, provider)) as unknown as FakeContract<Contract>;
   const contractFunctions = getContractFunctionsNameAndSighash(contractInterface, Object.keys(fake.functions));
 
   // attach to every contract function, all the programmable and watchable logic
@@ -35,7 +35,7 @@ export async function createMockContractFactory<T extends ContractFactory>(
   vm: ObservableVM,
   contractName: string
 ): Promise<MockContractFactory<T>> {
-  const factory = (await hardhatEthers.getContractFactory(contractName)) as MockContractFactory<T>;
+  const factory = (await hardhatEthers.getContractFactory(contractName)) as unknown as MockContractFactory<T>;
 
   const realDeploy = factory.deploy;
   factory.deploy = async (...args: Parameters<T['deploy']>) => {
@@ -59,15 +59,15 @@ export async function createMockContractFactory<T extends ContractFactory>(
   return factory;
 }
 
-async function initContract<T extends BaseContract>(
+async function initContract(
   vm: ObservableVM,
   address: string,
   contractInterface: ethers.utils.Interface,
   provider: ethers.providers.Provider
-): Promise<T> {
+): Promise<BaseContract> {
   // Generate the contract object that we're going to attach our fancy functions to. Doing it this
   // way is nice because it "feels" more like a contract (as long as you're using ethers).
-  const contract = new ethers.Contract(address, contractInterface, provider) as T;
+  const contract = new ethers.Contract(address, contractInterface, provider);
 
   // Set some code into the contract address so hardhat recognize it as a contract
   await vm.getManager().putContractCode(toFancyAddress(contract.address), Buffer.from('00', 'hex'));
