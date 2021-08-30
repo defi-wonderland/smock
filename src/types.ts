@@ -42,23 +42,23 @@ export interface ProgrammableContractFunction extends WatchableContractFunction 
   reset: () => void;
 }
 
-export type FakeContract<Type extends BaseContract> = BaseContract &
-  Type &
-  {
-    [Property in keyof Type['functions']]: ProgrammableContractFunction;
-  } & {
+export type SmockContractBase<T extends BaseContract> = Omit<BaseContract, 'connect'> &
+  Omit<T, 'connect'> & {
     wallet: Signer;
     fallback: ProgrammableContractFunction;
   };
 
-export type MockContract<Contract extends BaseContract> = BaseContract &
-  Contract &
-  {
-    [Property in keyof Contract['functions']]: ProgrammableContractFunction;
-  } & {
-    wallet: Signer;
-    fallback: ProgrammableContractFunction;
-    setVariable: EditableStorageLogic['setVariable'];
+export type FakeContract<T extends BaseContract> = SmockContractBase<T> & {
+  connect: (...args: Parameters<T['connect']>) => FakeContract<T>;
+} & {
+    [Property in keyof T['functions']]: ProgrammableContractFunction;
+  };
+
+export type MockContract<T extends BaseContract> = SmockContractBase<T> & {
+  connect: (...args: Parameters<T['connect']>) => MockContract<T>;
+  setVariable: EditableStorageLogic['setVariable'];
+} & {
+    [Property in keyof T['functions']]: ProgrammableContractFunction;
   };
 
 type ThenArg<T> = T extends PromiseLike<infer U> ? U : T;
