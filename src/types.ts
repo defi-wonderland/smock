@@ -48,13 +48,13 @@ export type SmockContractBase<T extends BaseContract> = Omit<BaseContract, 'conn
     fallback: ProgrammableContractFunction;
   };
 
-export type FakeContract<T extends BaseContract> = SmockContractBase<T> & {
+export type FakeContract<T extends BaseContract = BaseContract> = SmockContractBase<T> & {
   connect: (...args: Parameters<T['connect']>) => FakeContract<T>;
 } & {
     [Property in keyof T['functions']]: ProgrammableContractFunction;
   };
 
-export type MockContract<T extends BaseContract> = SmockContractBase<T> & {
+export type MockContract<T extends BaseContract = BaseContract> = SmockContractBase<T> & {
   connect: (...args: Parameters<T['connect']>) => MockContract<T>;
   setVariable: EditableStorageLogic['setVariable'];
 } & {
