@@ -89,6 +89,16 @@ Options
   }
 
 
+Signing transactions
+********************
+
+Every fake comes with a :code:`wallet` property in order to make easy to sign transactions
+
+.. code-block:: typescript
+
+  myContract.connect(myFake.wallet).doSomething();
+
+
 Making a function return
 ************************
 
