@@ -140,6 +140,7 @@ function fillProgrammableContractFunction(fn: ProgrammableContractFunction, logi
   fn.returnsAtCall = logic.returnsAtCall.bind(logic);
   fn.reverts = logic.reverts.bind(logic);
   fn.revertsAtCall = logic.revertsAtCall.bind(logic);
+  fn.whenCalledWith = logic.whenCalledWith.bind(logic);
   fn.reset = logic.reset.bind(logic);
 }
 

@@ -2,8 +2,9 @@ import { EVMResult } from '@nomiclabs/ethereumjs-vm/dist/evm/evm';
 import { VmError } from '@nomiclabs/ethereumjs-vm/dist/exceptions';
 import BN from 'bn.js';
 import { ethers } from 'ethers';
+import { findLast } from 'lodash';
 import { Observable, withLatestFrom } from 'rxjs';
-import { ContractCall, ProgrammedReturnValue } from '../index';
+import { ContractCall, ProgrammedReturnValue, WhenCalledWithChain } from '../index';
 import { WatchableFunctionLogic } from '../logic/watchable-function-logic';
 import { fromHexString } from '../utils';
 
@@ -23,6 +24,7 @@ export class ProgrammableFunctionLogic extends WatchableFunctionLogic {
   protected encoder: (value: any) => string;
   protected defaultAnswer: ProgrammedAnswer | undefined;
   protected answerByIndex: { [index: number]: ProgrammedAnswer } = {};
+  protected answerByArgs: { answer: ProgrammedAnswer; args: unknown[] }[] = [];
 
   constructor(
     name: string,
@@ -49,6 +51,23 @@ export class ProgrammableFunctionLogic extends WatchableFunctionLogic {
     this.answerByIndex[callIndex] = new ProgrammedAnswer(value, false);
   }
 
+  whenCalledWith(...args: unknown[]): WhenCalledWithChain {
+    return {
+      returns: (value?: ProgrammedReturnValue) => {
+        this.answerByArgs.push({
+          args,
+          answer: new ProgrammedAnswer(value, false),
+        });
+      },
+      reverts: (reason?: string) => {
+        this.answerByArgs.push({
+          args,
+          answer: new ProgrammedAnswer(reason, true),
+        });
+      },
+    };
+  }
+
   reverts(reason?: string): void {
     this.defaultAnswer = new ProgrammedAnswer(reason, true);
   }
@@ -61,10 +80,11 @@ export class ProgrammableFunctionLogic extends WatchableFunctionLogic {
     super.reset();
     this.defaultAnswer = undefined;
     this.answerByIndex = {};
+    this.answerByArgs = [];
   }
 
   private async modifyAnswer(result: EVMResult, call: ContractCall): Promise<void> {
-    const answer = this.answerByIndex[this.getCallCount() - 1] || this.defaultAnswer;
+    const answer = this.getCallAnswer(call);
 
     if (answer) {
       result.gasUsed = new BN(0);
@@ -76,6 +96,21 @@ export class ProgrammableFunctionLogic extends WatchableFunctionLogic {
         result.execResult.returnValue = await this.encodeValue(answer.value, call);
       }
     }
+  }
+
+  private getCallAnswer(call: ContractCall): ProgrammedAnswer | undefined {
+    let answer: ProgrammedAnswer | undefined;
+
+    // if there is an answer for this call index, return it
+    answer = this.answerByIndex[this.getCallCount() - 1];
+    if (answer) return answer;
+
+    // if there is an answer for this call arguments, return it
+    answer = findLast(this.answerByArgs, (option) => this.isDeepEqual(option.args, call.args))?.answer;
+    if (answer) return answer;
+
+    // return the default answer
+    return this.defaultAnswer;
   }
 
   private async encodeValue(value: ProgrammedReturnValue, call: ContractCall): Promise<Buffer> {
