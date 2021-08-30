@@ -151,6 +151,15 @@ Returning a value based on arguments
 
 .. code-block:: typescript
 
+  myFake.myFunction.whenCalledWith(123).returns(456);
+  
+  await myFake.myFunction(123); // returns 456
+
+Returning a value with custom logic
+###################################
+
+.. code-block:: typescript
+
   myFake.getDynamicInput.returns(arg1 => arg1 * 10);
   
   await myFake.getDynamicInput(123); // returns 1230
@@ -201,6 +210,18 @@ Reverting at a specific call count
   await myFake.myFunction(); // returns 1234
   await myFake.myFunction(); // reverts with 'Something went wrong'
   await myFake.myFunction(); // returns 1234
+
+Reverting based on arguments
+############################
+
+.. code-block:: typescript
+
+  myFake.myFunction.returns(1);
+  myFake.myFunction.whenCalledWith(123).reverts('Something went wrong');
+
+  await myFake.myFunction(); // returns 1
+  await myFake.myFunction(123); // reverts with 'Something went wrong'
+
 
 Resetting function behavior
 ***************************
@@ -338,14 +359,14 @@ Manipulating fallback functions
 *******************************
 
 Modifying the :code:`fallback` function
-#################################
+#######################################
 
 .. code-block:: typescript
 
   myFake.fallback.returns();
 
 Modifying the :code:`receive` function
-################################
+######################################
 
 .. code-block:: typescript
 

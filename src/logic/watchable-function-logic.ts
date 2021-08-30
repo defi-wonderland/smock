@@ -28,11 +28,11 @@ export class WatchableFunctionLogic {
   }
 
   calledWith(...expectedCallArgs: unknown[]): boolean {
-    return !!this.callHistory.find((call) => isEqualWith(call.args, expectedCallArgs, this.isEqualCustomizer.bind(this)));
+    return !!this.callHistory.find((call) => this.isDeepEqual(call.args, expectedCallArgs));
   }
 
   alwaysCalledWith(...expectedCallArgs: unknown[]): boolean {
-    const callWithOtherArgs = this.callHistory.find((call) => !isEqualWith(call.args, expectedCallArgs, this.isEqualCustomizer.bind(this)));
+    const callWithOtherArgs = this.callHistory.find((call) => !this.isDeepEqual(call.args, expectedCallArgs));
     return this.getCalled() && !callWithOtherArgs;
   }
 
@@ -132,6 +132,10 @@ export class WatchableFunctionLogic {
         return comparison(watchablecontractACall.nonce, watchablecontractBCall.nonce);
       });
     });
+  }
+
+  protected isDeepEqual(obj1: unknown, obj2: unknown): boolean {
+    return isEqualWith(obj1, obj2, this.isEqualCustomizer.bind(this));
   }
 
   /**
