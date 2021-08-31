@@ -1,6 +1,6 @@
 {
   "name": "@defi-wonderland/smock",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "The Solidity mocking library",
   "keywords": [
     "ethereum",
