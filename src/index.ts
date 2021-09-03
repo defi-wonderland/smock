@@ -1,6 +1,7 @@
 import { BaseContract, ContractFactory } from 'ethers';
 import hre from 'hardhat';
 import { matchers } from './chai-plugin/matchers';
+import './chai-plugin/types';
 import { Sandbox } from './sandbox';
 import { FakeContract, FakeContractOptions, FakeContractSpec, MockContractFactory } from './types';
 import { getHardhatBaseProvider } from './utils';
