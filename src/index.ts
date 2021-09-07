@@ -1,4 +1,5 @@
-import { BaseContract, ContractFactory } from 'ethers';
+import { FactoryOptions } from '@nomiclabs/hardhat-ethers/types';
+import { BaseContract, ContractFactory, ethers } from 'ethers';
 import hre from 'hardhat';
 import { matchers } from './chai-plugin/matchers';
 import { Sandbox } from './sandbox';
@@ -12,10 +13,13 @@ async function fake<T extends BaseContract>(spec: FakeContractSpec, opts: FakeCo
   return await sandbox.fake(spec, opts);
 }
 
-async function mock<T extends ContractFactory>(contractName: string): Promise<MockContractFactory<T>> {
+async function mock<T extends ContractFactory>(
+  contractName: string,
+  signerOrOptions?: ethers.Signer | FactoryOptions
+): Promise<MockContractFactory<T>> {
   if (!sandbox) await init();
 
-  return await sandbox.mock(contractName);
+  return await sandbox.mock(contractName, signerOrOptions);
 }
 
 async function init() {
