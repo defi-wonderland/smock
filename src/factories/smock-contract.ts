@@ -1,4 +1,5 @@
 import Message from '@nomiclabs/ethereumjs-vm/dist/evm/message';
+import { FactoryOptions } from '@nomiclabs/hardhat-ethers/types';
 import { BaseContract, ContractFactory, ethers } from 'ethers';
 import { Interface } from 'ethers/lib/utils';
 import { ethers as hardhatEthers } from 'hardhat';
@@ -33,9 +34,10 @@ export async function createFakeContract<Contract extends BaseContract>(
 
 export async function createMockContractFactory<T extends ContractFactory>(
   vm: ObservableVM,
-  contractName: string
+  contractName: string,
+  signerOrOptions?: ethers.Signer | FactoryOptions
 ): Promise<MockContractFactory<T>> {
-  const factory = (await hardhatEthers.getContractFactory(contractName)) as unknown as MockContractFactory<T>;
+  const factory = (await hardhatEthers.getContractFactory(contractName, signerOrOptions)) as unknown as MockContractFactory<T>;
 
   const realDeploy = factory.deploy;
   factory.deploy = async (...args: Parameters<T['deploy']>) => {

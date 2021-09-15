@@ -57,7 +57,3 @@ declare global {
     }
   }
 }
-
-declare const sinonChai: Chai.ChaiPlugin;
-declare namespace sinonChai {}
-export = sinonChai;
