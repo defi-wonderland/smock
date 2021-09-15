@@ -1,12 +1,26 @@
 import { BigNumber } from '@ethersproject/bignumber';
-import { smock } from '@src';
-import { Librarian__factory, TestLibrary__factory } from '@typechained';
+import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
+import { MockContractFactory, smock } from '@src';
+import { Counter__factory, Librarian__factory, TestLibrary__factory } from '@typechained';
 import chai, { expect } from 'chai';
 import { ethers } from 'hardhat';
 
 chai.use(smock.matchers);
 
 describe('Mock: Initialization', () => {
+  let mockFactory: MockContractFactory<Counter__factory>;
+  let deployer: SignerWithAddress;
+
+  before(async () => {
+    [, deployer] = await ethers.getSigners();
+    mockFactory = await smock.mock('Counter');
+  });
+
+  it('should be able to deploy from specific signer', async () => {
+    const mock = await mockFactory.connect(deployer).deploy(0);
+    expect(await mock.callStatic.deployer()).to.equal(deployer.address);
+  });
+
   it('should be able to use libraries', async () => {
     const testLibrary = await (await ethers.getContractFactory('TestLibrary')).deploy();
     const librarian = await (
