@@ -1,5 +1,8 @@
 .. image:: https://img.shields.io/npm/v/@defi-wonderland/smock.svg?style=flat-square
     :target: https://www.npmjs.org/package/@defi-wonderland/smock
+    
+.. image:: https://badgen.net/badge/icon/discord?icon=discord&label
+    :target: https://discord.com/invite/22RQcJjau9
 
 .. raw:: html
 
@@ -18,6 +21,8 @@ You'll never have to write another mock contract in Solidity again.
 
 Smock is inspired by `sinon <https://sinonjs.org>`_, `sinon-chai <https://www.chaijs.com/plugins/sinon-chai>`_, and Python's `unittest.mock <https://docs.python.org/3/library/unittest.mock.html>`_.
 Although Smock is currently only compatible with `hardhat <https://hardhat.org>`_, we plan to extend support to other testing frameworks like `Truffle <https://www.trufflesuite.com/>`_.
+
+If you wanna chat about the future of Solidity Mocking, join our `Discord <https://discord.com/invite/22RQcJjau9>`_!
 
 Features
 --------
