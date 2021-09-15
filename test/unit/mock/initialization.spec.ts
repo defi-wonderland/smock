@@ -8,7 +8,6 @@ import { ethers } from 'hardhat';
 chai.use(smock.matchers);
 
 describe('Mock: Initialization', () => {
-
   let mockFactory: MockContractFactory<Counter__factory>;
   let deployer: SignerWithAddress;
 
@@ -21,7 +20,7 @@ describe('Mock: Initialization', () => {
     const mock = await mockFactory.connect(deployer).deploy(0);
     expect(await mock.callStatic.deployer()).to.equal(deployer.address);
   });
-  
+
   it('should be able to use libraries', async () => {
     const testLibrary = await (await ethers.getContractFactory('TestLibrary')).deploy();
     const librarian = await (
