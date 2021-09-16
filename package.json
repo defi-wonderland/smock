@@ -52,6 +52,7 @@
     "@ethereumjs/vm": "5.3.1"
   },
   "dependencies": {
+    "@nomiclabs/ethereumjs-vm": "^4.2.2",
     "diff": "^5.0.0",
     "lodash.isequal": "^4.5.0",
     "lodash.isequalwith": "^4.4.0",
@@ -61,7 +62,6 @@
   "devDependencies": {
     "@commitlint/cli": "12.1.4",
     "@commitlint/config-conventional": "12.1.4",
-    "@nomiclabs/ethereumjs-vm": "^4.2.2",
     "@nomiclabs/hardhat-ethers": "2.0.2",
     "@nomiclabs/hardhat-waffle": "2.0.1",
     "@typechain/ethers-v5": "7.0.1",
@@ -100,7 +100,6 @@
     "@ethersproject/abi": "^5",
     "@ethersproject/abstract-provider": "^5",
     "@ethersproject/abstract-signer": "^5",
-    "@nomiclabs/ethereumjs-vm": "^4",
     "@nomiclabs/hardhat-ethers": "^2",
     "ethers": "^5",
     "hardhat": "^2"
