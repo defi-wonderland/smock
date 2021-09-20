@@ -32,13 +32,11 @@ export async function createFakeContract<Contract extends BaseContract>(
   return fake;
 }
 
-export async function createMockContractFactory<T extends ContractFactory>(
+function mockifyContractFactory<T extends ContractFactory>(
   vm: ObservableVM,
   contractName: string,
-  signerOrOptions?: ethers.Signer | FactoryOptions
-): Promise<MockContractFactory<T>> {
-  const factory = (await hardhatEthers.getContractFactory(contractName, signerOrOptions)) as unknown as MockContractFactory<T>;
-
+  factory: MockContractFactory<T>
+): MockContractFactory<T> {
   const realDeploy = factory.deploy;
   factory.deploy = async (...args: Parameters<T['deploy']>) => {
     const mock = await realDeploy.apply(factory, args);
@@ -58,7 +56,22 @@ export async function createMockContractFactory<T extends ContractFactory>(
     return mock;
   };
 
+  const realConnect = factory.connect;
+  factory.connect = (...args: Parameters<T['connect']>): MockContractFactory<T> => {
+    const newFactory = realConnect.apply(factory, args) as MockContractFactory<T>;
+    return mockifyContractFactory(vm, contractName, newFactory);
+  };
+
   return factory;
+}
+
+export async function createMockContractFactory<T extends ContractFactory>(
+  vm: ObservableVM,
+  contractName: string,
+  signerOrOptions?: ethers.Signer | FactoryOptions
+): Promise<MockContractFactory<T>> {
+  const factory = (await hardhatEthers.getContractFactory(contractName, signerOrOptions)) as unknown as MockContractFactory<T>;
+  return mockifyContractFactory(vm, contractName, factory);
 }
 
 async function initContract(

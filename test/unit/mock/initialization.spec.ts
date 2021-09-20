@@ -21,6 +21,11 @@ describe('Mock: Initialization', () => {
     expect(await mock.callStatic.deployer()).to.equal(deployer.address);
   });
 
+  it('should have the setVariable property after using the connect function', async () => {
+    const mock = await mockFactory.connect(deployer).deploy(0);
+    expect(mock.setVariable).to.not.be.undefined;
+  });
+
   it('should be able to use libraries', async () => {
     const testLibrary = await (await ethers.getContractFactory('TestLibrary')).deploy();
     const librarian = await (
