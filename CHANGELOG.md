@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.0.5](https://github.com/defi-wonderland/smock/compare/v2.0.2...v2.0.5) (2021-09-21)
+
+
+### Features
+
+* mocks can be deployed with libs ([#68](https://github.com/defi-wonderland/smock/issues/68)) ([620f5a3](https://github.com/defi-wonderland/smock/commit/620f5a3bcc4b18e88e5770d254f3783e5be6d659))
+
+
+### Bug Fixes
+
+* correctly export assertion types ([#66](https://github.com/defi-wonderland/smock/issues/66)) ([3de6f3d](https://github.com/defi-wonderland/smock/commit/3de6f3d888982def68a6941e7e337f2d3d415e7f))
+* have connect function return mock factory ([#67](https://github.com/defi-wonderland/smock/issues/67)) ([a8814fd](https://github.com/defi-wonderland/smock/commit/a8814fd530d3951779d1f245e4717d4fd6d60a32))
+* make sure connect returns the correct factory instance ([#75](https://github.com/defi-wonderland/smock/issues/75)) ([43dbc00](https://github.com/defi-wonderland/smock/commit/43dbc002543dc810a379f3dfb15402158d98bbe5))
+* move ethereumjs-vm into deps ([#74](https://github.com/defi-wonderland/smock/issues/74)) ([5d8d664](https://github.com/defi-wonderland/smock/commit/5d8d6648ccad4edd13be21895edc6cfc4f5367e9))
+
 ### [2.0.4](https://github.com/defi-wonderland/smock/compare/v2.0.2...v2.0.4) (2021-09-15)
 
 
