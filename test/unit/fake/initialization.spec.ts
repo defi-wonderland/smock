@@ -76,4 +76,9 @@ describe('Fake: Initialization', () => {
     const receiver2 = await smock.fake<Returner>('Returner');
     await expect(receiver2.callStatic.getBoolean()).not.to.be.reverted;
   });
+
+  it('should work for an interface', async () => {
+    fake = await smock.fake('IPartialReceiver');
+    expect(fake.receiveEmpty._watchable).not.to.be.undefined;
+  });
 });

@@ -6,9 +6,17 @@ export async function ethersInterfaceFromSpec(spec: FakeContractSpec): Promise<e
   if (typeof spec === 'string') {
     try {
       return new ethers.utils.Interface(spec);
-    } catch {
+    } catch {}
+
+    try {
       return (await (hre as any).ethers.getContractFactory(spec)).interface;
-    }
+    } catch {}
+
+    try {
+      return (await (hre as any).ethers.getContractAt(spec, ethers.constants.AddressZero)).interface;
+    } catch {}
+
+    throw new Error(`unable to generate smock spec from string`);
   }
 
   let foundInterface: any = spec;
