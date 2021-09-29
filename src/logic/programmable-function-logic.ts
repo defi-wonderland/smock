@@ -93,6 +93,7 @@ export class ProgrammableFunctionLogic extends WatchableFunctionLogic {
         result.execResult.exceptionError = new VmError('smock revert' as any);
         result.execResult.returnValue = this.encodeRevertReason(answer.value);
       } else {
+        result.execResult.exceptionError = undefined;
         result.execResult.returnValue = await this.encodeValue(answer.value, call);
       }
     }

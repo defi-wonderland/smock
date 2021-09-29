@@ -13,4 +13,8 @@ contract Counter {
   function add(uint256 _amount) external {
     count += _amount;
   }
+
+  function doRevert() external pure returns (bool) {
+    revert('doing a revert');
+  }
 }
