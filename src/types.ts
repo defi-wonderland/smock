@@ -46,6 +46,7 @@ export interface ProgrammableContractFunction extends WatchableContractFunction 
   revertsAtCall: (index: number, reason?: string) => void;
   whenCalledWith: (...args: unknown[]) => WhenCalledWithChain;
   reset: () => void;
+  (...args: any[]): Promise<any>;
 }
 
 export type SmockContractBase<T extends BaseContract> = Omit<BaseContract, 'connect'> &
