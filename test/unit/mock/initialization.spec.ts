@@ -26,6 +26,11 @@ describe('Mock: Initialization', () => {
     expect(mock.setVariable).to.not.be.undefined;
   });
 
+  it('should have a wallet', async () => {
+    const mock = await mockFactory.deploy(0);
+    expect(mock.wallet._isSigner).to.be.true;
+  });
+
   it('should be able to use libraries', async () => {
     const testLibrary = await (await ethers.getContractFactory('TestLibrary')).deploy();
     const librarian = await (
