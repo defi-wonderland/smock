@@ -8,49 +8,48 @@ import { ethers, network } from 'hardhat';
 chai.use(smock.matchers);
 
 describe('Fake: Initialization', () => {
-  let fake: FakeContract<Receiver>;
 
   it('should work with the contract name', async () => {
-    fake = await smock.fake<Receiver>('Receiver');
+    const fake = await smock.fake('Receiver');
     expect(fake.receiveEmpty._watchable).not.to.be.undefined;
   });
 
   it(`should work with the contract's artifact`, async () => {
-    fake = await smock.fake<Receiver>(receiverArtifact);
+    const fake = await smock.fake(receiverArtifact);
     expect(fake.receiveEmpty._watchable).not.to.be.undefined;
   });
 
   it(`should work with the contract's abi`, async () => {
-    fake = await smock.fake<Receiver>(receiverArtifact.abi);
+    const fake = await smock.fake(receiverArtifact.abi);
     expect(fake.receiveEmpty._watchable).not.to.be.undefined;
   });
 
   it(`should work with the contract factory`, async () => {
     const factory = (await ethers.getContractFactory('Receiver')) as Receiver__factory;
-    fake = await smock.fake<Receiver>(factory);
+    const fake = await smock.fake(factory);
     expect(fake.receiveEmpty._watchable).not.to.be.undefined;
   });
 
   it(`should work with the contract interface`, async () => {
     const factory = (await ethers.getContractFactory('Receiver')) as Receiver__factory;
-    fake = await smock.fake<Receiver>(factory.interface);
+    const fake = await smock.fake(factory.interface);
     expect(fake.receiveEmpty._watchable).not.to.be.undefined;
   });
 
   it(`should work with the contract`, async () => {
     const factory = (await ethers.getContractFactory('Receiver')) as Receiver__factory;
-    fake = await smock.fake<Receiver>(await factory.deploy());
+    const fake = await smock.fake(await factory.deploy());
     expect(fake.receiveEmpty._watchable).not.to.be.undefined;
   });
 
   it(`should work with the contract full path`, async () => {
     const factory = (await ethers.getContractFactory('test/contracts/watchable-function-logic/Receiver.sol:Receiver')) as Receiver__factory;
-    fake = await smock.fake<Receiver>(await factory.deploy());
+    const fake = await smock.fake(await factory.deploy());
     expect(fake.receiveEmpty._watchable).not.to.be.undefined;
   });
 
   it(`should work with any object thas has an abi inside`, async () => {
-    fake = await smock.fake<Receiver>({ abi: receiverArtifact.abi });
+    const fake = await smock.fake({ abi: receiverArtifact.abi });
     expect(fake.receiveEmpty._watchable).not.to.be.undefined;
   });
 
@@ -78,7 +77,12 @@ describe('Fake: Initialization', () => {
   });
 
   it('should work for an interface', async () => {
-    fake = await smock.fake('IPartialReceiver');
+    const fake = await smock.fake('IPartialReceiver');
     expect(fake.receiveEmpty._watchable).not.to.be.undefined;
+  });
+
+  it('should have a wallet', async () => {
+    const fake = await smock.fake('Receiver');
+    expect(fake.wallet._isSigner).to.be.true;
   });
 });
