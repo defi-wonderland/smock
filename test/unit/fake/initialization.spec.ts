@@ -1,4 +1,4 @@
-import { FakeContract, smock } from '@src';
+import { smock } from '@src';
 import { makeRandomAddress } from '@src/utils';
 import { Receiver, Receiver__factory, Returner } from '@typechained';
 import receiverArtifact from 'artifacts/test/contracts/watchable-function-logic/Receiver.sol/Receiver.json';
@@ -8,7 +8,6 @@ import { ethers, network } from 'hardhat';
 chai.use(smock.matchers);
 
 describe('Fake: Initialization', () => {
-
   it('should work with the contract name', async () => {
     const fake = await smock.fake('Receiver');
     expect(fake.receiveEmpty._watchable).not.to.be.undefined;
