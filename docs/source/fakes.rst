@@ -235,7 +235,7 @@ Resetting a function to original behavior
 
   await myFake.myFunction(); // reverts
 
-  myFake.reset();
+  myFake.myFunction.reset(); // resets behavior for all inputs of the function
 
   await myFake.myFunction(); // returns 0
 
