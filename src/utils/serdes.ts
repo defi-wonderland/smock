@@ -1,4 +1,4 @@
-import { ethers } from "ethers";
+import { ethers } from 'ethers';
 
 const proto = Object.prototype;
 const gpo = Object.getPrototypeOf;
@@ -23,11 +23,11 @@ export function convertStructToPojo(struct: any): object {
 
 export function convertPojoToStruct(value: Record<string, unknown>, fnFragment: ethers.utils.FunctionFragment): unknown[] {
   const parsedValue = {
-      [fnFragment.name]: value
+    [fnFragment.name]: value,
   };
   const parsedFnFragment: Partial<ethers.utils.ParamType> = {
-      name: fnFragment.name,
-      components: fnFragment.outputs!
+    name: fnFragment.name,
+    components: fnFragment.outputs!,
   };
 
   return convertPojoToStructRecursive(parsedValue, [parsedFnFragment])[0];
@@ -36,17 +36,16 @@ export function convertPojoToStruct(value: Record<string, unknown>, fnFragment: 
 export function convertPojoToStructRecursive(value: any, fnFragments: Partial<ethers.utils.ParamType>[]): unknown[][] {
   let res: unknown[][] = [];
 
-  fnFragments.forEach(item => {
-      if (item.components) {
-          res.push(convertPojoToStructRecursive(value[item.name!], item.components));
-      } else {
-          res.push(value[item.name!]);
-      }
+  fnFragments.forEach((item) => {
+    if (item.components) {
+      res.push(convertPojoToStructRecursive(value[item.name!], item.components));
+    } else {
+      res.push(value[item.name!]);
+    }
   });
 
   return res;
 }
-
 
 export function getObjectAndStruct(obj1: unknown, obj2: unknown): [object, unknown[]] | undefined {
   if (isPojo(obj1) && isStruct(obj2)) {

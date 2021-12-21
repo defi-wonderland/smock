@@ -84,7 +84,7 @@ describe('ProgrammableFunctionLogic: Type Handling', () => {
       });
 
       it('should be able to return a struct inside a mapping', async () => {
-        const expected = STRUCT_FIXED_SIZE_EXAMPLE
+        const expected = STRUCT_FIXED_SIZE_EXAMPLE;
 
         fake.structMap.returns(expected);
 
@@ -97,7 +97,7 @@ describe('ProgrammableFunctionLogic: Type Handling', () => {
           valRootString: 'Random',
           valStructFixedSize: STRUCT_FIXED_SIZE_EXAMPLE,
           valStructDynamicSize: STRUCT_DYNAMIC_SIZE_EXAMPLE,
-          valRootBoolean: true
+          valRootBoolean: true,
         };
 
         fake.nestedStructMap.returns(expected);
