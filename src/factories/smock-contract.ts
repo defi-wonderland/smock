@@ -10,7 +10,7 @@ import { ProgrammableFunctionLogic, SafeProgrammableContract } from '../logic/pr
 import { ObservableVM } from '../observable-vm';
 import { Sandbox } from '../sandbox';
 import { ContractCall, FakeContract, MockContractFactory, ProgrammableContractFunction, ProgrammedReturnValue } from '../types';
-import { fromFancyAddress, impersonate, toFancyAddress, toHexString } from '../utils';
+import { convertPojoToStruct, fromFancyAddress, impersonate, isPojo, toFancyAddress, toHexString } from '../utils';
 import { getStorageLayout } from '../utils/storage';
 
 export async function createFakeContract<Contract extends BaseContract>(
@@ -115,12 +115,20 @@ function getFunctionEncoder(contractInterface: ethers.utils.Interface, sighash: 
     // if it is a fallback function, return simplest encoder
     return (values) => values;
   } else {
-    const fnFragment = contractInterface.getFunction(sighash);
     return (values) => {
+      const fnFragment = contractInterface.getFunction(sighash);
       try {
         return contractInterface.encodeFunctionResult(fnFragment, [values]);
       } catch {
-        return contractInterface.encodeFunctionResult(fnFragment, values);
+        try {
+          return contractInterface.encodeFunctionResult(fnFragment, values);
+        } catch (err) {
+          if (isPojo(values)) {
+            return contractInterface.encodeFunctionResult(fnFragment, convertPojoToStruct(values, fnFragment));
+          }
+
+          throw err;
+        }
       }
     };
   }

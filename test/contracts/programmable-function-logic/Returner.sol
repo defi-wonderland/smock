@@ -30,6 +30,9 @@ contract Returner {
 
   function getStructFixedSize() public returns (StructFixedSize memory _out1) {}
 
+  mapping(uint256 => StructFixedSize) public structMap;
+  mapping(uint256 => StructMixedNested) public nestedStructMap;
+
   struct StructDynamicSize {
     bytes valBytes;
     string valString;
@@ -46,6 +49,13 @@ contract Returner {
   }
 
   function getStructMixedSize() public returns (StructMixedSize memory _out1) {}
+
+  struct StructMixedNested {
+    bool valRootBoolean;
+    string valRootString;
+    StructFixedSize valStructFixedSize;
+    StructDynamicSize valStructDynamicSize;
+  }
 
   struct StructNested {
     StructFixedSize valStructFixedSize;
