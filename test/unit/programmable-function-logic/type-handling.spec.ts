@@ -1,4 +1,5 @@
 import { FakeContract, smock } from '@src';
+import { convertStructToPojo } from '@src/utils';
 import { Returner } from '@typechained';
 import chai, { expect } from 'chai';
 import { BigNumber, utils } from 'ethers';
@@ -80,6 +81,29 @@ describe('ProgrammableFunctionLogic: Type Handling', () => {
         expect(result.valBoolean).to.equal(expected.valBoolean);
         expect(result.valUint256).to.deep.equal(expected.valUint256);
         expect(result.valBytes32).to.equal(expected.valBytes32);
+      });
+
+      it('should be able to return a struct inside a mapping', async () => {
+        const expected = STRUCT_FIXED_SIZE_EXAMPLE;
+
+        fake.structMap.returns(expected);
+
+        const result = convertStructToPojo(await fake.callStatic.structMap(BigNumber.from(1)));
+        expect(result).to.deep.equal(expected);
+      });
+
+      it('should be able to return a nested struct inside a mapping', async () => {
+        const expected = {
+          valRootString: 'Random',
+          valStructFixedSize: STRUCT_FIXED_SIZE_EXAMPLE,
+          valStructDynamicSize: STRUCT_DYNAMIC_SIZE_EXAMPLE,
+          valRootBoolean: true,
+        };
+
+        fake.nestedStructMap.returns(expected);
+
+        const result = convertStructToPojo(await fake.callStatic.nestedStructMap(BigNumber.from(1)));
+        expect(result).to.deep.equal(expected);
       });
 
       it('should be able to return a struct with dynamic size values', async () => {
