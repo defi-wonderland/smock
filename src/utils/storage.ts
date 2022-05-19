@@ -162,6 +162,7 @@ function padNumHexSlotValue(val: any, offset: number): string {
   return (
     '0x' +
     bigNumberToHex(bn)
+      .replace(/^0+/, '')
       .padStart(64 - offset * 2, bn.isNegative() ? 'f' : '0') // Pad the start with 64 - offset bytes
       .padEnd(64, '0') // Pad the end (up to 64 bytes) with zero bytes.
       .toLowerCase() // Making this lower case makes assertions more consistent later.
