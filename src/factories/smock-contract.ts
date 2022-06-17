@@ -52,6 +52,7 @@ function mockifyContractFactory<T extends ContractFactory>(
     // attach to every internal variable, all the editable logic
     const editableStorage = new EditableStorage(await getStorageLayout(contractName), vm.getManager(), mock.address);
     mock.setVariable = editableStorage.setVariable.bind(editableStorage);
+    mock.setVariables = editableStorage.setVariables.bind(editableStorage);
 
     // We attach a wallet to the contract so that users can send transactions *from* a watchablecontract.
     mock.wallet = await impersonate(mock.address);

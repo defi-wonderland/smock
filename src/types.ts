@@ -34,6 +34,10 @@ export interface ContractCall {
   target: string;
 }
 
+export interface SetVariablesType {
+  [variablesName: string]: any;
+}
+
 export type WhenCalledWithChain = {
   returns: (value?: ProgrammedReturnValue) => void;
   reverts: (reason?: string) => void;
@@ -64,6 +68,7 @@ export type FakeContract<T extends BaseContract = BaseContract> = SmockContractB
 export type MockContract<T extends BaseContract = BaseContract> = SmockContractBase<T> & {
   connect: (...args: Parameters<T['connect']>) => MockContract<T>;
   setVariable: EditableStorageLogic['setVariable'];
+  setVariables: EditableStorageLogic['setVariables'];
 } & {
     [Property in keyof T['functions']]: ProgrammableContractFunction;
   };
