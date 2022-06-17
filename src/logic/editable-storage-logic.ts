@@ -1,4 +1,4 @@
-import { SmockVMManager } from '../types';
+import { SetVariablesType, SmockVMManager } from '../types';
 import { fromHexString, toFancyAddress } from '../utils';
 import { computeStorageSlots } from '../utils/storage';
 
@@ -20,6 +20,14 @@ export class EditableStorageLogic {
 
     for (const slot of slots) {
       await this.vmManager.putContractStorage(toFancyAddress(this.contractAddress), fromHexString(slot.key), fromHexString(slot.val));
+    }
+  }
+
+  async setVariables(variables: SetVariablesType) {
+    if (variables === undefined || variables === null) return;
+
+    for (const [variableName, variableValue] of Object.entries(variables)) {
+      await this.setVariable(variableName, variableValue);
     }
   }
 }
