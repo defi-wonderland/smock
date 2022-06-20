@@ -48,7 +48,7 @@
   },
   "lint-staged": {
     "*.{js,css,md,ts}": "prettier --write",
-    "*.sol": "cross-env solhint --fix 'contracts/**/*.sol' 'interfaces/**/*.sol' 'test/contracts/**/*.sol'",
+    "*.sol": "cross-env solhint --fix 'contracts/**/*.sol' 'interfaces/**/*.sol'",
     "package.json": "sort-package-json"
   },
   "resolutions": {
