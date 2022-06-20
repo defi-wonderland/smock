@@ -40,10 +40,16 @@
     "lint:check": "cross-env solhint 'contracts/**/*.sol' 'interfaces/**/*.sol' && cross-env prettier --check './**'",
     "lint:fix": "sort-package-json && cross-env prettier --write './**' && cross-env solhint --fix 'contracts/**/*.sol' 'interfaces/**/*.sol'",
     "docs:md": "pandoc README.rst -f rst -t markdown -o README.md",
+    "prepare": "husky install",
     "release": "yarn build && yarn docs:md && standard-version",
     "pre-release": "yarn build && standard-version --prerelease rc",
     "docs:install": "pip install -r docs/requirements.txt",
     "docs:watch": "sphinx-autobuild -a docs/source docs/_build/html --watch docs/source --watch README.rst"
+  },
+  "lint-staged": {
+    "*.{js,css,md,ts}": "prettier --write",
+    "*.sol": "cross-env solhint --fix 'contracts/**/*.sol' 'interfaces/**/*.sol' 'test/contracts/**/*.sol'",
+    "package.json": "sort-package-json"
   },
   "resolutions": {
     "@ethereumjs/block": "3.2.1",
@@ -83,6 +89,7 @@
     "hardhat-preprocessor": "0.1.4",
     "husky": "6.0.0",
     "inquirer": "8.1.0",
+    "lint-staged": ">=10",
     "mocha": "9.0.0",
     "pinst": "2.1.6",
     "prettier": "2.3.1",
