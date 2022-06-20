@@ -6,7 +6,9 @@ import { BaseContract, ContractFactory, ethers } from 'ethers';
 import { EditableStorageLogic } from './logic/editable-storage-logic';
 import { WatchableFunctionLogic } from './logic/watchable-function-logic';
 
-type Abi = ReadonlyArray<Fragment | JsonFragment | string>;
+type Abi = ReadonlyArray<
+  Fragment | Pick<JsonFragment, 'name' | 'type' | 'anonymous' | 'payable' | 'constant' | 'stateMutability' | 'inputs' | 'outputs'> | string
+>;
 export type FakeContractSpec = { abi?: Abi; interface?: Interface } | Abi | ethers.utils.Interface | string;
 
 export interface FakeContractOptions {
