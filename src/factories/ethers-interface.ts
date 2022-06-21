@@ -5,7 +5,7 @@ import { FakeContractSpec } from '../types';
 export async function ethersInterfaceFromSpec(spec: FakeContractSpec): Promise<ethers.utils.Interface> {
   if (typeof spec === 'string') {
     try {
-      if (isJson(spec)) {
+      if (isMaybeJsonObject(spec)) {
         return await ethersInterfaceFromAbi(spec);
       } else {
         return await ethersInterfaceFromContractName(spec);
@@ -55,7 +55,7 @@ async function ethersInterfaceFromContractName(contractNameOrFullyQualifiedName:
   throw new Error(`unable to generate smock spec from contract name.\n${error.message}`);
 }
 
-function isJson(str: string): boolean {
+function isMaybeJsonObject(str: string): boolean {
   let strJson = str.trim();
   if (strJson.charAt(0) != '{' || strJson.charAt(strJson.length - 1) != '}') {
     return false;
