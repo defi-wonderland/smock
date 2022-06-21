@@ -41,7 +41,13 @@ describe('Mock: Editable storage logic', () => {
       expect(await mock.getBool()).to.equal(true);
     });
 
-    it.skip('should be able to set bytes', async () => {
+    it('should be able to set a small value < 31 bytes', async () => {
+      const value = BYTES_EXAMPLE.slice(0, 10);
+      await mock.setVariable('_bytes', value);
+      expect(await mock.getBytes()).to.equal(value);
+    });
+
+    it('should be able to set a large value > 31 bytes', async () => {
       await mock.setVariable('_bytes', BYTES_EXAMPLE);
       expect(await mock.getBytes()).to.equal(BYTES_EXAMPLE);
     });

@@ -317,10 +317,28 @@ function encodeVariable(
         },
       ];
     } else {
-      // TODO: add support for large strings or byte arrays
-      throw new Error(
-        'large strings (> 31 bytes) not supported. Follow this issue for more info: https://github.com/defi-wonderland/smock/issues/30'
-      );
+      let slots: StorageSlotPair[] = [];
+      // According to the solidity docs (https://docs.soliditylang.org/en/v0.8.4/internals/layout_in_storage.html#bytes-and-string)
+      // For bytes or strings that store data which is 32 or more bytes long, the main slot p stores length * 2 + 1
+      // and the data is stored as usual in keccak256(p)
+      slots = slots.concat({
+        key: slotKey,
+        val: padNumHexSlotValue(bytes.length * 2 + 1, 0),
+      });
+
+      // Each storage slot has 32 bytes so we make sure to slice the large bytes into 32bytes chunks
+      for (let i = 0; i * 32 < bytes.length; i++) {
+        // We calculate the Storage Slot key based on the solidity docs (see above link)
+        let key = BigNumber.from(ethers.utils.keccak256(slotKey))
+          .add(BigNumber.from(i.toString(16)))
+          .toHexString();
+        slots = slots.concat({
+          key: key,
+          val: ethers.utils.hexlify(ethers.utils.concat([bytes.slice(i * 32, i * 32 + 32), ethers.constants.HashZero]).slice(0, 32)),
+        });
+      }
+
+      return slots;
     }
   } else if (variableType.encoding === 'mapping') {
     if (variableType.key === undefined || variableType.value === undefined) {
