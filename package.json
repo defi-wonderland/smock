@@ -60,6 +60,7 @@
   },
   "dependencies": {
     "@nomiclabs/ethereumjs-vm": "^4.2.2",
+    "chai-as-promised": "^7.1.1",
     "diff": "^5.0.0",
     "lodash.isequal": "^4.5.0",
     "lodash.isequalwith": "^4.4.0",
@@ -74,6 +75,7 @@
     "@typechain/ethers-v5": "7.0.1",
     "@typechain/hardhat": "2.0.2",
     "@types/chai": "4.2.18",
+    "@types/chai-as-promised": "^7.1.5",
     "@types/diff": "^5.0.1",
     "@types/lodash": "4.14.170",
     "@types/lodash.isequal": "^4.5.5",
