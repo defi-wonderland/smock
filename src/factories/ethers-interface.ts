@@ -34,7 +34,7 @@ async function ethersInterfaceFromAbi(abi: string): Promise<ethers.utils.Interfa
     return new ethers.utils.Interface(abi);
   } catch (err) {
     const error: Error = err as Error;
-    throw new Error(`unable to generate smock spec from abi string, ${error.message}`);
+    throw new Error(`unable to generate smock spec from abi string.\n${error.message}`);
   }
 }
 
@@ -52,7 +52,7 @@ async function ethersInterfaceFromContractName(contractNameOrFullyQualifiedName:
     error = err as Error;
   }
 
-  throw new Error(`unable to generate smock spec from contract name, ${error.message}`);
+  throw new Error(`unable to generate smock spec from contract name.\n${error.message}`);
 }
 
 function isJson(str: string): boolean {
