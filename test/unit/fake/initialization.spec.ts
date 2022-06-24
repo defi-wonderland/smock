@@ -4,6 +4,7 @@ import { Receiver, Receiver__factory, Returner } from '@typechained';
 import receiverArtifact from 'artifacts/test/contracts/watchable-function-logic/Receiver.sol/Receiver.json';
 import chai, { expect } from 'chai';
 import { ethers, network } from 'hardhat';
+import storageArtifact from 'test/unit/fake/testdata/Storage.json';
 
 chai.use(smock.matchers);
 
@@ -83,5 +84,10 @@ describe('Fake: Initialization', () => {
   it('should have a wallet', async () => {
     const fake = await smock.fake('Receiver');
     expect(fake.wallet._isSigner).to.be.true;
+  });
+
+  it('should work for abi with gas parameter', async () => {
+    const fake = await smock.fake(storageArtifact);
+    expect(fake.store._watchable).not.to.be.undefined;
   });
 });

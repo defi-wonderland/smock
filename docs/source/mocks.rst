@@ -116,3 +116,21 @@ Setting the value of a nested mapping
       myKey: 1234
     }
   });
+
+Setting the value of multiple variables
+#######################################
+
+.. code-block:: typescript
+
+  await myMock.setVariables({
+    myVariableName1: 123,
+    myVariableName2: true,
+    myStruct: {
+      valueA: 1234,
+      valueB: false,
+    },
+    myMapping: {
+      [myKey]: 1234
+    }
+  })
+  

@@ -1,13 +1,13 @@
-import { SmockVMManager } from '../types';
+import { SetVariablesType, SmockVMManager } from '../types';
 import { fromHexString, toFancyAddress } from '../utils';
-import { computeStorageSlots } from '../utils/storage';
+import { computeStorageSlots, SolidityStorageLayout } from '../utils/storage';
 
 export class EditableStorageLogic {
-  private storageLayout: any;
+  private storageLayout: SolidityStorageLayout;
   private contractAddress: string;
   private vmManager: SmockVMManager;
 
-  constructor(storageLayout: any, vmManager: SmockVMManager, contractAddress: string) {
+  constructor(storageLayout: SolidityStorageLayout, vmManager: SmockVMManager, contractAddress: string) {
     this.storageLayout = storageLayout;
     this.vmManager = vmManager;
     this.contractAddress = contractAddress;
@@ -20,6 +20,14 @@ export class EditableStorageLogic {
 
     for (const slot of slots) {
       await this.vmManager.putContractStorage(toFancyAddress(this.contractAddress), fromHexString(slot.key), fromHexString(slot.val));
+    }
+  }
+
+  async setVariables(variables: SetVariablesType) {
+    if (variables === undefined || variables === null) return;
+
+    for (const [variableName, variableValue] of Object.entries(variables)) {
+      await this.setVariable(variableName, variableValue);
     }
   }
 }
