@@ -7,7 +7,6 @@ import chaiAsPromised from 'chai-as-promised';
 import { ethers, network } from 'hardhat';
 import storageArtifact from 'test/unit/fake/testdata/Storage.json';
 
-chai.use(smock.matchers);
 chai.use(chaiAsPromised);
 
 describe('Fake: Initialization', () => {
