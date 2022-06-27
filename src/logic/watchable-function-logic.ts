@@ -11,8 +11,11 @@ export class WatchableFunctionLogic {
 
   constructor(name: string, calls$: Observable<ContractCall>) {
     this.name = name;
-
-    calls$.subscribe((call) => this.callHistory.push(call));
+    console.log('Subscribing to calls...');
+    calls$.subscribe((call) => {
+      console.log('Behold, a call.', call);
+      return this.callHistory.push(call);
+    });
   }
 
   atCall(index: number): WatchableFunctionLogic {
