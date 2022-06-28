@@ -57,8 +57,5 @@ async function ethersInterfaceFromContractName(contractNameOrFullyQualifiedName:
 
 function isMaybeJsonObject(str: string): boolean {
   let strJson = str.trim();
-  if (strJson.charAt(0) != '{' || strJson.charAt(strJson.length - 1) != '}') {
-    return false;
-  }
-  return true;
+  return strJson.charAt(0) == '{' && strJson.charAt(strJson.length - 1) == '}';
 }
