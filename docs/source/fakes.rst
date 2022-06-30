@@ -371,3 +371,17 @@ Modifying the :code:`receive` function
 .. code-block:: typescript
 
   myFake.receive.returns();
+
+Delegated calls
+***************
+
+Calls to a contract function via delegated calls do behave the same as a regular call, so you can enforce a return value, assert the calls details, etc...
+In addition, you also have custom assertions for delegated calls.
+
+Assert delegated caller
+#######################
+
+.. code-block:: typescript
+
+  expect(myFake.myFunction).to.be.delegatedFrom(myProxy.address);
+

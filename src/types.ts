@@ -34,6 +34,7 @@ export interface ContractCall {
   args: unknown[] | string;
   nonce: number;
   target: string;
+  delegatedFrom?: string;
 }
 
 export interface SetVariablesType {
