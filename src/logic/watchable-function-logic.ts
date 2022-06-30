@@ -40,6 +40,10 @@ export class WatchableFunctionLogic {
     return this.getCalledOnce() && this.calledWith(...expectedCallArgs);
   }
 
+  delegatedFrom(delegatorAddress: string): boolean {
+    return !!this.callHistory.find((call) => call.delegatedFrom?.toLowerCase() === delegatorAddress.toLowerCase());
+  }
+
   calledBefore(anotherWatchableContract: WatchableFunctionLogic): boolean {
     return this.compareWatchableContractNonces(
       this,

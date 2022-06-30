@@ -137,4 +137,5 @@ export const matchers: Chai.ChaiPlugin = (chai: Chai.ChaiStatic, utils: Chai.Cha
   smockMethodWithWatchableContractArg('calledImmediatelyAfter', 'been called immediately after %1');
   smockMethod('calledWith', 'been called with arguments %*', '%D');
   smockMethod('calledOnceWith', 'been called exactly once with arguments %*', '%D');
+  smockMethod('delegatedFrom', 'been called via a delegated call by %*', '');
 };
