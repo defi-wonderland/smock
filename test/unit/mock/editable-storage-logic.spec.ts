@@ -14,7 +14,7 @@ describe('Mock: Editable storage logic', () => {
   });
 
   beforeEach(async () => {
-    mock = await storageGetterFactory.deploy(1);
+    mock = await storageGetterFactory.deploy(4);
   });
 
   describe('setVariable', () => {
@@ -64,7 +64,6 @@ describe('Mock: Editable storage logic', () => {
 
     it('should be able to set an address in a packed storage slot', async () => {
       await mock.setVariable('_packedB', ADDRESS_EXAMPLE);
-
       expect(await mock.getPackedAddress()).to.equal(ADDRESS_EXAMPLE);
     });
 

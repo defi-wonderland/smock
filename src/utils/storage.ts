@@ -40,6 +40,7 @@ export interface SolidityStorageLayout {
 interface StorageSlotPair {
   key: string;
   val: string;
+  type: string;
 }
 
 /**
@@ -67,6 +68,13 @@ export async function getStorageLayout(name: string): Promise<SolidityStorageLay
     );
   }
 
+  // let storageLayout = (output as any).storageLayout;
+  // console.log('___ storage ___', (output as any).storageLayout);
+  // for (let i = 0; i < storageLayout.storage.length; i++) {
+  //   storageLayout.storage[i].slot = i.toString();
+  // }
+
+  // return storageLayout;
   return (output as any).storageLayout;
 }
 
@@ -82,6 +90,7 @@ export function computeStorageSlots(storageLayout: SolidityStorageLayout, variab
   let slots: StorageSlotPair[] = [];
   for (const [variableName, variableValue] of Object.entries(variables)) {
     // Find the entry in the storage layout that corresponds to this variable name.
+    // console.log('___ variableName, variableValue ___', variableName, variableValue);
     const storageObj = storageLayout.storage.find((entry) => {
       return entry.label === variableName;
     });
@@ -91,10 +100,14 @@ export function computeStorageSlots(storageLayout: SolidityStorageLayout, variab
       throw new Error(`Variable name not found in storage layout: ${variableName}`);
     }
 
+    // console.log('___ storageObj ___', storageObj);
+    // console.log('___ slots before ___', slots);
     // Encode this variable as series of storage slot key/value pairs and save it.
     slots = slots.concat(encodeVariable(variableValue, storageObj, storageLayout.types));
+    // console.log('___ slots after ___', slots);
   }
 
+  // console.log('___ 1 ___', slots);
   // Dealing with packed storage slots now. We know that a storage slot is packed when two storage
   // slots produced by the above encoding have the same key. In this case, we want to merge the two
   // values into a single bytes32 value. We'll throw an error if the two values overlap (have some
@@ -139,6 +152,7 @@ export function computeStorageSlots(storageLayout: SolidityStorageLayout, variab
       prevSlots.push({
         key: slot.key,
         val: mergedVal,
+        type: slot.type,
       });
     }
 
@@ -228,6 +242,7 @@ function encodeVariable(
         {
           key: slotKey,
           val: padNumHexSlotValue(variable, storageObj.offset),
+          type: variableType.label,
         },
       ];
     } else if (variableType.label === 'bool') {
@@ -249,6 +264,7 @@ function encodeVariable(
         {
           key: slotKey,
           val: padNumHexSlotValue(variable ? '1' : '0', storageObj.offset),
+          type: variableType.label,
         },
       ];
     } else if (variableType.label.startsWith('bytes')) {
@@ -260,6 +276,7 @@ function encodeVariable(
         {
           key: slotKey,
           val: padBytesHexSlotValue(remove0x(variable).padEnd(parseInt(variableType.numberOfBytes, 10) * 2, '0'), storageObj.offset),
+          type: variableType.label,
         },
       ];
     } else if (variableType.label.startsWith('uint') || variableType.label.startsWith('int')) {
@@ -271,6 +288,7 @@ function encodeVariable(
         {
           key: slotKey,
           val: padNumHexSlotValue(variable, storageObj.offset),
+          type: variableType.label,
         },
       ];
     } else if (variableType.label.startsWith('struct')) {
@@ -314,6 +332,7 @@ function encodeVariable(
               ethers.BigNumber.from(bytes.length * 2).toHexString(),
             ])
           ),
+          type: variableType.label,
         },
       ];
     } else {
@@ -324,6 +343,7 @@ function encodeVariable(
       slots = slots.concat({
         key: slotKey,
         val: padNumHexSlotValue(bytes.length * 2 + 1, 0),
+        type: variableType.label,
       });
 
       // Each storage slot has 32 bytes so we make sure to slice the large bytes into 32bytes chunks
@@ -335,6 +355,7 @@ function encodeVariable(
         slots = slots.concat({
           key: key,
           val: ethers.utils.hexlify(ethers.utils.concat([bytes.slice(i * 32, i * 32 + 32), ethers.constants.HashZero]).slice(0, 32)),
+          type: variableType.label,
         });
       }
 
