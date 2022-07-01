@@ -18,21 +18,14 @@ export class EditableStorageLogic {
 
     const slots = computeStorageSlots(this.storageLayout, { [variableName]: value });
 
-    // for (const slot of slots) {
-    //   await this.vmManager.putContractStorage(toFancyAddress(this.contractAddress), fromHexString(slot.key), fromHexString(slot.val));
-    // }
-
     for (const slot of slots) {
       let prevStorageValue = await this.vmManager.getContractStorage(toFancyAddress(this.contractAddress), fromHexString(slot.key));
       let stringValue = remove0x(toHexString(prevStorageValue));
       if (stringValue && (slot.type === 'address' || slot.type === 'bool' || slot.type.startsWith('contract'))) {
-        // console.log('_______________________________', stringValue, slot.val);
         let lastResult = slot.val.slice(0, slot.val.length - stringValue.length).concat(stringValue);
         await this.vmManager.putContractStorage(toFancyAddress(this.contractAddress), fromHexString(slot.key), fromHexString(lastResult));
-        // console.log('>>>>>>>>>>>>>>>>>>>>>>>', slot.key, lastResult);
       } else {
         await this.vmManager.putContractStorage(toFancyAddress(this.contractAddress), fromHexString(slot.key), fromHexString(slot.val));
-        // console.log('>>>>>>>>>>>>>>>>>>>>>>>', slot.key, slot.val);
       }
     }
   }

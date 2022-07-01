@@ -68,13 +68,6 @@ export async function getStorageLayout(name: string): Promise<SolidityStorageLay
     );
   }
 
-  // let storageLayout = (output as any).storageLayout;
-  // console.log('___ storage ___', (output as any).storageLayout);
-  // for (let i = 0; i < storageLayout.storage.length; i++) {
-  //   storageLayout.storage[i].slot = i.toString();
-  // }
-
-  // return storageLayout;
   return (output as any).storageLayout;
 }
 
@@ -90,7 +83,6 @@ export function computeStorageSlots(storageLayout: SolidityStorageLayout, variab
   let slots: StorageSlotPair[] = [];
   for (const [variableName, variableValue] of Object.entries(variables)) {
     // Find the entry in the storage layout that corresponds to this variable name.
-    // console.log('___ variableName, variableValue ___', variableName, variableValue);
     const storageObj = storageLayout.storage.find((entry) => {
       return entry.label === variableName;
     });
@@ -100,14 +92,10 @@ export function computeStorageSlots(storageLayout: SolidityStorageLayout, variab
       throw new Error(`Variable name not found in storage layout: ${variableName}`);
     }
 
-    // console.log('___ storageObj ___', storageObj);
-    // console.log('___ slots before ___', slots);
     // Encode this variable as series of storage slot key/value pairs and save it.
     slots = slots.concat(encodeVariable(variableValue, storageObj, storageLayout.types));
-    // console.log('___ slots after ___', slots);
   }
 
-  // console.log('___ 1 ___', slots);
   // Dealing with packed storage slots now. We know that a storage slot is packed when two storage
   // slots produced by the above encoding have the same key. In this case, we want to merge the two
   // values into a single bytes32 value. We'll throw an error if the two values overlap (have some
