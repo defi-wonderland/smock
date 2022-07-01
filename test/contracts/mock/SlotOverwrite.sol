@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-contract Bug {
+contract SlotOverwrite {
   address public myAddress;
   bool public myBool;
   address public newAddress;
