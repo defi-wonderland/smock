@@ -11,7 +11,17 @@ struct PackedStruct {
   address packedB;
 }
 
+struct PackedStruct2 {
+  uint16 packedA;
+  uint16 packedB;
+  uint16 packedC;
+  uint16 packedD;
+  address packedE;
+}
+
 contract StorageGetter {
+  uint16 _packedUintA;
+  uint16 _packedUintB;
   address internal _address;
   uint256 internal _constructorUint256;
   int56 internal _int56;
@@ -22,6 +32,7 @@ contract StorageGetter {
   bool internal _bool;
   SimpleStruct internal _simpleStruct;
   PackedStruct internal _packedStruct;
+  PackedStruct2 internal _packedStruct2;
   mapping(uint256 => uint256) _uint256Map;
   mapping(uint256 => mapping(uint256 => uint256)) _uint256NestedMap;
   mapping(bytes5 => bool) _bytes5ToBoolMap;
@@ -39,6 +50,14 @@ contract StorageGetter {
 
   function getConstructorUint256() public view returns (uint256 _out) {
     return _constructorUint256;
+  }
+
+  function getPackedUintA() public view returns (uint16 _out) {
+    return _packedUintA;
+  }
+
+  function getPackedUintB() public view returns (uint16 _out) {
+    return _packedUintB;
   }
 
   function getInt56() public view returns (int56 _out) {
@@ -61,6 +80,14 @@ contract StorageGetter {
     return _bytes32;
   }
 
+  function setPackedUintA(uint16 _val) external {
+    _packedUintA = _val;
+  }
+
+  function setPackedUintB(uint16 _val) external {
+    _packedUintB = _val;
+  }
+
   function setPackedA(bool _val) external {
     _packedA = _val;
   }
@@ -71,6 +98,10 @@ contract StorageGetter {
 
   function setUint256(uint256 _in) public {
     _uint256 = _in;
+  }
+
+  function setUint256Array(uint256[] memory _in) public {
+    _uint256Array = _in;
   }
 
   function getBool() public view returns (bool _out) {
@@ -87,6 +118,10 @@ contract StorageGetter {
 
   function getPackedStruct() public view returns (PackedStruct memory _out) {
     return _packedStruct;
+  }
+
+  function getPackedStruct2() public view returns (PackedStruct2 memory _out) {
+    return _packedStruct2;
   }
 
   function getUint256MapValue(uint256 _key) public view returns (uint256 _out) {

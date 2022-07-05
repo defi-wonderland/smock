@@ -7,6 +7,7 @@ import { Observable } from 'rxjs';
 import { distinct, filter, map, share, withLatestFrom } from 'rxjs/operators';
 import { EditableStorageLogic as EditableStorage } from '../logic/editable-storage-logic';
 import { ProgrammableFunctionLogic, SafeProgrammableContract } from '../logic/programmable-function-logic';
+import { ReadableStorageLogic as ReadableStorage } from '../logic/readable-storage-logic';
 import { ObservableVM } from '../observable-vm';
 import { Sandbox } from '../sandbox';
 import { ContractCall, FakeContract, MockContractFactory, ProgrammableContractFunction, ProgrammedReturnValue } from '../types';
@@ -51,8 +52,10 @@ function mockifyContractFactory<T extends ContractFactory>(
 
     // attach to every internal variable, all the editable logic
     const editableStorage = new EditableStorage(await getStorageLayout(contractName), vm.getManager(), mock.address);
+    const readableStorage = new ReadableStorage(await getStorageLayout(contractName), vm.getManager(), mock.address);
     mock.setVariable = editableStorage.setVariable.bind(editableStorage);
     mock.setVariables = editableStorage.setVariables.bind(editableStorage);
+    mock.getVariable = readableStorage.getVariable.bind(readableStorage);
 
     // We attach a wallet to the contract so that users can send transactions *from* a watchablecontract.
     mock.wallet = await impersonate(mock.address);

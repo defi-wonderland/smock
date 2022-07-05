@@ -134,3 +134,16 @@ Setting the value of multiple variables
     }
   })
   
+Getting the value of an internal variable
+********************
+
+.. code-block:: typescript
+
+  const myUint256 = await myMock.getVariable('myUint256VariableName');
+
+Getting the value of an internal mapping given the value's key
+********************
+
+.. code-block:: typescript
+
+  const myMappingValue = await myMock.getVariable('myMappingVariableName', mappingKey);
