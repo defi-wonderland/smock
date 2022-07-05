@@ -156,7 +156,10 @@ function parseAndFilterBeforeMessages(
       }
     }),
     // Ensure the message is directed to this contract
-    filter((message) => message.to.toString().toLowerCase() === contractAddress.toLowerCase()),
+    filter((message) => {
+      const target = message.delegatecall ? message.codeAddress : message.to;
+      return target.toString().toLowerCase() === contractAddress.toLowerCase();
+    }),
     map((message) => parseMessage(message, contractInterface, sighash)),
     share()
   );
@@ -202,7 +205,8 @@ function parseMessage(message: Message, contractInterface: Interface, sighash: s
   return {
     args: sighash === null ? toHexString(message.data) : getMessageArgs(message.data, contractInterface, sighash),
     nonce: Sandbox.getNextNonce(),
-    target: fromFancyAddress(message.delegatecall ? message._codeAddress : message.to),
+    target: fromFancyAddress(message.delegatecall ? message.codeAddress : message.to),
+    delegatedFrom: message.delegatecall ? fromFancyAddress(message.to) : undefined,
   };
 }
 

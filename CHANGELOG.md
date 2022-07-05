@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.1.0](https://github.com/defi-wonderland/smock/compare/v2.0.7...v2.1.0) (2022-06-24)
+
+
+### Features
+
+* add pre commit linter ([#122](https://github.com/defi-wonderland/smock/issues/122)) ([645bf79](https://github.com/defi-wonderland/smock/commit/645bf7919cbc8d592655c1a92ea32479f9d93ef6))
+* add setVariables function ([#112](https://github.com/defi-wonderland/smock/issues/112)) ([72aec14](https://github.com/defi-wonderland/smock/commit/72aec1427de6f4c29cce297d75202c75e209c43e))
+* add support for large bytes > 31 bytes ([#124](https://github.com/defi-wonderland/smock/issues/124)) ([9cc9a77](https://github.com/defi-wonderland/smock/commit/9cc9a773496bd389b61f720a4c5c7f3c2efc99df))
+* add type definition ([#126](https://github.com/defi-wonderland/smock/issues/126)) ([e38fb3a](https://github.com/defi-wonderland/smock/commit/e38fb3a07422c095de8b59596ac90c577254cc59))
+* added wallet to mocks ([#96](https://github.com/defi-wonderland/smock/issues/96)) ([22c4278](https://github.com/defi-wonderland/smock/commit/22c4278c1c4fb6627c2e444b341749f93be4b244))
+* ignore gas param in abi ([#123](https://github.com/defi-wonderland/smock/issues/123)) ([71ac4fc](https://github.com/defi-wonderland/smock/commit/71ac4fc204681f284df3a4a8d2633c9240778a68))
+
+
+### Bug Fixes
+
+* returns working with struct mappings ([#103](https://github.com/defi-wonderland/smock/issues/103)) ([27fe7a5](https://github.com/defi-wonderland/smock/commit/27fe7a5f3c351714257cdc98204e282932c11e12)), closes [#94](https://github.com/defi-wonderland/smock/issues/94)
+
 ### [2.0.7](https://github.com/defi-wonderland/smock/compare/v2.0.2...v2.0.7) (2021-09-30)
 
 

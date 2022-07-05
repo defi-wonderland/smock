@@ -39,13 +39,16 @@ If you'd like to use mocks, you **must** update your :code:`hardhat.config.<js/t
         ... // your other hardhat settings go here
         solidity: {
           ... // your other Solidity settings go here
-          settings: {
-            outputSelection: {
-              "*": {
-                "*": ["storageLayout"]
+          compilers: [
+            ...// compiler options
+            settings: {
+              outputSelection: {
+                "*": {
+                  "*": ["storageLayout"]
+                }
               }
             }
-          }
+          ] 
         }
       }
 
@@ -61,13 +64,16 @@ If you'd like to use mocks, you **must** update your :code:`hardhat.config.<js/t
         ... // your other hardhat settings go here
         solidity: {
           ... // your other Solidity settings go here
-          settings: {
-            outputSelection: {
-              "*": {
-                "*": ["storageLayout"]
+          compilers: [
+            ...// compiler options
+            settings: {
+              outputSelection: {
+                "*": {
+                  "*": ["storageLayout"]
+                }
               }
             }
-          }
+          ] 
         }
       }
 
