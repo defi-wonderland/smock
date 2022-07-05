@@ -33,6 +33,10 @@ contract StorageGetter {
   bool internal _packedA;
   address internal _packedB;
 
+  // Testing slot-overwrite
+  address public _slotA;
+  bool public _slotB;
+
   constructor(uint256 _inA) {
     _constructorUint256 = _inA;
   }
