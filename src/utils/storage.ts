@@ -2,7 +2,7 @@ import { BigNumber, ethers } from 'ethers';
 import { artifacts } from 'hardhat';
 import semver from 'semver';
 import { SmockVMManager } from '../types';
-import { bigNumberToHex, fromHexString, remove0x, toFancyAddress, toHexString } from '../utils';
+import { bigNumberToHex, fromHexString, remove0x, toFancyAddress, toHexString, xor } from '../utils';
 
 // Represents the JSON objects outputted by the Solidity compiler that describe the structure of
 // state within the contract. See
@@ -675,9 +675,21 @@ export function decodeVariable(slotValueTypePairs: StorageSlotKeyValuePair | Sto
       result = BigNumber.from('0x' + value);
     } else if (slotValueTypePairs[0].type.label.startsWith('int')) {
       // When we deal with signed integers we have to convert the value from signed hex to decimal
-      // Doesn't work for negative numbers
-      // TODO: convert 2's complement hex to decimal to make it work properly
-      result = parseInt(slotValueTypePairs[0].value, 16).toString();
+
+      let intHex = slotValueTypePairs[0].value;
+      // If the first character is `f` then we know we have to deal with a negative number
+      if (intHex.slice(0, 1) === 'f') {
+        // In order to get the negative number we need to find the two's complement of the hex value (more info: https://en.wikipedia.org/wiki/Two%27s_complement)
+        // To do that we have to XOR our hex with the appropriate mask and then add 1 to the result
+        // First convert the hexStrings to Buffer in order to XOR them
+        intHex = fromHexString('0x' + intHex);
+        // We choose this mask because we want to flip all the hex bytes in order to find the two's complement
+        const mask = fromHexString('0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF');
+        // After the XOR and the addition we have the positive number of the original hex value, we want the negative value so we add `-` infront
+        intHex = -BigNumber.from(toHexString(xor(intHex, mask))).add(BigNumber.from(1));
+      }
+
+      result = intHex;
     } else if (slotValueTypePairs[0].type.label.startsWith('struct')) {
       // We remove the first pair since we only need the members now
       slotValueTypePairs.shift();

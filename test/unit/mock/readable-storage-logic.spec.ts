@@ -35,7 +35,7 @@ describe('Mock: Readable storage logic', () => {
       expect(getValue).to.equal(await mock.getPackedUintB());
     });
 
-    it('should be able to get a int56', async () => {
+    it('should be able to get an int56', async () => {
       const value = 1;
       await mock.setVariable('_int56', value);
 
@@ -43,9 +43,8 @@ describe('Mock: Readable storage logic', () => {
       expect(getValue).to.equal(await mock.getInt56());
     });
 
-    // TODO: Make this work for negatives
-    it.skip('should be able to get a int256', async () => {
-      const value = utils.parseUnits('-1');
+    it('should be able to get an int256', async () => {
+      const value = BigNumber.from(-1);
       await mock.setVariable('_int256', value);
 
       const getValue = await mock.getVariable('_int256');
@@ -112,19 +111,6 @@ describe('Mock: Readable storage logic', () => {
       const getValue = await mock.getVariable('_packedStruct');
       expect(getValue).to.deep.equal(struct);
     });
-
-    // it('should be able to get an address in a packed struct', async () => {
-    //   const struct = {
-    //     packedA: BigNumber.from(2),
-    //     packedB: BigNumber.from(1),
-    //     packedC: BigNumber.from(2),
-    //     packedD: BigNumber.from(1),
-    //     packedE: ADDRESS_EXAMPLE,
-    //   };
-    //   await mock.setVariable('_packedStruct2', struct);
-    //   const getValue = await mock.getVariable('_packedStruct2');
-    //   expect(getValue).to.deep.equal(struct);
-    // });
 
     it('should be able to get a uint256 mapping value', async () => {
       const mapKey = 1234;

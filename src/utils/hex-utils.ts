@@ -101,3 +101,21 @@ function bitnot(bi: BigInt) {
     .join('');
   return BigInt('0b' + prefix + bin) + BigInt(1);
 }
+
+/**
+ * XOR operation between 2 Buffers
+ * Source: https://github.com/crypto-browserify/buffer-xor/blob/master/index.js
+ * @param a Buffer to XOR
+ * @param b Buffer is the mask
+ * @returns hex representation of the big number
+ */
+export function xor(a: Buffer, b: Buffer) {
+  var length = Math.max(a.length, b.length);
+  var buffer = Buffer.allocUnsafe(length);
+
+  for (var i = 0; i < length; ++i) {
+    buffer[i] = a[i] ^ b[i];
+  }
+
+  return buffer;
+}
