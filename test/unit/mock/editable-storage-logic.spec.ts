@@ -65,9 +65,36 @@ describe('Mock: Editable storage logic', () => {
     it('should not be able to overwrite slot', async () => {
       await mock.setVariable('_slotA', ADDRESS_EXAMPLE);
       await mock.setVariable('_slotB', true);
+      await mock.setVariable('_bytes', BYTES_EXAMPLE);
+      const value = utils.parseUnits('123');
+      await mock.setVariable('_uint256', value);
+      await mock.setVariable('_bytes32', BYTES32_EXAMPLE);
+      const struct = {
+        packedA: true,
+        packedB: ADDRESS_EXAMPLE,
+      };
+      await mock.setVariable('_packedStruct', struct);
+      const mapKey = 1234;
+      const mapValue = 5678;
+      await mock.setVariable('_uint256Map', { [mapKey]: mapValue });
+      const mapKeyA = 1234;
+      const mapKeyB = 4321;
+      const mapVal = 5678;
+
+      await mock.setVariable('_uint256NestedMap', {
+        [mapKeyA]: {
+          [mapKeyB]: mapVal,
+        },
+      });
 
       expect(await mock._slotA()).to.equal(ADDRESS_EXAMPLE);
       expect(await mock._slotB()).to.equal(true);
+      expect(await mock.getBytes()).to.equal(BYTES_EXAMPLE);
+      expect(await mock.getUint256()).to.equal(value);
+      expect(await mock.getBytes32()).to.equal(BYTES32_EXAMPLE);
+      expect(convertStructToPojo(await mock.getPackedStruct())).to.deep.equal(struct);
+      expect(await mock.getUint256MapValue(mapKey)).to.equal(mapValue);
+      expect(await mock.getNestedUint256MapValue(mapKeyA, mapKeyB)).to.equal(mapVal);
     });
 
     it('should be able to set an address in a packed storage slot', async () => {
