@@ -146,4 +146,11 @@ Getting the value of an internal mapping given the value's key
 
 .. code-block:: typescript
 
-  const myMappingValue = await myMock.getVariable('myMappingVariableName', mappingKey);
+  const myMappingValue = await myMock.getVariable('myMappingVariableName', [mappingKey]);
+
+Getting the value of an internal nested mapping given the value's keys
+********************
+
+.. code-block:: typescript
+
+  const myMappingValue = await myMock.getVariable('myMappingVariableName', [mappingKeyA, mappingKeyB]);

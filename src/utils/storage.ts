@@ -45,7 +45,7 @@ interface StorageSlotPair {
 
 // This object represents the storage slot that a variable is stored (key)
 // and the type of the variable (type).
-interface StorageSlotKeyTypePair {
+export interface StorageSlotKeyTypePair {
   key: string;
   type: SolidityStorageType;
   length?: number; // used only for bytes type, helps during decoding
@@ -421,6 +421,10 @@ function encodeVariable(
  * @param vmManager SmockVMManager is used to get certain storage values given a specific slot key and a contract address
  * @param contractAddress Contract address to use for vmManager
  * @param mappingKey Only used for mappings, represents they key of a mapping value
+ * @param baseSlotKey Only used for maps. Keeps track of the base slot that other elements of the
+ * mapping need to work off of.
+ * @param storageType Only used for nested mappings. Since we can't get the SolidityStorageObj of a nested mapping value 
+ we need to pass it's SolidityStorageType to work from
  * @returns An array of storage slot key/type pair that would result in the value of the variable.
  */
 export async function getVariableStorageSlots(
@@ -428,29 +432,32 @@ export async function getVariableStorageSlots(
   variableName: string,
   vmManager: SmockVMManager,
   contractAddress: string,
-  mappingKey?: string | number
+  mappingKey?: any[] | number | string,
+  baseSlotKey?: string,
+  storageType?: SolidityStorageType
 ): Promise<StorageSlotKeyTypePair[]> {
   // Find the entry in the storage layout that corresponds to this variable name.
   const storageObj = storageLayout.storage.find((entry) => {
     return entry.label === variableName;
   });
 
-  // Complain very loudly if attempting to set a variable that doesn't exist within this layout.
+  // Complain very loudly if attempting to get a variable that doesn't exist within this layout.
   if (!storageObj) {
     throw new Error(`Variable name not found in storage layout: ${variableName}`);
   }
 
-  const storageObjectType: SolidityStorageType = storageLayout.types[storageObj.type];
+  const storageObjectType: SolidityStorageType = storageType || storageLayout.types[storageObj.type];
 
   // Here we will store all the key/type pairs that we need to get the variable's value
   let slotKeysTypes: StorageSlotKeyTypePair[] = [];
   let key: string =
+    baseSlotKey ||
     '0x' +
-    remove0x(
-      BigNumber.from(0)
-        .add(BigNumber.from(parseInt(storageObj.slot, 10)))
-        .toHexString()
-    ).padStart(64, '0');
+      remove0x(
+        BigNumber.from(0)
+          .add(BigNumber.from(parseInt(storageObj.slot, 10)))
+          .toHexString()
+      ).padStart(64, '0');
 
   if (storageObjectType.encoding === 'inplace') {
     // For `inplace` encoding we only need to be aware of structs where they take more slots to store a variable
@@ -513,34 +520,46 @@ export async function getVariableStorageSlots(
   } else if (storageObjectType.encoding === 'mapping') {
     if (storageObjectType.key === undefined || storageObjectType.value === undefined) {
       // Should never happen in practice but required to maintain proper typing.
-      throw new Error(`variable is a mapping but has no key field or has no value field: ${storageObjectType}`);
+      throw new Error(`Variable is a mapping but has no key field or has no value field: ${storageObjectType}`);
     }
 
     if (mappingKey === undefined) {
       // Throw an error if the user didn't provide a mappingKey
-      throw new Error(`You need to pass a mapping key to get it's value.`);
+      throw new Error(`Mapping key must be provided to get variable value: ${variableName}`);
     }
-
+    mappingKey = mappingKey instanceof Array ? mappingKey : [mappingKey];
     // In order to find the value's storage slot we need to calculate the slot key
     // The slot key for a mapping is calculated like `keccak256(h(k) . p)` for more information (https://docs.soliditylang.org/en/v0.8.15/internals/layout_in_storage.html#mappings-and-dynamic-arrays)
     // In this part we calculate the `h(k)` where k is the mapping key the user provided and h is a function that is applied to the key depending on its type
     let mappKey: string;
     if (storageObjectType.key.startsWith('t_uint')) {
-      mappKey = BigNumber.from(mappingKey).toHexString();
+      mappKey = BigNumber.from(mappingKey[0]).toHexString();
     } else if (storageObjectType.key.startsWith('t_bytes')) {
-      mappKey = '0x' + remove0x(mappingKey as string).padEnd(64, '0');
+      mappKey = '0x' + remove0x(mappingKey[0] as string).padEnd(64, '0');
     } else {
       // Seems to work for everything else.
-      mappKey = mappingKey as string;
+      mappKey = mappingKey[0] as string;
     }
 
+    // Figure out the base slot key that the mapped values need to work off of.
+    // If baseSlotKey is defined here, then we're inside of a nested mapping and we should work
+    // off of that previous baseSlotKey. Otherwise the base slot will be the key we already have.
+    const prevBaseSlotKey = baseSlotKey || key;
     // Since we have `h(k) = mappKey` and `p = key` now we can calculate the slot key
-    let slotKey = ethers.utils.keccak256(padNumHexSlotValue(mappKey, 0) + remove0x(key));
-    // As type we have to provide the type of the mapping value has
-    slotKeysTypes = slotKeysTypes.concat({
-      key: slotKey,
-      type: storageLayout.types[storageObjectType.value],
-    });
+    let nextSlotKey = ethers.utils.keccak256(padNumHexSlotValue(mappKey, 0) + remove0x(prevBaseSlotKey));
+
+    mappingKey.shift();
+    slotKeysTypes = slotKeysTypes.concat(
+      await getVariableStorageSlots(
+        storageLayout,
+        variableName,
+        vmManager,
+        contractAddress,
+        mappingKey,
+        nextSlotKey,
+        storageLayout.types[storageObjectType.value]
+      )
+    );
   } else if (storageObjectType.encoding === 'dynamic_array') {
     // We know that the array length is stored in position `key`
     let arrayLength = parseInt(toHexString(await vmManager.getContractStorage(toFancyAddress(contractAddress), fromHexString(key))), 16);

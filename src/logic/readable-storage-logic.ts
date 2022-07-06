@@ -1,37 +1,42 @@
 import { SmockVMManager } from '../types';
 import { fromHexString, remove0x, toFancyAddress, toHexString } from '../utils';
-import { decodeVariable, getVariableStorageSlots, StorageSlotKeyValuePair } from '../utils/storage';
+import {
+  decodeVariable,
+  getVariableStorageSlots,
+  SolidityStorageLayout,
+  StorageSlotKeyTypePair,
+  StorageSlotKeyValuePair,
+} from '../utils/storage';
 
 export class ReadableStorageLogic {
-  private storageLayout: any;
+  private storageLayout: SolidityStorageLayout;
   private contractAddress: string;
   private vmManager: SmockVMManager;
 
-  constructor(storageLayout: any, vmManager: SmockVMManager, contractAddress: string) {
+  constructor(storageLayout: SolidityStorageLayout, vmManager: SmockVMManager, contractAddress: string) {
     this.storageLayout = storageLayout;
     this.vmManager = vmManager;
     this.contractAddress = contractAddress;
   }
 
-  async getVariable(variableName: string, mappingKey?: string | number): Promise<any> {
-    const slots = await getVariableStorageSlots(this.storageLayout, variableName, this.vmManager, this.contractAddress, mappingKey);
-
-    let slotValueTypePairs: StorageSlotKeyValuePair[] = [];
-
-    for (const slotKeyPair of slots) {
-      slotValueTypePairs = slotValueTypePairs.concat({
+  async getVariable(variableName: string): Promise<unknown>;
+  async getVariable(variableName: string, mappingKeys: string[] | number[]): Promise<unknown>;
+  async getVariable(variableName: string, mappingKeys?: string[] | number[]): Promise<unknown> {
+    const slots: StorageSlotKeyTypePair[] = await getVariableStorageSlots(
+      this.storageLayout,
+      variableName,
+      this.vmManager,
+      this.contractAddress,
+      mappingKeys
+    );
+    const slotValueTypePairs: StorageSlotKeyValuePair[] = await Promise.all(
+      slots.map(async (slotKeyPair) => ({
+        ...slotKeyPair,
         value: remove0x(
           toHexString(await this.vmManager.getContractStorage(toFancyAddress(this.contractAddress), fromHexString(slotKeyPair.key)))
         ),
-        type: slotKeyPair.type,
-        length: slotKeyPair.length,
-        label: slotKeyPair.label,
-        offset: slotKeyPair.offset,
-      });
-    }
-
-    const result = decodeVariable(slotValueTypePairs);
-
-    return result;
+      }))
+    );
+    return decodeVariable(slotValueTypePairs);
   }
 }

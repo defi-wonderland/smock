@@ -7,11 +7,6 @@ struct SimpleStruct {
 }
 
 struct PackedStruct {
-  bool packedA;
-  address packedB;
-}
-
-struct PackedStruct2 {
   uint16 packedA;
   uint16 packedB;
   uint16 packedC;
@@ -32,7 +27,6 @@ contract StorageGetter {
   bool internal _bool;
   SimpleStruct internal _simpleStruct;
   PackedStruct internal _packedStruct;
-  PackedStruct2 internal _packedStruct2;
   mapping(uint256 => uint256) _uint256Map;
   mapping(uint256 => mapping(uint256 => uint256)) _uint256NestedMap;
   mapping(bytes5 => bool) _bytes5ToBoolMap;
@@ -118,10 +112,6 @@ contract StorageGetter {
 
   function getPackedStruct() public view returns (PackedStruct memory _out) {
     return _packedStruct;
-  }
-
-  function getPackedStruct2() public view returns (PackedStruct2 memory _out) {
-    return _packedStruct2;
   }
 
   function getUint256MapValue(uint256 _key) public view returns (uint256 _out) {
