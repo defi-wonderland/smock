@@ -88,7 +88,7 @@ describe('Mock: Readable storage logic', () => {
       expect(getValue).to.equal(await mock.getBytes32());
     });
 
-    it('should be able to set a simple struct', async () => {
+    it('should be able to get a simple struct', async () => {
       const struct = {
         valueA: BigNumber.from(1234),
         valueB: true,

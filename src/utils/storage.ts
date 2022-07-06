@@ -462,120 +462,186 @@ export async function getVariableStorageSlots(
   if (storageObjectType.encoding === 'inplace') {
     // For `inplace` encoding we only need to be aware of structs where they take more slots to store a variable
     if (storageObjectType.label.startsWith('struct')) {
-      if (storageObjectType.members === undefined) {
-        throw new Error(`There are no members in object type ${storageObjectType}`);
-      }
-      // Slot key that represents the struct
-      slotKeysTypes = slotKeysTypes.concat({
-        key: key,
-        type: storageObjectType,
-        offset: storageObj.offset,
-      });
-      // These slots are for the members of the struct
-      for (let i = 0; i < storageObjectType.members.length; i++) {
-        // We calculate the slot key for each member
-        key = '0x' + remove0x(BigNumber.from(key).add(BigNumber.from(storageObjectType.members[i].slot)).toHexString()).padStart(64, '0');
-        slotKeysTypes = slotKeysTypes.concat({
-          key: key,
-          type: storageLayout.types[storageObjectType.members[i].type],
-          label: storageObjectType.members[i].label,
-          offset: storageObjectType.members[i].offset,
-        });
-      }
+      slotKeysTypes = await getStructTypeStorageSlots(storageLayout, key, storageObjectType, storageObj);
     } else {
       // In cases we deal with other types than structs we already know the slot key and type
       slotKeysTypes = slotKeysTypes.concat({
         key: key,
         type: storageObjectType,
         offset: storageObj.offset,
+        label: storageObj.label,
       });
     }
   } else if (storageObjectType.encoding === 'bytes') {
-    // The last 2 bytes of the slot represent the length of the string/bytes variable
-    // If it's bigger than 31 then we have to deal with a long string/bytes array
-    const bytesValue = toHexString(await vmManager.getContractStorage(toFancyAddress(contractAddress), fromHexString(key)));
-    // It is known that if the last byte is set then we are dealing with a long string
-    // if it is 0 then we are dealing with a short string, you can find more details here (https://docs.soliditylang.org/en/v0.8.15/internals/layout_in_storage.html#bytes-and-string)
-    if (bytesValue.slice(-1) === '1') {
-      // We calculate the total number of slots that this long string/bytes use
-      const numberOfSlots = Math.ceil((parseInt(bytesValue, 16) - 1) / 32);
-      // Since we are dealing with bytes, their values are stored contiguous
-      // we are storing their slotkeys, type and the length which will help us in `decodeVariable`
-      for (let i = 0; i < numberOfSlots; i++) {
-        slotKeysTypes = slotKeysTypes.concat({
-          key: ethers.utils.keccak256(key) + i,
-          type: storageObjectType,
-          length: i + 1 <= numberOfSlots ? 32 : (parseInt(bytesValue, 16) - 1) % 32,
-        });
-      }
-    } else {
-      // If we are dealing with a short string/bytes then we already know the slotkey, type & length
-      slotKeysTypes = slotKeysTypes.concat({
-        key: key,
-        type: storageObjectType,
-        length: parseInt(bytesValue.slice(-2), 16),
-        offset: storageObj.offset,
-      });
-    }
+    slotKeysTypes = await getBytesTypeStorageSlots(vmManager, contractAddress, storageObjectType, storageObj, key);
   } else if (storageObjectType.encoding === 'mapping') {
-    if (storageObjectType.key === undefined || storageObjectType.value === undefined) {
-      // Should never happen in practice but required to maintain proper typing.
-      throw new Error(`Variable is a mapping but has no key field or has no value field: ${storageObjectType}`);
-    }
-
     if (mappingKey === undefined) {
       // Throw an error if the user didn't provide a mappingKey
       throw new Error(`Mapping key must be provided to get variable value: ${variableName}`);
     }
-    mappingKey = mappingKey instanceof Array ? mappingKey : [mappingKey];
-    // In order to find the value's storage slot we need to calculate the slot key
-    // The slot key for a mapping is calculated like `keccak256(h(k) . p)` for more information (https://docs.soliditylang.org/en/v0.8.15/internals/layout_in_storage.html#mappings-and-dynamic-arrays)
-    // In this part we calculate the `h(k)` where k is the mapping key the user provided and h is a function that is applied to the key depending on its type
-    let mappKey: string;
-    if (storageObjectType.key.startsWith('t_uint')) {
-      mappKey = BigNumber.from(mappingKey[0]).toHexString();
-    } else if (storageObjectType.key.startsWith('t_bytes')) {
-      mappKey = '0x' + remove0x(mappingKey[0] as string).padEnd(64, '0');
-    } else {
-      // Seems to work for everything else.
-      mappKey = mappingKey[0] as string;
-    }
-
-    // Figure out the base slot key that the mapped values need to work off of.
-    // If baseSlotKey is defined here, then we're inside of a nested mapping and we should work
-    // off of that previous baseSlotKey. Otherwise the base slot will be the key we already have.
-    const prevBaseSlotKey = baseSlotKey || key;
-    // Since we have `h(k) = mappKey` and `p = key` now we can calculate the slot key
-    let nextSlotKey = ethers.utils.keccak256(padNumHexSlotValue(mappKey, 0) + remove0x(prevBaseSlotKey));
-
-    mappingKey.shift();
-    slotKeysTypes = slotKeysTypes.concat(
-      await getVariableStorageSlots(
-        storageLayout,
-        variableName,
-        vmManager,
-        contractAddress,
-        mappingKey,
-        nextSlotKey,
-        storageLayout.types[storageObjectType.value]
-      )
+    slotKeysTypes = await getMappingTypeStorageSlots(
+      storageLayout,
+      variableName,
+      vmManager,
+      contractAddress,
+      key,
+      storageObjectType,
+      mappingKey
     );
   } else if (storageObjectType.encoding === 'dynamic_array') {
-    // We know that the array length is stored in position `key`
-    let arrayLength = parseInt(toHexString(await vmManager.getContractStorage(toFancyAddress(contractAddress), fromHexString(key))), 16);
+    slotKeysTypes = await getDynamicArrayTypeStorageSlots(vmManager, contractAddress, storageObjectType, key);
+  }
 
-    // The values of the array are stored in `keccak256(key)` where key is the storage location of the array
-    key = ethers.utils.keccak256(key);
-    for (let i = 0; i < arrayLength; i++) {
-      // Array values are stored contiguous so we need to calculate the new slot keys in each iteration
-      let slotKey = BigNumber.from(key)
-        .add(BigNumber.from(i.toString(16)))
-        .toHexString();
+  return slotKeysTypes;
+}
+
+function getStructTypeStorageSlots(
+  storageLayout: SolidityStorageLayout,
+  key: string,
+  storageObjectType: SolidityStorageType,
+  storageObj: SolidityStorageObj
+): StorageSlotKeyTypePair[] {
+  if (storageObjectType.members === undefined) {
+    throw new Error(`There are no members in object type ${storageObjectType}`);
+  }
+
+  let slotKeysTypes: StorageSlotKeyTypePair[] = [];
+  // Slot key that represents the struct
+  slotKeysTypes = slotKeysTypes.concat({
+    key: key,
+    type: storageObjectType,
+    label: storageObj.label,
+    offset: storageObj.offset,
+  });
+
+  // These slots are for the members of the struct
+  slotKeysTypes = slotKeysTypes.concat(
+    storageObjectType.members.map((member) => ({
+      key: '0x' + remove0x(BigNumber.from(key).add(BigNumber.from(member.slot)).toHexString()).padStart(64, '0'),
+      type: storageLayout.types[member.type],
+      label: member.label,
+      offset: member.offset,
+    }))
+  );
+
+  return slotKeysTypes;
+}
+
+async function getBytesTypeStorageSlots(
+  vmManager: SmockVMManager,
+  contractAddress: string,
+  storageObjectType: SolidityStorageType,
+  storageObj: SolidityStorageObj,
+  key: string
+): Promise<StorageSlotKeyTypePair[]> {
+  let slotKeysTypes: StorageSlotKeyTypePair[] = [];
+  // The last 2 bytes of the slot represent the length of the string/bytes variable
+  // If it's bigger than 31 then we have to deal with a long string/bytes array
+  const bytesValue = toHexString(await vmManager.getContractStorage(toFancyAddress(contractAddress), fromHexString(key)));
+  // It is known that if the last byte is set then we are dealing with a long string
+  // if it is 0 then we are dealing with a short string, you can find more details here (https://docs.soliditylang.org/en/v0.8.15/internals/layout_in_storage.html#bytes-and-string)
+  if (bytesValue.slice(-1) === '1') {
+    // We calculate the total number of slots that this long string/bytes use
+    const numberOfSlots = Math.ceil((parseInt(bytesValue, 16) - 1) / 32);
+    // Since we are dealing with bytes, their values are stored contiguous
+    // we are storing their slotkeys, type and the length which will help us in `decodeVariable`
+    for (let i = 0; i < numberOfSlots; i++) {
       slotKeysTypes = slotKeysTypes.concat({
-        key: slotKey,
+        key: ethers.utils.keccak256(key) + i,
         type: storageObjectType,
+        length: i + 1 <= numberOfSlots ? 32 : (parseInt(bytesValue, 16) - 1) % 32,
+        label: storageObj.label,
+        offset: storageObj.offset,
       });
     }
+  } else {
+    // If we are dealing with a short string/bytes then we already know the slotkey, type & length
+    slotKeysTypes = slotKeysTypes.concat({
+      key: key,
+      type: storageObjectType,
+      length: parseInt(bytesValue.slice(-2), 16),
+      label: storageObj.label,
+      offset: storageObj.offset,
+    });
+  }
+
+  return slotKeysTypes;
+}
+
+async function getMappingTypeStorageSlots(
+  storageLayout: SolidityStorageLayout,
+  variableName: string,
+  vmManager: SmockVMManager,
+  contractAddress: string,
+  key: string,
+  storageObjectType: SolidityStorageType,
+  mappingKey: any[] | number | string,
+  baseSlotKey?: string
+): Promise<StorageSlotKeyTypePair[]> {
+  if (storageObjectType.key === undefined || storageObjectType.value === undefined) {
+    // Should never happen in practice but required to maintain proper typing.
+    throw new Error(`Variable is a mapping but has no key field or has no value field: ${storageObjectType}`);
+  }
+  mappingKey = mappingKey instanceof Array ? mappingKey : [mappingKey];
+  // In order to find the value's storage slot we need to calculate the slot key
+  // The slot key for a mapping is calculated like `keccak256(h(k) . p)` for more information (https://docs.soliditylang.org/en/v0.8.15/internals/layout_in_storage.html#mappings-and-dynamic-arrays)
+  // In this part we calculate the `h(k)` where k is the mapping key the user provided and h is a function that is applied to the key depending on its type
+  let mappKey: string;
+  if (storageObjectType.key.startsWith('t_uint')) {
+    mappKey = BigNumber.from(mappingKey[0]).toHexString();
+  } else if (storageObjectType.key.startsWith('t_bytes')) {
+    mappKey = '0x' + remove0x(mappingKey[0] as string).padEnd(64, '0');
+  } else {
+    // Seems to work for everything else.
+    mappKey = mappingKey[0] as string;
+  }
+
+  // Figure out the base slot key that the mapped values need to work off of.
+  // If baseSlotKey is defined here, then we're inside of a nested mapping and we should work
+  // off of that previous baseSlotKey. Otherwise the base slot will be the key we already have.
+  const prevBaseSlotKey = baseSlotKey || key;
+  // Since we have `h(k) = mappKey` and `p = key` now we can calculate the slot key
+  let nextSlotKey = ethers.utils.keccak256(padNumHexSlotValue(mappKey, 0) + remove0x(prevBaseSlotKey));
+
+  let slotKeysTypes: StorageSlotKeyTypePair[] = [];
+
+  mappingKey.shift();
+  slotKeysTypes = slotKeysTypes.concat(
+    await getVariableStorageSlots(
+      storageLayout,
+      variableName,
+      vmManager,
+      contractAddress,
+      mappingKey,
+      nextSlotKey,
+      storageLayout.types[storageObjectType.value]
+    )
+  );
+
+  return slotKeysTypes;
+}
+
+async function getDynamicArrayTypeStorageSlots(
+  vmManager: SmockVMManager,
+  contractAddress: string,
+  storageObjectType: SolidityStorageType,
+  key: string
+): Promise<StorageSlotKeyTypePair[]> {
+  let slotKeysTypes: StorageSlotKeyTypePair[] = [];
+  // We know that the array length is stored in position `key`
+  let arrayLength = parseInt(toHexString(await vmManager.getContractStorage(toFancyAddress(contractAddress), fromHexString(key))), 16);
+
+  // The values of the array are stored in `keccak256(key)` where key is the storage location of the array
+  key = ethers.utils.keccak256(key);
+  for (let i = 0; i < arrayLength; i++) {
+    // Array values are stored contiguous so we need to calculate the new slot keys in each iteration
+    let slotKey = BigNumber.from(key)
+      .add(BigNumber.from(i.toString(16)))
+      .toHexString();
+    slotKeysTypes = slotKeysTypes.concat({
+      key: slotKey,
+      type: storageObjectType,
+    });
   }
 
   return slotKeysTypes;
