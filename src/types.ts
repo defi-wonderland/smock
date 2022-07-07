@@ -41,10 +41,6 @@ export interface SetVariablesType {
   [variablesName: string]: any;
 }
 
-export interface SetVariablesType {
-  [variablesName: string]: any;
-}
-
 export type WhenCalledWithChain = {
   returns: (value?: ProgrammedReturnValue) => void;
   reverts: (reason?: string) => void;
