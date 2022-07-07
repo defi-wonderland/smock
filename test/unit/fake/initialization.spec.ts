@@ -3,10 +3,11 @@ import { makeRandomAddress } from '@src/utils';
 import { Receiver, Receiver__factory, Returner } from '@typechained';
 import receiverArtifact from 'artifacts/test/contracts/watchable-function-logic/Receiver.sol/Receiver.json';
 import chai, { expect } from 'chai';
+import chaiAsPromised from 'chai-as-promised';
 import { ethers, network } from 'hardhat';
 import storageArtifact from 'test/unit/fake/testdata/Storage.json';
 
-chai.use(smock.matchers);
+chai.use(chaiAsPromised);
 
 describe('Fake: Initialization', () => {
   it('should work with the contract name', async () => {
@@ -89,5 +90,22 @@ describe('Fake: Initialization', () => {
   it('should work for abi with gas parameter', async () => {
     const fake = await smock.fake(storageArtifact);
     expect(fake.store._watchable).not.to.be.undefined;
+  });
+
+  it('should throw error for invalid json string abi', async () => {
+    await expect(smock.fake(`{invalid}`)).to.be.rejectedWith(
+      Error,
+      `unable to generate smock spec from abi string.\nUnexpected token i in JSON at position 1`
+    );
+  });
+
+  it('should throw error for non existent contract', async () => {
+    let regex: RegExp = /unable to generate smock spec from contract name*/;
+    await expect(smock.fake('NonExistentContract')).to.be.rejectedWith(Error, regex);
+  });
+
+  it('should throw error if contract name is ambiguous', async () => {
+    let regex: RegExp = /unable to generate smock spec from contract name*/;
+    await expect(smock.fake('Storage')).to.be.rejectedWith(Error, regex);
   });
 });

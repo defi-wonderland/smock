@@ -97,7 +97,7 @@ Setting the value of a struct
 
 
 Setting the value of a mapping (won't affect other keys)
-#######################################################
+########################################################
 
 .. code-block:: typescript
 

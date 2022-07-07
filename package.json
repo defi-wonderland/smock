@@ -1,6 +1,6 @@
 {
   "name": "@defi-wonderland/smock",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "The Solidity mocking library",
   "keywords": [
     "ethereum",
@@ -74,6 +74,7 @@
     "@typechain/ethers-v5": "7.0.1",
     "@typechain/hardhat": "2.0.2",
     "@types/chai": "4.2.18",
+    "@types/chai-as-promised": "7.1.5",
     "@types/diff": "^5.0.1",
     "@types/lodash": "4.14.170",
     "@types/lodash.isequal": "^4.5.5",
@@ -82,6 +83,7 @@
     "@types/node": "15.12.2",
     "@types/semver": "^7.3.8",
     "chai": "4.3.4",
+    "chai-as-promised": "7.1.1",
     "cross-env": "7.0.3",
     "ethereum-waffle": "3.4.0",
     "ethers": "5.4.1",

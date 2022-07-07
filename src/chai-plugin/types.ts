@@ -54,6 +54,10 @@ declare global {
        * Returns true when called at exactly once with the provided arguments.
        */
       calledOnceWith(...args: any[]): Assertion;
+      /**
+       * Returns true when the function call was made via delegatecall by the given address.
+       */
+      delegatedFrom(delegatorAddress: string): Assertion;
     }
   }
 }

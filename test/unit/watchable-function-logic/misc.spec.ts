@@ -30,4 +30,10 @@ describe('WatchableFunctionLogic: Miscellaneous', () => {
       fake.receiveBoolean.should.always.have.been.calledOnceWith(true);
     }).to.throw('always flag is not supported for method calledOnceWith');
   });
+
+  it('should throw when expecting a delegatedFrom that did not happen', async () => {
+    expect(() => {
+      fake.receiveBoolean.should.be.delegatedFrom(fake.address);
+    }).to.throw(`expected receiveBoolean to have been called via a delegated call by '${fake.address}'`);
+  });
 });

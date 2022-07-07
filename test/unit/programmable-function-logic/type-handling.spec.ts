@@ -1,6 +1,6 @@
 import { FakeContract, smock } from '@src';
 import { convertStructToPojo } from '@src/utils';
-import { Returner } from '@typechained';
+import { Delegator__factory, Returner } from '@typechained';
 import chai, { expect } from 'chai';
 import { BigNumber, utils } from 'ethers';
 import { ethers } from 'hardhat';
@@ -53,6 +53,20 @@ describe('ProgrammableFunctionLogic: Type Handling', () => {
         fake.getBytes32.returns(expected);
 
         expect(await fake.callStatic.getBytes32()).to.equal(expected);
+      });
+
+      it('should be able to return a boolean through a delegatecall', async () => {
+        const delegatorFactory = (await ethers.getContractFactory('Delegator')) as Delegator__factory;
+        const delegator = await delegatorFactory.deploy();
+
+        const expected = true;
+        fake.getBoolean.returns(expected);
+
+        const result = await delegator.callStatic.delegateGetBoolean(fake.address);
+
+        expect(result).to.equal(expected);
+        expect(fake.getBoolean).to.be.calledOnce;
+        expect(fake.getBoolean).to.be.delegatedFrom(delegator.address);
       });
     });
   });
