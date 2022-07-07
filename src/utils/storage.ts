@@ -462,7 +462,7 @@ export async function getVariableStorageSlots(
   if (storageObjectType.encoding === 'inplace') {
     // For `inplace` encoding we only need to be aware of structs where they take more slots to store a variable
     if (storageObjectType.label.startsWith('struct')) {
-      slotKeysTypes = await getStructTypeStorageSlots(storageLayout, key, storageObjectType, storageObj);
+      slotKeysTypes = getStructTypeStorageSlots(storageLayout, key, storageObjectType, storageObj);
     } else {
       // In cases we deal with other types than structs we already know the slot key and type
       slotKeysTypes = slotKeysTypes.concat({
