@@ -19,8 +19,6 @@ export class ReadableStorageLogic {
     this.contractAddress = contractAddress;
   }
 
-  async getVariable(variableName: string): Promise<unknown>;
-  async getVariable(variableName: string, mappingKeys: string[] | number[]): Promise<unknown>;
   async getVariable(variableName: string, mappingKeys?: string[] | number[]): Promise<unknown> {
     const slots: StorageSlotKeyTypePair[] = await getVariableStorageSlots(
       this.storageLayout,
