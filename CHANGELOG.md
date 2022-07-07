@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.1.1](https://github.com/defi-wonderland/smock/compare/v2.1.0...v2.1.1) (2022-07-07)
+
+
+### Features
+
+* return hardhat errors on factory failures ([#125](https://github.com/defi-wonderland/smock/issues/125)) ([3b626a3](https://github.com/defi-wonderland/smock/commit/3b626a3891c07ba224d2f12386bae95522843e2b))
+
+
+### Bug Fixes
+
+* delegated calls support ([#132](https://github.com/defi-wonderland/smock/issues/132)) ([812c335](https://github.com/defi-wonderland/smock/commit/812c3354d77603d8a6db172f5297c8e49625a98b))
+
 ## [2.1.0](https://github.com/defi-wonderland/smock/compare/v2.0.7...v2.1.0) (2022-06-24)
 
 
