@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.2.0](https://github.com/defi-wonderland/smock/compare/v2.1.0...v2.2.0) (2022-07-12)
+
+
+### Features
+
+* add getVariable function ([ce79653](https://github.com/defi-wonderland/smock/commit/ce79653d8de40ab3e9bbd537bc002eaa1edd49f9))
+* add getVariable function ([ebdd00a](https://github.com/defi-wonderland/smock/commit/ebdd00a4bf8907013d6d8fa9b8f4c601e703535c))
+* return hardhat errors on factory failures ([#125](https://github.com/defi-wonderland/smock/issues/125)) ([3b626a3](https://github.com/defi-wonderland/smock/commit/3b626a3891c07ba224d2f12386bae95522843e2b))
+
+
+### Bug Fixes
+
+* add warning in docs ([71e5a52](https://github.com/defi-wonderland/smock/commit/71e5a52353ac69a3bcc919f2942cbfa4096e1857))
+* bug with negative ints ([ed30ea7](https://github.com/defi-wonderland/smock/commit/ed30ea7bb0758d01eb7bce102560aa4c962d27cd))
+* delegated calls support ([#132](https://github.com/defi-wonderland/smock/issues/132)) ([812c335](https://github.com/defi-wonderland/smock/commit/812c3354d77603d8a6db172f5297c8e49625a98b))
+* duplicated type ([#138](https://github.com/defi-wonderland/smock/issues/138)) ([823b0ea](https://github.com/defi-wonderland/smock/commit/823b0ea7ed422636e4e763576b6975a422728522))
+* more fixes ([3650a85](https://github.com/defi-wonderland/smock/commit/3650a856be773d3a5db69c255b45366f04cb9ace))
+* resolve some comments & support nested mappings ([5d594d1](https://github.com/defi-wonderland/smock/commit/5d594d1a832c1158552572492b1501d890d3e41b))
+* split each type logic into functions ([a50af26](https://github.com/defi-wonderland/smock/commit/a50af2611ac7868f1ed0716cc2db15e79b949a8d))
+* typo ([6ace20e](https://github.com/defi-wonderland/smock/commit/6ace20e79a5b5c48fbf7f3662b0118970e683447))
+
 ### [2.1.1](https://github.com/defi-wonderland/smock/compare/v2.1.0...v2.1.1) (2022-07-07)
 
 
