@@ -7,11 +7,16 @@ struct SimpleStruct {
 }
 
 struct PackedStruct {
-  bool packedA;
-  address packedB;
+  uint16 packedA;
+  uint16 packedB;
+  uint16 packedC;
+  uint16 packedD;
+  address packedE;
 }
 
 contract StorageGetter {
+  uint16 _packedUintA;
+  uint16 _packedUintB;
   address internal _address;
   uint256 internal _constructorUint256;
   int56 internal _int56;
@@ -41,6 +46,14 @@ contract StorageGetter {
     return _constructorUint256;
   }
 
+  function getPackedUintA() public view returns (uint16 _out) {
+    return _packedUintA;
+  }
+
+  function getPackedUintB() public view returns (uint16 _out) {
+    return _packedUintB;
+  }
+
   function getInt56() public view returns (int56 _out) {
     return _int56;
   }
@@ -61,6 +74,14 @@ contract StorageGetter {
     return _bytes32;
   }
 
+  function setPackedUintA(uint16 _val) external {
+    _packedUintA = _val;
+  }
+
+  function setPackedUintB(uint16 _val) external {
+    _packedUintB = _val;
+  }
+
   function setPackedA(bool _val) external {
     _packedA = _val;
   }
@@ -71,6 +92,10 @@ contract StorageGetter {
 
   function setUint256(uint256 _in) public {
     _uint256 = _in;
+  }
+
+  function setUint256Array(uint256[] memory _in) public {
+    _uint256Array = _in;
   }
 
   function getBool() public view returns (bool _out) {

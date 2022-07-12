@@ -1,7 +1,8 @@
 import { BigNumber, ethers } from 'ethers';
 import { artifacts } from 'hardhat';
 import semver from 'semver';
-import { bigNumberToHex, fromHexString, remove0x } from './hex-utils';
+import { SmockVMManager } from '../types';
+import { bigNumberToHex, fromHexString, remove0x, toFancyAddress, toHexString, xor } from '../utils';
 
 // Represents the JSON objects outputted by the Solidity compiler that describe the structure of
 // state within the contract. See
@@ -40,6 +41,24 @@ export interface SolidityStorageLayout {
 interface StorageSlotPair {
   key: string;
   val: string;
+}
+
+// This object represents the storage slot that a variable is stored (key)
+// and the type of the variable (type).
+export interface StorageSlotKeyTypePair {
+  key: string;
+  type: SolidityStorageType;
+  length?: number; // used only for bytes type, helps during decoding
+  label?: string; // used for structs to get the members key
+  offset?: number; // used when we deal with packed variables
+}
+
+export interface StorageSlotKeyValuePair {
+  value: any;
+  type: SolidityStorageType;
+  length?: number; // used only for bytes type, helps during decoding
+  label?: string; // used for structs to get the members key
+  offset?: number; // used when we deal with packed variables
 }
 
 /**
@@ -392,4 +411,352 @@ function encodeVariable(
   }
 
   throw new Error(`unknown unsupported type ${variableType.encoding} ${variableType.label}`);
+}
+
+/**
+ * Computes the slot keys and types of the storage slots that a variable lives
+ *
+ * @param storageLayout Solidity storage layout to use as a template for determining storage slots.
+ * @param variableName Variable name to find against the given storage layout.
+ * @param vmManager SmockVMManager is used to get certain storage values given a specific slot key and a contract address
+ * @param contractAddress Contract address to use for vmManager
+ * @param mappingKey Only used for mappings, represents they key of a mapping value
+ * @param baseSlotKey Only used for maps. Keeps track of the base slot that other elements of the
+ * mapping need to work off of.
+ * @param storageType Only used for nested mappings. Since we can't get the SolidityStorageObj of a nested mapping value 
+ we need to pass it's SolidityStorageType to work from
+ * @returns An array of storage slot key/type pair that would result in the value of the variable.
+ */
+export async function getVariableStorageSlots(
+  storageLayout: SolidityStorageLayout,
+  variableName: string,
+  vmManager: SmockVMManager,
+  contractAddress: string,
+  mappingKey?: any[] | number | string,
+  baseSlotKey?: string,
+  storageType?: SolidityStorageType
+): Promise<StorageSlotKeyTypePair[]> {
+  // Find the entry in the storage layout that corresponds to this variable name.
+  const storageObj = storageLayout.storage.find((entry) => {
+    return entry.label === variableName;
+  });
+
+  // Complain very loudly if attempting to get a variable that doesn't exist within this layout.
+  if (!storageObj) {
+    throw new Error(`Variable name not found in storage layout: ${variableName}`);
+  }
+
+  const storageObjectType: SolidityStorageType = storageType || storageLayout.types[storageObj.type];
+
+  // Here we will store all the key/type pairs that we need to get the variable's value
+  let slotKeysTypes: StorageSlotKeyTypePair[] = [];
+  let key: string =
+    baseSlotKey ||
+    '0x' +
+      remove0x(
+        BigNumber.from(0)
+          .add(BigNumber.from(parseInt(storageObj.slot, 10)))
+          .toHexString()
+      ).padStart(64, '0');
+
+  if (storageObjectType.encoding === 'inplace') {
+    // For `inplace` encoding we only need to be aware of structs where they take more slots to store a variable
+    if (storageObjectType.label.startsWith('struct')) {
+      slotKeysTypes = getStructTypeStorageSlots(storageLayout, key, storageObjectType, storageObj);
+    } else {
+      // In cases we deal with other types than structs we already know the slot key and type
+      slotKeysTypes = slotKeysTypes.concat({
+        key: key,
+        type: storageObjectType,
+        offset: storageObj.offset,
+        label: storageObj.label,
+      });
+    }
+  } else if (storageObjectType.encoding === 'bytes') {
+    slotKeysTypes = await getBytesTypeStorageSlots(vmManager, contractAddress, storageObjectType, storageObj, key);
+  } else if (storageObjectType.encoding === 'mapping') {
+    if (mappingKey === undefined) {
+      // Throw an error if the user didn't provide a mappingKey
+      throw new Error(`Mapping key must be provided to get variable value: ${variableName}`);
+    }
+    slotKeysTypes = await getMappingTypeStorageSlots(
+      storageLayout,
+      variableName,
+      vmManager,
+      contractAddress,
+      key,
+      storageObjectType,
+      mappingKey
+    );
+  } else if (storageObjectType.encoding === 'dynamic_array') {
+    slotKeysTypes = await getDynamicArrayTypeStorageSlots(vmManager, contractAddress, storageObjectType, key);
+  }
+
+  return slotKeysTypes;
+}
+
+function getStructTypeStorageSlots(
+  storageLayout: SolidityStorageLayout,
+  key: string,
+  storageObjectType: SolidityStorageType,
+  storageObj: SolidityStorageObj
+): StorageSlotKeyTypePair[] {
+  if (storageObjectType.members === undefined) {
+    throw new Error(`There are no members in object type ${storageObjectType}`);
+  }
+
+  let slotKeysTypes: StorageSlotKeyTypePair[] = [];
+  // Slot key that represents the struct
+  slotKeysTypes = slotKeysTypes.concat({
+    key: key,
+    type: storageObjectType,
+    label: storageObj.label,
+    offset: storageObj.offset,
+  });
+
+  // These slots are for the members of the struct
+  slotKeysTypes = slotKeysTypes.concat(
+    storageObjectType.members.map((member) => ({
+      key: '0x' + remove0x(BigNumber.from(key).add(BigNumber.from(member.slot)).toHexString()).padStart(64, '0'),
+      type: storageLayout.types[member.type],
+      label: member.label,
+      offset: member.offset,
+    }))
+  );
+
+  return slotKeysTypes;
+}
+
+async function getBytesTypeStorageSlots(
+  vmManager: SmockVMManager,
+  contractAddress: string,
+  storageObjectType: SolidityStorageType,
+  storageObj: SolidityStorageObj,
+  key: string
+): Promise<StorageSlotKeyTypePair[]> {
+  let slotKeysTypes: StorageSlotKeyTypePair[] = [];
+  // The last 2 bytes of the slot represent the length of the string/bytes variable
+  // If it's bigger than 31 then we have to deal with a long string/bytes array
+  const bytesValue = toHexString(await vmManager.getContractStorage(toFancyAddress(contractAddress), fromHexString(key)));
+  // It is known that if the last byte is set then we are dealing with a long string
+  // if it is 0 then we are dealing with a short string, you can find more details here (https://docs.soliditylang.org/en/v0.8.15/internals/layout_in_storage.html#bytes-and-string)
+  if (bytesValue.slice(-1) === '1') {
+    // We calculate the total number of slots that this long string/bytes use
+    const numberOfSlots = Math.ceil((parseInt(bytesValue, 16) - 1) / 32);
+    // Since we are dealing with bytes, their values are stored contiguous
+    // we are storing their slotkeys, type and the length which will help us in `decodeVariable`
+    for (let i = 0; i < numberOfSlots; i++) {
+      slotKeysTypes = slotKeysTypes.concat({
+        key: ethers.utils.keccak256(key) + i,
+        type: storageObjectType,
+        length: i + 1 <= numberOfSlots ? 32 : (parseInt(bytesValue, 16) - 1) % 32,
+        label: storageObj.label,
+        offset: storageObj.offset,
+      });
+    }
+  } else {
+    // If we are dealing with a short string/bytes then we already know the slotkey, type & length
+    slotKeysTypes = slotKeysTypes.concat({
+      key: key,
+      type: storageObjectType,
+      length: parseInt(bytesValue.slice(-2), 16),
+      label: storageObj.label,
+      offset: storageObj.offset,
+    });
+  }
+
+  return slotKeysTypes;
+}
+
+async function getMappingTypeStorageSlots(
+  storageLayout: SolidityStorageLayout,
+  variableName: string,
+  vmManager: SmockVMManager,
+  contractAddress: string,
+  key: string,
+  storageObjectType: SolidityStorageType,
+  mappingKey: any[] | number | string,
+  baseSlotKey?: string
+): Promise<StorageSlotKeyTypePair[]> {
+  if (storageObjectType.key === undefined || storageObjectType.value === undefined) {
+    // Should never happen in practice but required to maintain proper typing.
+    throw new Error(`Variable is a mapping but has no key field or has no value field: ${storageObjectType}`);
+  }
+  mappingKey = mappingKey instanceof Array ? mappingKey : [mappingKey];
+  // In order to find the value's storage slot we need to calculate the slot key
+  // The slot key for a mapping is calculated like `keccak256(h(k) . p)` for more information (https://docs.soliditylang.org/en/v0.8.15/internals/layout_in_storage.html#mappings-and-dynamic-arrays)
+  // In this part we calculate the `h(k)` where k is the mapping key the user provided and h is a function that is applied to the key depending on its type
+  let mappKey: string;
+  if (storageObjectType.key.startsWith('t_uint')) {
+    mappKey = BigNumber.from(mappingKey[0]).toHexString();
+  } else if (storageObjectType.key.startsWith('t_bytes')) {
+    mappKey = '0x' + remove0x(mappingKey[0] as string).padEnd(64, '0');
+  } else {
+    // Seems to work for everything else.
+    mappKey = mappingKey[0] as string;
+  }
+
+  // Figure out the base slot key that the mapped values need to work off of.
+  // If baseSlotKey is defined here, then we're inside of a nested mapping and we should work
+  // off of that previous baseSlotKey. Otherwise the base slot will be the key we already have.
+  const prevBaseSlotKey = baseSlotKey || key;
+  // Since we have `h(k) = mappKey` and `p = key` now we can calculate the slot key
+  let nextSlotKey = ethers.utils.keccak256(padNumHexSlotValue(mappKey, 0) + remove0x(prevBaseSlotKey));
+
+  let slotKeysTypes: StorageSlotKeyTypePair[] = [];
+
+  mappingKey.shift();
+  slotKeysTypes = slotKeysTypes.concat(
+    await getVariableStorageSlots(
+      storageLayout,
+      variableName,
+      vmManager,
+      contractAddress,
+      mappingKey,
+      nextSlotKey,
+      storageLayout.types[storageObjectType.value]
+    )
+  );
+
+  return slotKeysTypes;
+}
+
+async function getDynamicArrayTypeStorageSlots(
+  vmManager: SmockVMManager,
+  contractAddress: string,
+  storageObjectType: SolidityStorageType,
+  key: string
+): Promise<StorageSlotKeyTypePair[]> {
+  let slotKeysTypes: StorageSlotKeyTypePair[] = [];
+  // We know that the array length is stored in position `key`
+  let arrayLength = parseInt(toHexString(await vmManager.getContractStorage(toFancyAddress(contractAddress), fromHexString(key))), 16);
+
+  // The values of the array are stored in `keccak256(key)` where key is the storage location of the array
+  key = ethers.utils.keccak256(key);
+  for (let i = 0; i < arrayLength; i++) {
+    // Array values are stored contiguous so we need to calculate the new slot keys in each iteration
+    let slotKey = BigNumber.from(key)
+      .add(BigNumber.from(i.toString(16)))
+      .toHexString();
+    slotKeysTypes = slotKeysTypes.concat({
+      key: slotKey,
+      type: storageObjectType,
+    });
+  }
+
+  return slotKeysTypes;
+}
+
+/**
+ * Decodes a single variable from a series of key/value storage slot pairs. Using some storage layout
+ * as instructions for how to perform this decoding. Works recursively with struct and array types.
+ * ref: https://docs.soliditylang.org/en/v0.8.4/internals/layout_in_storage.html#layout-of-state-variables-in-storage
+ *
+ * @param slotValueTypePairs StorageSlotKeyValuePairs to decode.
+ * @returns Variable decoded.
+ */
+export function decodeVariable(slotValueTypePairs: StorageSlotKeyValuePair | StorageSlotKeyValuePair[]): any {
+  slotValueTypePairs = slotValueTypePairs instanceof Array ? slotValueTypePairs : [slotValueTypePairs];
+  let result: string | any = '';
+  const numberOfBytes = parseInt(slotValueTypePairs[0].type.numberOfBytes) * 2;
+  if (slotValueTypePairs[0].type.encoding === 'inplace') {
+    if (slotValueTypePairs[0].type.label === 'address' || slotValueTypePairs[0].type.label.startsWith('contract')) {
+      result = ethers.utils.getAddress('0x' + slotValueTypePairs[0].value.slice(0, numberOfBytes));
+    } else if (slotValueTypePairs[0].type.label === 'bool') {
+      result = slotValueTypePairs[0].value.slice(0, numberOfBytes) === '01' ? true : false;
+    } else if (slotValueTypePairs[0].type.label.startsWith('bytes')) {
+      result = '0x' + slotValueTypePairs[0].value.slice(0, numberOfBytes);
+    } else if (slotValueTypePairs[0].type.label.startsWith('uint')) {
+      let value = slotValueTypePairs[0].value;
+      if (slotValueTypePairs[0].offset !== 0 && slotValueTypePairs[0].offset !== undefined) {
+        value = value.slice(-slotValueTypePairs[0].type.numberOfBytes * 2 - slotValueTypePairs[0].offset * 2, -slotValueTypePairs[0].offset * 2);
+      }
+      // When we deal with uint we can just return the number
+      result = BigNumber.from('0x' + value);
+    } else if (slotValueTypePairs[0].type.label.startsWith('int')) {
+      // When we deal with signed integers we have to convert the value from signed hex to decimal
+
+      let intHex = slotValueTypePairs[0].value;
+      // If the first character is `f` then we know we have to deal with a negative number
+      if (intHex.slice(0, 1) === 'f') {
+        // In order to get the negative number we need to find the two's complement of the hex value (more info: https://en.wikipedia.org/wiki/Two%27s_complement)
+        // To do that we have to XOR our hex with the appropriate mask and then add 1 to the result
+        // First convert the hexStrings to Buffer in order to XOR them
+        intHex = fromHexString('0x' + intHex);
+        // We choose this mask because we want to flip all the hex bytes in order to find the two's complement
+        const mask = fromHexString('0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF');
+        // After the XOR and the addition we have the positive number of the original hex value, we want the negative value so we add `-` infront
+        intHex = -BigNumber.from(toHexString(xor(intHex, mask))).add(BigNumber.from(1));
+      }
+
+      result = intHex;
+    } else if (slotValueTypePairs[0].type.label.startsWith('struct')) {
+      // We remove the first pair since we only need the members now
+      slotValueTypePairs.shift();
+      let structObject = {};
+      for (const member of slotValueTypePairs) {
+        if (member.label === undefined) {
+          // Should never happen in practice but required to maintain proper typing.
+          throw new Error(`label for ${member} is undefined`);
+        }
+
+        if (member.offset === undefined) {
+          // Should never happen in practice but required to maintain proper typing.
+          throw new Error(`offset for ${member} is undefined`);
+        }
+
+        let value;
+        // If we are dealing with string/bytes we need to decode based on big endian
+        // otherwise values are stored as little endian so we have to decode based on that
+        // We use the `offset` and `numberOfBytes` to deal with packed variables
+        if (member.type.label.startsWith('bytes')) {
+          value = member.value.slice(member.offset * 2, parseInt(member.type.numberOfBytes) * 2 + member.offset * 2);
+        } else {
+          if (member.offset === 0) value = member.value.slice(-member.type.numberOfBytes * 2);
+          else value = member.value.slice(-member.type.numberOfBytes * 2 - member.offset * 2, -member.offset * 2);
+        }
+
+        structObject = Object.assign(structObject, {
+          [member.label]: decodeVariable({
+            value: value,
+            type: member.type,
+          } as StorageSlotKeyValuePair),
+        });
+        result = structObject;
+      }
+    }
+  } else if (slotValueTypePairs[0].type.encoding === 'bytes') {
+    for (const slotKeyPair of slotValueTypePairs) {
+      if (slotKeyPair.length === undefined) {
+        // Should never happen in practice but required to maintain proper typing.
+        throw new Error(`length is undefined for bytes: ${slotValueTypePairs[0]}`);
+      }
+      if (slotKeyPair.length < 32) {
+        result = '0x' + result.concat(slotKeyPair.value.slice(0, slotKeyPair.length));
+      } else {
+        result = remove0x(result);
+        result = '0x' + result.concat(slotKeyPair.value.slice(0, 32));
+      }
+    }
+  } else if (slotValueTypePairs[0].type.encoding === 'mapping') {
+    // Should never happen in practise since mappings are handled based on a certain mapping key
+    throw new Error(`Error in decodeVariable. Encoding: mapping.`);
+  } else if (slotValueTypePairs[0].type.encoding === 'dynamic_array') {
+    let arr: any[] = [];
+    for (let i = 0; i < slotValueTypePairs.length; i++) {
+      arr = arr.concat(
+        decodeVariable({
+          value: slotValueTypePairs[i].value,
+          type: {
+            encoding: 'inplace',
+            label: slotValueTypePairs[i].type.label,
+            numberOfBytes: slotValueTypePairs[i].type.numberOfBytes,
+          },
+        })
+      );
+    }
+    result = arr;
+  }
+
+  return result;
 }
