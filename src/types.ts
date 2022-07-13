@@ -4,6 +4,7 @@ import { Provider } from '@ethersproject/abstract-provider';
 import { Signer } from '@ethersproject/abstract-signer';
 import { BaseContract, ContractFactory, ethers } from 'ethers';
 import { EditableStorageLogic } from './logic/editable-storage-logic';
+import { ReadableStorageLogic } from './logic/readable-storage-logic';
 import { WatchableFunctionLogic } from './logic/watchable-function-logic';
 
 type Abi = ReadonlyArray<
@@ -72,6 +73,7 @@ export type MockContract<T extends BaseContract = BaseContract> = SmockContractB
   connect: (...args: Parameters<T['connect']>) => MockContract<T>;
   setVariable: EditableStorageLogic['setVariable'];
   setVariables: EditableStorageLogic['setVariables'];
+  getVariable: ReadableStorageLogic['getVariable'];
 } & {
     [Property in keyof T['functions']]: ProgrammableContractFunction;
   };

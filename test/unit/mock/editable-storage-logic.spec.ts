@@ -70,8 +70,11 @@ describe('Mock: Editable storage logic', () => {
 
     it('should be able to set an address in a packed struct', async () => {
       const struct = {
-        packedA: true,
-        packedB: ADDRESS_EXAMPLE,
+        packedA: 2,
+        packedB: 1,
+        packedC: 2,
+        packedD: 1,
+        packedE: ADDRESS_EXAMPLE,
       };
       await mock.setVariable('_packedStruct', struct);
 
