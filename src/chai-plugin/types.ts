@@ -1,3 +1,4 @@
+import { BigNumber } from 'ethers';
 import { WatchableContractFunction } from '../index';
 
 declare global {
@@ -50,6 +51,10 @@ declare global {
        * Returns true if call received provided arguments.
        */
       calledWith(...args: any[]): Assertion;
+      /**
+       * Returns true if call received the provided value.
+       */
+      calledWithValue(value: BigNumber): Assertion;
       /**
        * Returns true when called at exactly once with the provided arguments.
        */

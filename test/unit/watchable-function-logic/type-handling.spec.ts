@@ -1,7 +1,8 @@
+import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 import { FakeContract, smock } from '@src';
 import { BYTES32_EXAMPLE, BYTES_EXAMPLE, STRUCT_DYNAMIC_SIZE_EXAMPLE, STRUCT_FIXED_SIZE_EXAMPLE } from '@test-utils';
 import { Caller, Caller__factory, Receiver } from '@typechained';
-import chai from 'chai';
+import chai, { expect } from 'chai';
 import { BigNumber } from 'ethers';
 import { ethers } from 'hardhat';
 
@@ -11,8 +12,11 @@ chai.use(smock.matchers);
 describe('WatchableFunctionLogic: Type handling', () => {
   let fake: FakeContract<Receiver>;
   let caller: Caller;
+  let signer: SignerWithAddress;
 
   before(async () => {
+    [, signer] = await ethers.getSigners();
+
     const callerFactory = (await ethers.getContractFactory('Caller')) as Caller__factory;
     caller = await callerFactory.deploy();
   });
@@ -122,5 +126,16 @@ describe('WatchableFunctionLogic: Type handling', () => {
     await caller.call(fake.address, fake.interface.encodeFunctionData('receiveOverload(bool,bool)', [true, false]));
     fake['receiveOverload(bool)'].should.have.been.calledWith(true);
     fake['receiveOverload(bool,bool)'].should.have.been.calledWith(true, false);
+  });
+
+  it('should handle msg.value', async () => {
+    const value = BigNumber.from(123);
+    await fake.connect(signer).receiveEmpty({ value });
+    expect(fake.receiveEmpty.getCall(0).value).to.eq(value);
+  });
+
+  it('should handle empty msg.value', async () => {
+    await fake.connect(signer).receiveEmpty();
+    expect(fake.receiveEmpty.getCall(0).value).to.eq(BigNumber.from(0));
   });
 });
