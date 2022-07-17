@@ -2,7 +2,7 @@
 import { Fragment, Interface, JsonFragment } from '@ethersproject/abi';
 import { Provider } from '@ethersproject/abstract-provider';
 import { Signer } from '@ethersproject/abstract-signer';
-import { BaseContract, ContractFactory, ethers } from 'ethers';
+import { BaseContract, BigNumber, ContractFactory, ethers } from 'ethers';
 import { EditableStorageLogic } from './logic/editable-storage-logic';
 import { ReadableStorageLogic } from './logic/readable-storage-logic';
 import { WatchableFunctionLogic } from './logic/watchable-function-logic';
@@ -35,6 +35,7 @@ export interface ContractCall {
   args: unknown[] | string;
   nonce: number;
   target: string;
+  value: BigNumber;
   delegatedFrom?: string;
 }
 

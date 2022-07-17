@@ -1,6 +1,8 @@
+import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 import { FakeContract, smock } from '@src';
 import { Caller, Caller__factory, Receiver } from '@typechained';
 import chai, { AssertionError, expect } from 'chai';
+import { BigNumber } from 'ethers';
 import { ethers } from 'hardhat';
 
 chai.should();
@@ -9,8 +11,11 @@ chai.use(smock.matchers);
 describe('WatchableFunctionLogic: Call arguments', () => {
   let fake: FakeContract<Receiver>;
   let caller: Caller;
+  let signer: SignerWithAddress;
 
   before(async () => {
+    [, signer] = await ethers.getSigners();
+
     const callerFactory = (await ethers.getContractFactory('Caller')) as Caller__factory;
     caller = await callerFactory.deploy();
   });
@@ -45,6 +50,37 @@ describe('WatchableFunctionLogic: Call arguments', () => {
       await sendBooleanToWatchableContract(false);
 
       fake.receiveBoolean.should.have.been.calledWith(true);
+    });
+  });
+
+  describe('calledWithValue', async () => {
+    const value = BigNumber.from(123);
+
+    it('should throw when the watchablecontract is not called', async () => {
+      expect(() => {
+        fake.receiveEmpty.should.have.been.calledWithValue(value);
+      }).to.throw(AssertionError);
+    });
+
+    it('should throw when the watchablecontract is called with incorrect arguments', async () => {
+      await fake.connect(signer).receiveEmpty({ value: value.sub(1) });
+
+      expect(() => {
+        fake.receiveEmpty.should.have.been.calledWithValue(value);
+      }).to.throw(AssertionError);
+    });
+
+    it('should not throw when the watchablecontract is called with the correct arguments', async () => {
+      await fake.connect(signer).receiveEmpty({ value });
+      fake.receiveEmpty.should.have.been.calledWithValue(value);
+    });
+
+    it('should not throw when the watchablecontract is called with incorrect arguments but the correct ones as well', async () => {
+      await fake.connect(signer).receiveEmpty({ value: value.sub(1) });
+      await fake.connect(signer).receiveEmpty({ value: value });
+      await fake.connect(signer).receiveEmpty({ value: value.add(1) });
+
+      fake.receiveEmpty.should.have.been.calledWithValue(value);
     });
   });
 

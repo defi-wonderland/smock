@@ -277,8 +277,8 @@ Called N times
 
   expect(myFake.myFunction).to.have.callCount(123);
 
-Asserting call arguments
-************************
+Asserting call arguments or value
+*********************************
 
 Called with specific arguments
 ##############################
@@ -312,6 +312,13 @@ Called once with specific arguments
 .. code-block:: typescript
 
   expect(myFake.myFunction).to.have.been.calledOnceWith(1234, false);
+
+Called with an specific call value
+###################################
+
+.. code-block:: typescript
+
+  expect(myFake.myFunction).to.have.been.calledWithValue(1234);
 
 Asserting call order
 ********************
@@ -354,6 +361,13 @@ Getting arguments at a specific call index
 .. code-block:: typescript
 
   expect(myFake.myFunction.getCall(0).args[0]).to.be.gt(50);
+
+Getting call value at a specific call index
+##########################################
+
+.. code-block:: typescript
+
+  expect(myFake.myFunction.getCall(0).value).to.eq(1);
 
 Manipulating fallback functions
 *******************************

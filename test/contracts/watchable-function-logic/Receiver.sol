@@ -29,7 +29,7 @@ struct StructNested {
 contract Receiver {
   fallback() external {}
 
-  function receiveEmpty() public {}
+  function receiveEmpty() public payable {}
 
   function receiveBoolean(bool) public {}
 
