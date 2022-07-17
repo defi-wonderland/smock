@@ -2,7 +2,7 @@ import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 import { FakeContract, smock } from '@src';
 import { BYTES32_EXAMPLE, BYTES_EXAMPLE, STRUCT_DYNAMIC_SIZE_EXAMPLE, STRUCT_FIXED_SIZE_EXAMPLE } from '@test-utils';
 import { Caller, Caller__factory, Receiver } from '@typechained';
-import chai, { expect } from 'chai';
+import chai from 'chai';
 import { BigNumber } from 'ethers';
 import { ethers } from 'hardhat';
 
@@ -131,11 +131,11 @@ describe('WatchableFunctionLogic: Type handling', () => {
   it('should handle msg.value', async () => {
     const value = BigNumber.from(123);
     await fake.connect(signer).receiveEmpty({ value });
-    expect(fake.receiveEmpty.getCall(0).value).to.eq(value);
+    fake.receiveEmpty.getCall(0).value.should.equal(value);
   });
 
   it('should handle empty msg.value', async () => {
     await fake.connect(signer).receiveEmpty();
-    expect(fake.receiveEmpty.getCall(0).value).to.eq(BigNumber.from(0));
+    fake.receiveEmpty.getCall(0).value.should.equal(BigNumber.from(0));
   });
 });
