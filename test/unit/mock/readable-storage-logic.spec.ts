@@ -146,7 +146,7 @@ describe('Mock: Readable storage logic', () => {
     });
 
     it('should be able to get a uint256[] variable', async () => {
-      await mock.setUint256Array([1, 2, 3]);
+      await mock.setVariable('_uint256Array', [1, 2, 3]);
       const getValue = await mock.getVariable('_uint256Array');
       expect(getValue).to.deep.equal(await mock.getUint256Array());
     });

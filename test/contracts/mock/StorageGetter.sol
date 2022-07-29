@@ -33,6 +33,7 @@ contract StorageGetter {
   mapping(address => bool) _addressToBoolMap;
   mapping(address => address) _addressToAddressMap;
   uint256[] internal _uint256Array;
+  int16[][] internal _int2DArray;
 
   // Testing storage slot packing.
   bool internal _packedA;
@@ -94,10 +95,6 @@ contract StorageGetter {
     _uint256 = _in;
   }
 
-  function setUint256Array(uint256[] memory _in) public {
-    _uint256Array = _in;
-  }
-
   function getBool() public view returns (bool _out) {
     return _bool;
   }
@@ -136,6 +133,10 @@ contract StorageGetter {
 
   function getUint256Array() public view returns (uint256[] memory _out) {
     return _uint256Array;
+  }
+
+  function getInt2D16Array() public view returns (int16[][] memory _out) {
+    return _int2DArray;
   }
 
   function getPackedAddress() public view returns (address) {

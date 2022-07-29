@@ -149,6 +149,12 @@ export function computeStorageSlots(storageLayout: SolidityStorageLayout, variab
           mergedVal += byteB;
         } else if (byteA !== '00' && byteB === '00') {
           mergedVal += byteA;
+        } else if (byteA === 'ff' && byteB === 'ff') {
+          mergedVal += 'ff';
+        } else if (byteA === 'ff' && byteB !== '00') {
+          mergedVal += byteB;
+        } else if (byteA !== '00' && byteB === 'ff') {
+          mergedVal += byteA;
         } else {
           // Should never happen, means our encoding is broken. Values should *never* overlap.
           throw new Error('detected badly encoded packed value, should not happen');
@@ -282,7 +288,12 @@ function encodeVariable(
         },
       ];
     } else if (variableType.label.startsWith('uint') || variableType.label.startsWith('int')) {
-      if (remove0x(BigNumber.from(variable).toHexString()).length / 2 > parseInt(variableType.numberOfBytes, 10)) {
+      let valueLength = remove0x(BigNumber.from(variable).toHexString()).length;
+      if (variableType.label.startsWith('int')) {
+        valueLength = remove0x(BigNumber.from(variable).toHexString().slice(1)).length;
+      }
+
+      if (valueLength / 2 > parseInt(variableType.numberOfBytes, 10)) {
         throw new Error(`provided ${variableType.label} is too big: ${variable}`);
       }
 
@@ -406,8 +417,65 @@ function encodeVariable(
     }
     return slots;
   } else if (variableType.encoding === 'dynamic_array') {
-    // TODO: add support for array types
-    throw new Error('array types not yet supported. Follow this issue for more info https://github.com/defi-wonderland/smock/issues/31');
+    if (variableType.base === undefined) {
+      // Should never happen in practice but required to maintain proper typing.
+      throw new Error(`variable is an array but has no base: ${variableType}`);
+    }
+    // In slotKey we save the length of the array
+    let slots: StorageSlotPair[] = [
+      {
+        key: slotKey,
+        val: padNumHexSlotValue(variable.length, 0),
+      },
+    ];
+
+    let numberOfBytes: number = 0;
+    let nextBaseSlotKey = BigNumber.from(ethers.utils.keccak256(slotKey));
+
+    // We need to find the number of bytes the base type has.
+    // The `numberOfBytes` variable will help us deal with packed arrays.
+    // We should only care for packed values only if the `numberOfBytes` is less than 16 otherwise there is no packing.
+    if (variableType.base.startsWith('t_bool')) {
+      numberOfBytes = 1;
+    } else if (variableType.base.startsWith('t_uint') || variableType.base.startsWith('t_int')) {
+      // We find the number of bits from the base and divide it with 8 to get the number of bytes
+      numberOfBytes = Number(variableType.base.replace(/\D/g, '')) / 8;
+      // If we have more than 16Bytes for each value then we don't care about packed variables.
+      numberOfBytes > 16 ? 0 : numberOfBytes;
+    }
+
+    let offset: number = -numberOfBytes;
+    for (let i = 0; i < variable.length; i++) {
+      // If the values are packed then we need to keep track of the offset and when to change slot
+      if (numberOfBytes > 0) {
+        offset += numberOfBytes;
+        if (offset >= 32) {
+          offset = 0;
+          nextBaseSlotKey = nextBaseSlotKey.add(BigNumber.from(1));
+        }
+      } else {
+        offset = 0;
+        nextBaseSlotKey = BigNumber.from(ethers.utils.keccak256(slotKey)).add(BigNumber.from(i.toString(16)));
+      }
+
+      slots = slots.concat(
+        encodeVariable(
+          variable[i],
+          {
+            label: '',
+            offset: offset,
+            slot: '0',
+            type: variableType.base,
+            astId: 0,
+            contract: '',
+          },
+          storageTypes,
+          nestedSlotOffset,
+          nextBaseSlotKey.toHexString()
+        )
+      );
+    }
+    return slots;
   }
 
   throw new Error(`unknown unsupported type ${variableType.encoding} ${variableType.label}`);
