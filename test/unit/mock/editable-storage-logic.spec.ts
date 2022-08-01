@@ -149,9 +149,19 @@ describe('Mock: Editable storage logic', () => {
       expect(await mock.getAddressToAddressMapValue(mapKey)).to.equal(mapValue);
     });
 
-    it.skip('should be able to set a uint256[] variable', async () => {
+    it('should be able to set a uint256[] variable', async () => {
       await mock.setVariable('_uint256Array', [1, 2]);
-      expect(await mock.getUint256Array()).to.equal([1, 2]);
+      expect(await mock.getUint256Array()).to.eql([BigNumber.from(1), BigNumber.from(2)]);
+    });
+
+    it('should be able to set a 2D packed int16[][] variable', async () => {
+      const arr = [
+        [-1, -2],
+        [-3, -4],
+        [5, -6],
+      ];
+      await mock.setVariable('_int2DArray', arr);
+      expect(await mock.getInt2D16Array()).to.eql(arr);
     });
   });
 
