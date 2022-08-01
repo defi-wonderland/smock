@@ -155,16 +155,13 @@ describe('Mock: Editable storage logic', () => {
     });
 
     it('should be able to set a 2D packed int16[][] variable', async () => {
-      await mock.setVariable('_int2DArray', [
+      const arr = [
         [-1, -2],
         [-3, -4],
         [5, -6],
-      ]);
-      expect(await mock.getInt2D16Array()).to.eql([
-        [-1, -2],
-        [-3, -4],
-        [5, -6],
-      ]);
+      ];
+      await mock.setVariable('_int2DArray', arr);
+      expect(await mock.getInt2D16Array()).to.eql(arr);
     });
   });
 
