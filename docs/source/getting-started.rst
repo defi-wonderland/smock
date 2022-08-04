@@ -66,14 +66,14 @@ If you'd like to use mocks, you **must** update your :code:`hardhat.config.<js/t
           ... // your other Solidity settings go here
           compilers: [
             ...// compiler options
-            settings: {
+          ],
+          settings: {
               outputSelection: {
                 "*": {
                   "*": ["storageLayout"]
-                }
               }
             }
-          ] 
+          },
         }
       }
 
