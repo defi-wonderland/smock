@@ -39,7 +39,7 @@ export class ObservableVM {
 
   private static fromEvent<T>(vm: VM, eventName: string): Observable<T> {
     const subject = new Subject<T>();
-    vm.on(eventName, (event: T) => subject.next(event));
+    vm.evm.events.on(eventName, (event: T) => subject.next(event));
     return subject.asObservable().pipe(share());
   }
 }
