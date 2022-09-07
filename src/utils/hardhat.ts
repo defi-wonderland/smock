@@ -1,7 +1,8 @@
 /* Imports: External */
+import { Address } from '@nomicfoundation/ethereumjs-util/dist/address';
 import { HardhatNetworkProvider } from 'hardhat/internal/hardhat-network/provider/provider';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
-import { fromHexString, toHexString } from '.';
+import { toHexString } from '.';
 
 /**
  * Finds the "base" Ethereum provider of the current hardhat environment.
@@ -51,23 +52,13 @@ export const getHardhatBaseProvider = async (runtime: HardhatRuntimeEnvironment)
 };
 
 /**
- * Converts a string into the fancy new address thing that ethereumjs-vm v5 expects while also
- * maintaining backwards compatibility with ethereumjs-vm v4.
+ * Converts a string into the fancy new address thing that ethereumjs-vm v6 expects
  *
  * @param address String address to convert into the fancy new address type.
  * @returns Fancified address.
  */
-export const toFancyAddress = (address: string): Buffer => {
-  const fancyAddress = fromHexString(address);
-  (fancyAddress as any).buf = fromHexString(address);
-  (fancyAddress as any).toString = (encoding?: any) => {
-    if (encoding === undefined) {
-      return address.toLowerCase();
-    } else {
-      return fromHexString(address).toString(encoding);
-    }
-  };
-  return fancyAddress;
+export const toFancyAddress = (address: string): Address => {
+  return Address.fromString(address);
 };
 
 /**
@@ -76,10 +67,10 @@ export const toFancyAddress = (address: string): Buffer => {
  * @param fancyAddress Fancy address to turn into a string.
  * @returns Way more boring address.
  */
-export const fromFancyAddress = (fancyAddress: any): string => {
+export const fromFancyAddress = (fancyAddress: Address): string => {
   if (fancyAddress.buf) {
     return toHexString(fancyAddress.buf);
   } else {
-    return toHexString(fancyAddress);
+    return fancyAddress.toString();
   }
 };

@@ -1,4 +1,4 @@
-import VM from '@nomiclabs/ethereumjs-vm';
+import { VM } from '@nomicfoundation/ethereumjs-vm';
 import { FactoryOptions } from '@nomiclabs/hardhat-ethers/types';
 import { BaseContract, ContractFactory, ethers } from 'ethers';
 import hre from 'hardhat';
