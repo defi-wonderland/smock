@@ -1,6 +1,6 @@
-import Message from '@nomiclabs/ethereumjs-vm/dist/evm/message';
+import { Message } from '@nomicfoundation/ethereumjs-evm/dist/message';
 import { FactoryOptions } from '@nomiclabs/hardhat-ethers/types';
-import { BaseContract, ContractFactory, ethers } from 'ethers';
+import { BaseContract, BigNumber, ContractFactory, ethers } from 'ethers';
 import { Interface } from 'ethers/lib/utils';
 import { ethers as hardhatEthers } from 'hardhat';
 import { Observable } from 'rxjs';
@@ -158,7 +158,7 @@ function parseAndFilterBeforeMessages(
     // Ensure the message is directed to this contract
     filter((message) => {
       const target = message.delegatecall ? message.codeAddress : message.to;
-      return target.toString().toLowerCase() === contractAddress.toLowerCase();
+      return target?.toString().toLowerCase() === contractAddress.toLowerCase();
     }),
     map((message) => parseMessage(message, contractInterface, sighash)),
     share()
@@ -205,8 +205,9 @@ function parseMessage(message: Message, contractInterface: Interface, sighash: s
   return {
     args: sighash === null ? toHexString(message.data) : getMessageArgs(message.data, contractInterface, sighash),
     nonce: Sandbox.getNextNonce(),
-    target: fromFancyAddress(message.delegatecall ? message.codeAddress : message.to),
-    delegatedFrom: message.delegatecall ? fromFancyAddress(message.to) : undefined,
+    value: BigNumber.from(message.value.toString()),
+    target: fromFancyAddress(message.delegatecall ? message.codeAddress : message.to!),
+    delegatedFrom: message.delegatecall ? fromFancyAddress(message.to!) : undefined,
   };
 }
 

@@ -31,6 +31,10 @@ export class WatchableFunctionLogic {
     return !!this.callHistory.find((call) => this.isDeepEqual(call.args, expectedCallArgs));
   }
 
+  calledWithValue(value: BigNumber): boolean {
+    return !!this.callHistory.find((call) => call.value.eq(value));
+  }
+
   alwaysCalledWith(...expectedCallArgs: unknown[]): boolean {
     const callWithOtherArgs = this.callHistory.find((call) => !this.isDeepEqual(call.args, expectedCallArgs));
     return this.getCalled() && !callWithOtherArgs;

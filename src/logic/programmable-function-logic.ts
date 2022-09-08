@@ -1,6 +1,5 @@
-import { EVMResult } from '@nomiclabs/ethereumjs-vm/dist/evm/evm';
-import { VmError } from '@nomiclabs/ethereumjs-vm/dist/exceptions';
-import BN from 'bn.js';
+import { EVMResult } from '@nomicfoundation/ethereumjs-evm/dist/evm';
+import { EvmError } from '@nomicfoundation/ethereumjs-evm/dist/exceptions';
 import { ethers } from 'ethers';
 import { findLast } from 'lodash';
 import { Observable, withLatestFrom } from 'rxjs';
@@ -87,10 +86,9 @@ export class ProgrammableFunctionLogic extends WatchableFunctionLogic {
     const answer = this.getCallAnswer(call);
 
     if (answer) {
-      result.gasUsed = new BN(0);
-      result.execResult.gasUsed = new BN(0);
+      result.execResult.gas = BigInt(0);
       if (answer.shouldRevert) {
-        result.execResult.exceptionError = new VmError('smock revert' as any);
+        result.execResult.exceptionError = new EvmError('smock revert' as any);
         result.execResult.returnValue = this.encodeRevertReason(answer.value);
       } else {
         result.execResult.exceptionError = undefined;
@@ -122,7 +120,7 @@ export class ProgrammableFunctionLogic extends WatchableFunctionLogic {
     let encodedReturnValue: string = '0x';
     try {
       encodedReturnValue = this.encoder(toEncode);
-    } catch (err) {
+    } catch (err: any) {
       if (err.code === 'INVALID_ARGUMENT') {
         if (typeof toEncode !== 'string') {
           throw new Error(`Failed to encode return value for ${this.name}`);
