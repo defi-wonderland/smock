@@ -2,6 +2,7 @@
 import { Fragment, Interface, JsonFragment } from '@ethersproject/abi';
 import { Provider } from '@ethersproject/abstract-provider';
 import { Signer } from '@ethersproject/abstract-signer';
+import { Address } from '@nomicfoundation/ethereumjs-util/dist/address';
 import { BaseContract, BigNumber, ContractFactory, ethers } from 'ethers';
 import { EditableStorageLogic } from './logic/editable-storage-logic';
 import { ReadableStorageLogic } from './logic/readable-storage-logic';
@@ -20,9 +21,9 @@ export interface FakeContractOptions {
 export type ProgrammedReturnValue = any;
 
 export interface SmockVMManager {
-  putContractCode: (address: Buffer, code: Buffer) => Promise<void>;
-  getContractStorage: (address: Buffer, slotHash: Buffer) => Promise<Buffer>;
-  putContractStorage: (address: Buffer, slotHash: Buffer, slotValue: Buffer) => Promise<void>;
+  putContractCode: (address: Address, code: Buffer) => Promise<void>;
+  getContractStorage: (address: Address, slotHash: Buffer) => Promise<Buffer>;
+  putContractStorage: (address: Address, slotHash: Buffer, slotValue: Buffer) => Promise<void>;
 }
 
 export interface WatchableContractFunction {

@@ -1,14 +1,12 @@
-import VM from '@nomiclabs/ethereumjs-vm';
-import { EVMResult } from '@nomiclabs/ethereumjs-vm/dist/evm/evm';
-import Message from '@nomiclabs/ethereumjs-vm/dist/evm/message';
-import { Transaction } from 'ethers';
+import { EVMResult } from '@nomicfoundation/ethereumjs-evm/dist/evm';
+import { Message } from '@nomicfoundation/ethereumjs-evm/dist/message';
+import { VM } from '@nomicfoundation/ethereumjs-vm';
 import { Observable, Subject } from 'rxjs';
 import { filter, share } from 'rxjs/operators';
 import { SmockVMManager } from './types';
 
 export class ObservableVM {
   private vm: VM;
-  private beforeTx$: Observable<Transaction>;
   private beforeMessage$: Observable<Message>;
   private afterMessage$: Observable<EVMResult>;
 
@@ -16,17 +14,12 @@ export class ObservableVM {
     if (!vm) throw new Error('VM is not defined');
 
     this.vm = vm;
-    this.beforeTx$ = ObservableVM.fromEvent<Transaction>(vm, 'beforeTx');
     this.beforeMessage$ = ObservableVM.fromEvent<Message>(vm, 'beforeMessage');
     this.afterMessage$ = ObservableVM.fromEvent<EVMResult>(vm, 'afterMessage');
   }
 
   getManager(): SmockVMManager {
-    return (this.vm.pStateManager || this.vm.stateManager) as SmockVMManager;
-  }
-
-  getBeforeTx(): Observable<Transaction> {
-    return this.beforeTx$;
+    return this.vm.stateManager as SmockVMManager;
   }
 
   getBeforeMessages(): Observable<Message> {
@@ -37,9 +30,9 @@ export class ObservableVM {
     return this.afterMessage$;
   }
 
-  private static fromEvent<T>(vm: VM, eventName: string): Observable<T> {
+  private static fromEvent<T>(vm: VM, eventName: 'beforeMessage' | 'afterMessage'): Observable<T> {
     const subject = new Subject<T>();
-    vm.on(eventName, (event: T) => subject.next(event));
+    vm.evm.events?.on(eventName, (event: any) => subject.next(event));
     return subject.asObservable().pipe(share());
   }
 }
