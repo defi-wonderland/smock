@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
+import 'hardhat/console.sol';
+
 struct SimpleStruct {
   uint256 valueA;
   bool valueB;
@@ -41,6 +43,24 @@ contract StorageGetter {
 
   constructor(uint256 _inA) {
     _constructorUint256 = _inA;
+  }
+
+  mapping(bytes32 => bool) public keccakMap;
+
+  function createKeccak(bytes32 salt, uint32 nonce, uint16 extra) public view returns (bytes32) {
+    bytes32 _keccak = keccak256(abi.encode(salt,nonce,extra));
+    console.logBytes32(_keccak);
+    return _keccak;
+  }
+
+  function setKeccak(bytes32 keccak) public {
+    console.logBytes32(keccak);
+    keccakMap[keccak] = true;
+  }
+
+  function validateKeccak(bytes32 keccak) public view returns (bool) {
+    console.logBytes32(keccak);
+    return keccakMap[keccak];
   }
 
   function getConstructorUint256() public view returns (uint256 _out) {

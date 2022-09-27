@@ -4,6 +4,7 @@ import { ADDRESS_EXAMPLE, BYTES32_EXAMPLE, BYTES_EXAMPLE } from '@test-utils';
 import { StorageGetter, StorageGetter__factory } from '@typechained';
 import { expect } from 'chai';
 import { BigNumber, utils } from 'ethers';
+import { defaultAbiCoder, keccak256 } from 'ethers/lib/utils';
 
 describe('Mock: Editable storage logic', () => {
   let storageGetterFactory: MockContractFactory<StorageGetter__factory>;
@@ -15,6 +16,33 @@ describe('Mock: Editable storage logic', () => {
 
   beforeEach(async () => {
     mock = await storageGetterFactory.deploy(1);
+  });
+
+  describe.only('keccak bug', () => {
+    const nonce = 420;
+    const extra = 69;
+
+    let keccak: string;
+    beforeEach(async () => {
+      keccak = keccak256(defaultAbiCoder.encode(['bytes32', 'uint32', 'uint16'], [BYTES32_EXAMPLE, nonce, extra]));
+      console.log(keccak);
+    });
+
+    it('should be the same keccak', async () => {
+      const createdKeccak = await mock.createKeccak(BYTES32_EXAMPLE, nonce, extra);
+      expect(keccak).to.eq(createdKeccak);
+    });
+
+    it('should be setteable though setVariable', async () => {
+      await mock.setVariable('keccakMap', { [keccak]: true });
+      expect(await mock.validateKeccak(keccak)).to.be.true;
+    });
+
+    it('should be setteable though setVariable using calc keccak', async () => {
+      const createdKeccak = await mock.createKeccak(BYTES32_EXAMPLE, nonce, extra);
+      await mock.setVariable('keccakMap', { [createdKeccak]: true });
+      expect(await mock.validateKeccak(createdKeccak)).to.be.true;
+    });
   });
 
   describe('setVariable', () => {
