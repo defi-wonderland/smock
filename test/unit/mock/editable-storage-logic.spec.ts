@@ -4,6 +4,7 @@ import { ADDRESS_EXAMPLE, BYTES32_EXAMPLE, BYTES_EXAMPLE } from '@test-utils';
 import { StorageGetter, StorageGetter__factory } from '@typechained';
 import { expect } from 'chai';
 import { BigNumber, utils } from 'ethers';
+import { defaultAbiCoder, keccak256 } from 'ethers/lib/utils';
 
 describe('Mock: Editable storage logic', () => {
   let storageGetterFactory: MockContractFactory<StorageGetter__factory>;
@@ -125,12 +126,12 @@ describe('Mock: Editable storage logic', () => {
       expect(await mock.getConstructorUint256()).to.equal(1234);
     });
 
-    it('should be able to set values in a bytes5 => bool mapping', async () => {
-      const mapKey = '0x0000005678';
+    it('should be able to set values in a bytes32 => bool mapping', async () => {
+      const mapKey = keccak256(defaultAbiCoder.encode(['bytes32'], [BYTES32_EXAMPLE]));
       const mapValue = true;
-      await mock.setVariable('_bytes5ToBoolMap', { [mapKey]: mapValue });
+      await mock.setVariable('_bytes32ToBoolMap', { [mapKey]: mapValue });
 
-      expect(await mock.getBytes5ToBoolMapValue(mapKey)).to.equal(mapValue);
+      expect(await mock.getBytes32ToBoolMapValue(mapKey)).to.equal(mapValue);
     });
 
     it('should be able to set values in a address => bool mapping', async () => {
@@ -260,7 +261,7 @@ describe('Mock: Editable storage logic', () => {
       const mapKeyB = 5678;
       const mapValue = 4321;
       const mapValueB = 8765;
-      const mapKeybytes5ToBool = '0x0000005678';
+      const mapKeybytes32ToBool = BYTES32_EXAMPLE;
       const mapValueAddress = '0x063bE0Af9711a170BE4b07028b320C90705fec7C';
       await mock.setVariables({
         _address: ADDRESS_EXAMPLE,
@@ -276,7 +277,7 @@ describe('Mock: Editable storage logic', () => {
             [mapKeyB]: mapValueB,
           },
         },
-        _bytes5ToBoolMap: { [mapKeybytes5ToBool]: true },
+        _bytes32ToBoolMap: { [mapKeybytes32ToBool]: true },
         _addressToBoolMap: { [ADDRESS_EXAMPLE]: false },
         _addressToAddressMap: { [ADDRESS_EXAMPLE]: mapValueAddress },
       });
@@ -290,7 +291,7 @@ describe('Mock: Editable storage logic', () => {
       expect(convertStructToPojo(await mock.getSimpleStruct())).to.deep.equal(struct);
       expect(await mock.getUint256MapValue(mapKey)).to.equal(mapValue);
       expect(await mock.getNestedUint256MapValue(mapKey, mapKeyB)).to.equal(mapValueB);
-      expect(await mock.getBytes5ToBoolMapValue(mapKeybytes5ToBool)).to.equal(true);
+      expect(await mock.getBytes32ToBoolMapValue(mapKeybytes32ToBool)).to.equal(true);
       expect(await mock.getAddressToBoolMapValue(ADDRESS_EXAMPLE)).to.equal(false);
       expect(await mock.getAddressToAddressMapValue(ADDRESS_EXAMPLE)).to.equal(mapValueAddress);
     });
