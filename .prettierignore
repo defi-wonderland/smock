@@ -3,6 +3,7 @@
 .solhintignore
 .husky
 .gitignore
+.github/CODEOWNERS
 .gitattributes
 .env.example
 .env

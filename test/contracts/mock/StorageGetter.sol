@@ -150,7 +150,11 @@ contract StorageGetter {
     return _packedB;
   }
 
-  function createKeccak(bytes32 salt, uint32 nonce, uint24 extra) public view returns (bytes32) {
-    return keccak256(abi.encode(salt,nonce,extra));
+  function createKeccak(
+    bytes32 salt,
+    uint32 nonce,
+    uint24 extra
+  ) public view returns (bytes32) {
+    return keccak256(abi.encode(salt, nonce, extra));
   }
 }
