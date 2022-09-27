@@ -492,7 +492,7 @@ function encodeVariable(
  * @param mappingKey Only used for mappings, represents they key of a mapping value
  * @param baseSlotKey Only used for maps. Keeps track of the base slot that other elements of the
  * mapping need to work off of.
- * @param storageType Only used for nested mappings. Since we can't get the SolidityStorageObj of a nested mapping value 
+ * @param storageType Only used for nested mappings. Since we can't get the SolidityStorageObj of a nested mapping value
  we need to pass it's SolidityStorageType to work from
  * @returns An array of storage slot key/type pair that would result in the value of the variable.
  */

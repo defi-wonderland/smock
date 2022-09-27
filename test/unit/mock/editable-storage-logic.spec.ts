@@ -18,38 +18,6 @@ describe('Mock: Editable storage logic', () => {
     mock = await storageGetterFactory.deploy(1);
   });
 
-  describe.only('keccak bug', () => {
-    const nonce = 420;
-    const extra = 69;
-
-    let keccak: string;
-    beforeEach(async () => {
-      keccak = keccak256(defaultAbiCoder.encode(['bytes32', 'uint32', 'uint16'], [BYTES32_EXAMPLE, nonce, extra]));
-      console.log(keccak);
-    });
-
-    it('should be the same keccak', async () => {
-      const createdKeccak = await mock.createKeccak(BYTES32_EXAMPLE, nonce, extra);
-      expect(keccak).to.eq(createdKeccak);
-    });
-
-    it('should be setteable though setVariable', async () => {
-      await mock.setVariable('keccakMap', { [keccak]: true });
-      expect(await mock.validateKeccak(keccak)).to.be.true;
-    });
-
-    it('should be readable though getVarialble', async () => {
-      await mock.setVariable('keccakMap', { [keccak]: true });
-      expect(await mock.getVariable('keccakMap', [keccak])).to.be.true;
-    });
-
-    it('should be setteable though setVariable using calc keccak', async () => {
-      const createdKeccak = await mock.createKeccak(BYTES32_EXAMPLE, nonce, extra);
-      await mock.setVariable('keccakMap', { [createdKeccak]: true });
-      expect(await mock.validateKeccak(createdKeccak)).to.be.true;
-    });
-  });
-
   describe('setVariable', () => {
     it('should be able to set a uint256', async () => {
       const value = utils.parseUnits('123');
@@ -180,6 +148,17 @@ describe('Mock: Editable storage logic', () => {
       await mock.setVariable('_addressToAddressMap', { [mapKey]: mapValue });
 
       expect(await mock.getAddressToAddressMapValue(mapKey)).to.equal(mapValue);
+    });
+
+    it.only('should be able to set values in a bytes32 => bool mapping', async () => {
+      const mapKey = keccak256(defaultAbiCoder.encode(['bytes32', 'uint32', 'uint24'], [BYTES32_EXAMPLE, 1, 2]));
+      const mapValue = true;
+      await mock.setVariable('_bytes32ToBoolMap', { [mapKey]: mapValue });
+
+      const generatedMapKey = await mock.createKeccak(BYTES32_EXAMPLE, 1, 2);
+
+      expect(generatedMapKey).to.eq(mapKey);
+      expect(await mock.getBytes32ToBoolMapValue(generatedMapKey)).to.equal(mapValue);
     });
 
     it('should be able to set a uint256[] variable', async () => {

@@ -33,6 +33,7 @@ contract StorageGetter {
   mapping(uint256 => mapping(uint256 => uint256)) _uint256NestedMap;
   mapping(bytes5 => bool) _bytes5ToBoolMap;
   mapping(address => bool) _addressToBoolMap;
+  mapping(bytes32 => bool) public _bytes32ToBoolMap;
   mapping(address => address) _addressToAddressMap;
   uint256[] internal _uint256Array;
   int16[][] internal _int2DArray;
@@ -43,24 +44,6 @@ contract StorageGetter {
 
   constructor(uint256 _inA) {
     _constructorUint256 = _inA;
-  }
-
-  mapping(bytes32 => bool) public keccakMap;
-
-  function createKeccak(bytes32 salt, uint32 nonce, uint16 extra) public view returns (bytes32) {
-    bytes32 _keccak = keccak256(abi.encode(salt,nonce,extra));
-    console.logBytes32(_keccak);
-    return _keccak;
-  }
-
-  function setKeccak(bytes32 keccak) public {
-    console.logBytes32(keccak);
-    keccakMap[keccak] = true;
-  }
-
-  function validateKeccak(bytes32 keccak) public view returns (bool) {
-    console.logBytes32(keccak);
-    return keccakMap[keccak];
   }
 
   function getConstructorUint256() public view returns (uint256 _out) {
@@ -151,6 +134,10 @@ contract StorageGetter {
     return _addressToAddressMap[_key];
   }
 
+  function getBytes32ToBoolMapValue(bytes32 _key) public view returns (bool _out) {
+    return _bytes32ToBoolMap[_key];
+  }
+
   function getUint256Array() public view returns (uint256[] memory _out) {
     return _uint256Array;
   }
@@ -161,5 +148,9 @@ contract StorageGetter {
 
   function getPackedAddress() public view returns (address) {
     return _packedB;
+  }
+
+  function createKeccak(bytes32 salt, uint32 nonce, uint24 extra) public view returns (bytes32) {
+    return keccak256(abi.encode(salt,nonce,extra));
   }
 }
