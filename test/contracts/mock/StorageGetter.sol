@@ -154,7 +154,7 @@ contract StorageGetter {
     bytes32 salt,
     uint32 nonce,
     uint24 extra
-  ) public view returns (bytes32) {
+  ) public pure returns (bytes32) {
     return keccak256(abi.encode(salt, nonce, extra));
   }
 }

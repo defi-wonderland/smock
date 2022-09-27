@@ -150,7 +150,7 @@ describe('Mock: Editable storage logic', () => {
       expect(await mock.getAddressToAddressMapValue(mapKey)).to.equal(mapValue);
     });
 
-    it.only('should be able to set values in a bytes32 => bool mapping', async () => {
+    it('should be able to set values in a bytes32 => bool mapping', async () => {
       const mapKey = keccak256(defaultAbiCoder.encode(['bytes32', 'uint32', 'uint24'], [BYTES32_EXAMPLE, 1, 2]));
       const mapValue = true;
       await mock.setVariable('_bytes32ToBoolMap', { [mapKey]: mapValue });
