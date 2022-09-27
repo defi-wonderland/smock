@@ -38,6 +38,11 @@ describe('Mock: Editable storage logic', () => {
       expect(await mock.validateKeccak(keccak)).to.be.true;
     });
 
+    it('should be readable though getVarialble', async () => {
+      await mock.setVariable('keccakMap', { [keccak]: true });
+      expect(await mock.getVariable('keccakMap', [keccak])).to.be.true;
+    });
+
     it('should be setteable though setVariable using calc keccak', async () => {
       const createdKeccak = await mock.createKeccak(BYTES32_EXAMPLE, nonce, extra);
       await mock.setVariable('keccakMap', { [createdKeccak]: true });
