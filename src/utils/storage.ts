@@ -252,7 +252,7 @@ function encodeVariable(
       return [
         {
           key: slotKey,
-          val: padNumHexSlotValue(variable, storageObj.offset),
+          val: padBytesHexSlotValue(variable, storageObj.offset),
         },
       ];
     } else if (variableType.label === 'bool') {
@@ -381,19 +381,19 @@ function encodeVariable(
       // Mapping keys are encoded depending on the key type.
       let key: string;
       if (variableType.key.startsWith('t_uint')) {
-        key = BigNumber.from(varName).toHexString();
+        key = padNumHexSlotValue(BigNumber.from(varName).toHexString(), 0);
       } else if (variableType.key.startsWith('t_bytes')) {
-        key = '0x' + remove0x(varName).padEnd(64, '0');
+        key = padBytesHexSlotValue('0x' + remove0x(varName).padEnd(64, '0'), 0);
       } else {
         // Seems to work for everything else.
-        key = varName;
+        key = padBytesHexSlotValue(varName, 0);
       }
 
       // Figure out the base slot key that the mapped values need to work off of.
       // If baseSlotKey is defined here, then we're inside of a nested mapping and we should work
       // off of that previous baseSlotKey. Otherwise the base slot will be the slot of this map.
       const prevBaseSlotKey = baseSlotKey || padNumHexSlotValue(storageObj.slot, 0);
-      const nextBaseSlotKey = ethers.utils.keccak256(padNumHexSlotValue(key, 0) + remove0x(prevBaseSlotKey));
+      const nextBaseSlotKey = ethers.utils.keccak256(key + remove0x(prevBaseSlotKey));
 
       // Encode the value. We need to use a dummy storageObj here because the function expects it.
       // Of course, we're not mapping to a specific variable. We map to a variable /type/. So we
@@ -656,12 +656,12 @@ async function getMappingTypeStorageSlots(
   // In this part we calculate the `h(k)` where k is the mapping key the user provided and h is a function that is applied to the key depending on its type
   let mappKey: string;
   if (storageObjectType.key.startsWith('t_uint')) {
-    mappKey = BigNumber.from(mappingKey[0]).toHexString();
+    mappKey = padNumHexSlotValue(BigNumber.from(mappingKey[0]).toHexString(), 0);
   } else if (storageObjectType.key.startsWith('t_bytes')) {
-    mappKey = '0x' + remove0x(mappingKey[0] as string).padEnd(64, '0');
+    mappKey = padBytesHexSlotValue('0x' + remove0x(mappingKey[0] as string).padEnd(64, '0'), 0);
   } else {
     // Seems to work for everything else.
-    mappKey = mappingKey[0] as string;
+    mappKey = padBytesHexSlotValue(mappingKey[0] as string, 0);
   }
 
   // Figure out the base slot key that the mapped values need to work off of.
@@ -669,7 +669,7 @@ async function getMappingTypeStorageSlots(
   // off of that previous baseSlotKey. Otherwise the base slot will be the key we already have.
   const prevBaseSlotKey = baseSlotKey || key;
   // Since we have `h(k) = mappKey` and `p = key` now we can calculate the slot key
-  let nextSlotKey = ethers.utils.keccak256(padNumHexSlotValue(mappKey, 0) + remove0x(prevBaseSlotKey));
+  let nextSlotKey = ethers.utils.keccak256(mappKey + remove0x(prevBaseSlotKey));
 
   let slotKeysTypes: StorageSlotKeyTypePair[] = [];
 
