@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.3.1](https://github.com/defi-wonderland/smock/compare/v2.1.0...v2.3.1) (2022-09-28)
+
+
+### Features
+
+* added support for call value ([#142](https://github.com/defi-wonderland/smock/issues/142)) ([3c2b80b](https://github.com/defi-wonderland/smock/commit/3c2b80b72fe146634b999df5b9bb9ef5ffc27508))
+* arrays support for setVariable ([#144](https://github.com/defi-wonderland/smock/issues/144)) ([91a7aad](https://github.com/defi-wonderland/smock/commit/91a7aadf0cfa14ba52edb98c15fa0d38562fef39))
+* return hardhat errors on factory failures ([#125](https://github.com/defi-wonderland/smock/issues/125)) ([3b626a3](https://github.com/defi-wonderland/smock/commit/3b626a3891c07ba224d2f12386bae95522843e2b))
+* update ethereumjs vm and hardhat ([#155](https://github.com/defi-wonderland/smock/issues/155)) ([b71cfd1](https://github.com/defi-wonderland/smock/commit/b71cfd118a2a9579517769c0c31abede7d83ca71))
+
+
+### Bug Fixes
+
+* bug with usage of padNumHexSlotValue ([#161](https://github.com/defi-wonderland/smock/issues/161)) ([9cffea6](https://github.com/defi-wonderland/smock/commit/9cffea640c4bd5ddc09a638505f6bb0a0cebdbad))
+* delegated calls support ([#132](https://github.com/defi-wonderland/smock/issues/132)) ([812c335](https://github.com/defi-wonderland/smock/commit/812c3354d77603d8a6db172f5297c8e49625a98b))
+* duplicated type ([#138](https://github.com/defi-wonderland/smock/issues/138)) ([823b0ea](https://github.com/defi-wonderland/smock/commit/823b0ea7ed422636e4e763576b6975a422728522))
+
 ## [2.3.0](https://github.com/defi-wonderland/smock/compare/v2.1.0...v2.3.0) (2022-09-08)
 
 
