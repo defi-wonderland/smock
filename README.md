@@ -2,6 +2,7 @@
 
 [![image](https://badgen.net/badge/icon/discord?icon=discord&label)](https://discord.com/invite/22RQcJjau9)
 
+```{=html}
 <div align="center">
     <a href="https://github.com/defi-wonderland/smock">
         <img src="https://user-images.githubusercontent.com/14298799/128897259-1d2c43b5-9156-425e-82e0-ab13f259e57c.gif" width="400px">
@@ -9,7 +10,7 @@
 </div>
 <br />
 <br />
-
+```
 **Smock** is the **S**olidity **mock**ing library. It\'s a plugin for
 [hardhat](https://hardhat.org) that can be used to create mock Solidity
 contracts entirely in JavaScript (or TypeScript!). With Smock, it\'s
@@ -26,8 +27,7 @@ testing frameworks like [Truffle](https://www.trufflesuite.com/).
 If you wanna chat about the future of Solidity Mocking, join our
 [Discord](https://discord.com/invite/22RQcJjau9)!
 
-Features
-========
+# Features
 
 -   Get rid of your folder of \"mock\" contracts and **just use
     JavaScript**.
@@ -39,31 +39,27 @@ Features
 -   Make **assertions** about calls, call arguments, and call counts.
 -   We\'ve got extensive documentation and a complete test suite.
 
-Documentation
-=============
+# Documentation
 
 Detailed documentation can be found
 [here](https://smock.readthedocs.io).
 
-Quick Start
-===========
+# Quick Start
 
-Installation
-------------
+## Installation
 
 You can install Smock via npm or yarn:
 
-``` {.sourceCode .console}
+``` console
 npm install @defi-wonderland/smock
 ```
 
-Basic Usage
------------
+## Basic Usage
 
 Smock is dead simple to use. Here\'s a basic example of how you might
 use it to streamline your tests.
 
-``` {.sourceCode .typescript}
+``` typescript
 ...
 import { FakeContract, smock } from '@defi-wonderland/smock';
 
@@ -86,16 +82,14 @@ describe('MyContract', () => {
 });
 ```
 
-License
-=======
+# License
 
 Smock is released under the MIT license. Feel free to use, modify,
 and/or redistribute this software as you see fit. See the
 [LICENSE](https://github.com/defi-wonderland/smock/blob/main/LICENSE)
 file for more information.
 
-Contributors
-============
+# Contributors
 
 Maintained with love by [Optimism PBC](https://optimism.io) and [DeFi
 Wonderland](https://defi.sucks). Made possible by viewers like you.
