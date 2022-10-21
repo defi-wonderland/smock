@@ -121,13 +121,13 @@ describe('Mock: Readable storage logic', () => {
       expect(getValue).to.equal(await mock.getUint256MapValue(mapKey));
     });
 
-    it('should be able to get values in a bytes5 => bool mapping', async () => {
-      const mapKey = '0x0000005678';
+    it('should be able to get values in a bytes32 => bool mapping', async () => {
+      const mapKey = BYTES32_EXAMPLE;
       const mapValue = true;
-      await mock.setVariable('_bytes5ToBoolMap', { [mapKey]: mapValue });
+      await mock.setVariable('_bytes32ToBoolMap', { [mapKey]: mapValue });
 
-      const getValue = await mock.getVariable('_bytes5ToBoolMap', [mapKey]);
-      expect(getValue).to.equal(await mock.getBytes5ToBoolMapValue(mapKey));
+      const getValue = await mock.getVariable('_bytes32ToBoolMap', [mapKey]);
+      expect(getValue).to.equal(await mock.getBytes32ToBoolMapValue(mapKey));
     });
 
     it('should be able to get a nested uint256 mapping value', async () => {

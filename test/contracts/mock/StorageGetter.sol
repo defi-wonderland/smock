@@ -29,7 +29,7 @@ contract StorageGetter {
   PackedStruct internal _packedStruct;
   mapping(uint256 => uint256) _uint256Map;
   mapping(uint256 => mapping(uint256 => uint256)) _uint256NestedMap;
-  mapping(bytes5 => bool) _bytes5ToBoolMap;
+  mapping(bytes32 => bool) _bytes32ToBoolMap;
   mapping(address => bool) _addressToBoolMap;
   mapping(address => address) _addressToAddressMap;
   uint256[] internal _uint256Array;
@@ -119,8 +119,8 @@ contract StorageGetter {
     return _uint256NestedMap[_keyA][_keyB];
   }
 
-  function getBytes5ToBoolMapValue(bytes5 _key) public view returns (bool _out) {
-    return _bytes5ToBoolMap[_key];
+  function getBytes32ToBoolMapValue(bytes32 _key) public view returns (bool _out) {
+    return _bytes32ToBoolMap[_key];
   }
 
   function getAddressToBoolMapValue(address _key) public view returns (bool _out) {
