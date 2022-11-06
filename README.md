@@ -1,8 +1,6 @@
 [![image](https://img.shields.io/npm/v/@defi-wonderland/smock.svg?style=flat-square)](https://www.npmjs.org/package/@defi-wonderland/smock)
-
 [![image](https://badgen.net/badge/icon/discord?icon=discord&label)](https://discord.com/invite/22RQcJjau9)
 
-```{=html}
 <div align="center">
     <a href="https://github.com/defi-wonderland/smock">
         <img src="https://user-images.githubusercontent.com/14298799/128897259-1d2c43b5-9156-425e-82e0-ab13f259e57c.gif" width="400px">
@@ -10,7 +8,7 @@
 </div>
 <br />
 <br />
-```
+
 **Smock** is the **S**olidity **mock**ing library. It\'s a plugin for
 [hardhat](https://hardhat.org) that can be used to create mock Solidity
 contracts entirely in JavaScript (or TypeScript!). With Smock, it\'s
