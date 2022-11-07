@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.3.4](https://github.com/defi-wonderland/smock/compare/v2.3.1...v2.3.4) (2022-11-07)
+
+
+### Bug Fixes
+
+* change markdown output variant ([#173](https://github.com/defi-wonderland/smock/issues/173)) ([e90e158](https://github.com/defi-wonderland/smock/commit/e90e158f1d652383ea8137e1afcd1f65e2bb42c3))
+
 ### [2.3.3](https://github.com/defi-wonderland/smock/compare/v2.3.1...v2.3.3) (2022-10-21)
 
 ### [2.3.1](https://github.com/defi-wonderland/smock/compare/v2.1.0...v2.3.1) (2022-09-28)
