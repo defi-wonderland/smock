@@ -78,3 +78,16 @@ If you'd like to use mocks, you **must** update your :code:`hardhat.config.<js/t
       }
 
       export default config
+
+
+Optional config to use Smock Matchers
+-------------------------------------
+
+
+  .. code-block:: typescript
+
+    // ContractTest.ts
+      
+    import { smock } from '@defi-wonderland/smock';
+
+    chai.use(smock.matchers);
