@@ -29,6 +29,14 @@ export const getHardhatBaseProvider = async (runtime: HardhatRuntimeEnvironment)
   // Search by looking for the internal "_wrapped" variable. Base provider doesn't have this
   // property (at least for now!).
   let provider: any = runtime.network.provider;
+
+  if ('init' in provider) {
+    // Newer versions of Hardhat initialize the provider lazily, so we need to
+    // call provider.init() explicitly. This is a no-op if the provider is
+    // already initialized.
+    await provider.init();
+  }
+
   while (provider._wrapped !== undefined) {
     provider = provider._wrapped;
 
