@@ -11,7 +11,7 @@ When should I use a fake?
 -------------------------
 
 Fakes are a powerful tool when you want to test how a smart contract will interact with other contracts.
-Instead of initalizing a full-fledged smart contract to interact with, you can simply create a fake that can provide pre-programmed responses.
+Instead of initializing a full-fledged smart contract to interact with, you can simply create a fake that can provide pre-programmed responses.
 
 Fakes are especially useful when the contracts that you need to interact with are relatively complex.
 For example, imagine that you're testing a contract that needs to interact with another (very stateful) contract.
