@@ -14,6 +14,11 @@ struct PackedStruct {
   address packedE;
 }
 
+struct OtherPackedStruct {
+  address packedA;
+  bytes12 packedB;
+}
+
 contract StorageGetter {
   uint16 _packedUintA;
   uint16 _packedUintB;
@@ -34,6 +39,9 @@ contract StorageGetter {
   mapping(address => address) _addressToAddressMap;
   uint256[] internal _uint256Array;
   int16[][] internal _int2DArray;
+  mapping(bytes32 => SimpleStruct) _bytes32ToSimpleStructMap;
+  mapping(bytes32 => PackedStruct) _bytes32ToPackedStructMap;
+  mapping(bytes32 => OtherPackedStruct) _bytes32ToOtherPackedStructMap;
 
   // Testing storage slot packing.
   bool internal _packedA;
@@ -141,5 +149,17 @@ contract StorageGetter {
 
   function getPackedAddress() public view returns (address) {
     return _packedB;
+  }
+
+  function getBytes32ToSimpleStructMapValue(bytes32 _key) public view returns (SimpleStruct memory _out) {
+    return _bytes32ToSimpleStructMap[_key];
+  }
+
+  function getBytes32ToPackedStructMapValue(bytes32 _key) public view returns (PackedStruct memory _out) {
+    return _bytes32ToPackedStructMap[_key];
+  }
+
+  function getBytes32ToOtherPackedStructMapValue(bytes32 _key) public view returns (OtherPackedStruct memory _out) {
+    return _bytes32ToOtherPackedStructMap[_key];
   }
 }
