@@ -1,11 +1,12 @@
-import { EVMResult } from '@nomicfoundation/ethereumjs-evm/dist/evm';
-import { EvmError } from '@nomicfoundation/ethereumjs-evm/dist/exceptions';
+import { Address } from '@nomicfoundation/ethereumjs-util';
 import { ethers } from 'ethers';
+import { Interface } from 'ethers/lib/utils';
 import { findLast } from 'lodash';
-import { Observable, withLatestFrom } from 'rxjs';
+import { Observable } from 'rxjs';
+import { getMessageArgs } from '../factories/smock-contract';
 import { ContractCall, ProgrammedReturnValue, WhenCalledWithChain } from '../index';
 import { WatchableFunctionLogic } from '../logic/watchable-function-logic';
-import { fromHexString } from '../utils';
+import { fromHexString, toHexString } from '../utils';
 
 const EMPTY_ANSWER: Buffer = fromHexString('0x' + '00'.repeat(2048));
 
@@ -26,20 +27,15 @@ export class ProgrammableFunctionLogic extends WatchableFunctionLogic {
   protected answerByArgs: { answer: ProgrammedAnswer; args: unknown[] }[] = [];
 
   constructor(
+    private contractInterface: Interface,
+    private sighash: string | null,
     name: string,
     calls$: Observable<ContractCall>,
-    results$: Observable<EVMResult>,
     encoder: (values?: ProgrammedReturnValue) => string
   ) {
     super(name, calls$);
 
     this.encoder = encoder;
-
-    // Intercept every result of this programmableFunctionLogic
-    results$.pipe(withLatestFrom(calls$)).subscribe(async ([result, call]) => {
-      // Modify it with the corresponding answer
-      await this.modifyAnswer(result, call);
-    });
   }
 
   returns(value?: ProgrammedReturnValue): void {
@@ -82,22 +78,22 @@ export class ProgrammableFunctionLogic extends WatchableFunctionLogic {
     this.answerByArgs = [];
   }
 
-  private async modifyAnswer(result: EVMResult, call: ContractCall): Promise<void> {
-    const answer = this.getCallAnswer(call);
+  async getEncodedCallAnswer(data: Buffer): Promise<[result: Buffer, shouldRevert: boolean] | undefined> {
+    this.callCount++;
 
+    const answer = this.getCallAnswer(data);
     if (answer) {
-      result.execResult.gas = BigInt(0);
       if (answer.shouldRevert) {
-        result.execResult.exceptionError = new EvmError('smock revert' as any);
-        result.execResult.returnValue = this.encodeRevertReason(answer.value);
-      } else {
-        result.execResult.exceptionError = undefined;
-        result.execResult.returnValue = await this.encodeValue(answer.value, call);
+        return [this.encodeRevertReason(answer.value), answer.shouldRevert];
       }
+
+      return [await this.encodeValue(answer.value, data), answer.shouldRevert];
     }
   }
 
-  private getCallAnswer(call: ContractCall): ProgrammedAnswer | undefined {
+  private getCallAnswer(data: Buffer): ProgrammedAnswer | undefined {
+    const args = this.sighash === null ? toHexString(data) : getMessageArgs(data, this.contractInterface, this.sighash);
+
     let answer: ProgrammedAnswer | undefined;
 
     // if there is an answer for this call index, return it
@@ -105,17 +101,19 @@ export class ProgrammableFunctionLogic extends WatchableFunctionLogic {
     if (answer) return answer;
 
     // if there is an answer for this call arguments, return it
-    answer = findLast(this.answerByArgs, (option) => this.isDeepEqual(option.args, call.args))?.answer;
+    answer = findLast(this.answerByArgs, (option) => this.isDeepEqual(option.args, args))?.answer;
     if (answer) return answer;
 
     // return the default answer
     return this.defaultAnswer;
   }
 
-  private async encodeValue(value: ProgrammedReturnValue, call: ContractCall): Promise<Buffer> {
+  private async encodeValue(value: ProgrammedReturnValue, data: Buffer): Promise<Buffer> {
     if (value === undefined) return EMPTY_ANSWER;
 
-    let toEncode = typeof value === 'function' ? await value(call.args) : value;
+    const args = this.sighash === null ? toHexString(data) : getMessageArgs(data, this.contractInterface, this.sighash);
+
+    let toEncode = typeof value === 'function' ? await value(args) : value;
 
     let encodedReturnValue: string = '0x';
     try {

@@ -1,9 +1,6 @@
-import { EVMResult } from '@nomicfoundation/ethereumjs-evm/dist/evm';
-import { Message } from '@nomicfoundation/ethereumjs-evm/dist/message';
-import { VM } from '@nomicfoundation/ethereumjs-vm';
 import { Observable, Subject } from 'rxjs';
 import { filter, share } from 'rxjs/operators';
-import { SmockVMManager } from './types';
+import { EVMResult, Message, SmockVMManager, VM } from './types';
 
 export class ObservableVM {
   private vm: VM;
@@ -15,19 +12,14 @@ export class ObservableVM {
 
     this.vm = vm;
     this.beforeMessage$ = ObservableVM.fromEvent<Message>(vm, 'beforeMessage');
-    this.afterMessage$ = ObservableVM.fromEvent<EVMResult>(vm, 'afterMessage');
   }
 
   getManager(): SmockVMManager {
-    return this.vm.stateManager as SmockVMManager;
+    return this.vm.stateManager;
   }
 
   getBeforeMessages(): Observable<Message> {
     return this.beforeMessage$.pipe(filter((message) => !!message.to));
-  }
-
-  getAfterMessages(): Observable<EVMResult> {
-    return this.afterMessage$;
   }
 
   private static fromEvent<T>(vm: VM, eventName: 'beforeMessage' | 'afterMessage'): Observable<T> {

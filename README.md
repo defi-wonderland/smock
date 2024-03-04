@@ -53,6 +53,10 @@ You can install Smock via npm or yarn:
 npm install @defi-wonderland/smock
 ```
 
+> **Note**: Starting from v2.4.0, Smock is only compatible with
+> Hardhat v2.21.0 or later. If you are using an older version of Hardhat,
+> please install Smock v2.3.5.
+
 ## Basic Usage
 
 Smock is dead simple to use. Here's a basic example of how you might use
