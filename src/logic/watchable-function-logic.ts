@@ -8,6 +8,7 @@ import { convertStructToPojo, getObjectAndStruct, humanizeTimes } from '../utils
 export class WatchableFunctionLogic {
   protected name: string;
   protected callHistory: ContractCall[] = [];
+  protected callCount = 0;
 
   constructor(name: string, calls$: Observable<ContractCall>) {
     this.name = name;
@@ -107,7 +108,7 @@ export class WatchableFunctionLogic {
   }
 
   getCallCount(): number {
-    return this.callHistory.length;
+    return this.callCount;
   }
 
   getCalled(): boolean {
@@ -127,6 +128,7 @@ export class WatchableFunctionLogic {
   }
 
   protected reset() {
+    this.callCount = 0;
     this.callHistory = [];
   }
 

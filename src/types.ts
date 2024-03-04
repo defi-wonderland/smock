@@ -2,7 +2,7 @@
 import { Fragment, Interface, JsonFragment } from '@ethersproject/abi';
 import { Provider } from '@ethersproject/abstract-provider';
 import { Signer } from '@ethersproject/abstract-signer';
-import { Address } from '@nomicfoundation/ethereumjs-util/dist/address';
+import { Address } from '@nomicfoundation/ethereumjs-util';
 import { BaseContract, BigNumber, ContractFactory, ethers } from 'ethers';
 import { EditableStorageLogic } from './logic/editable-storage-logic';
 import { ReadableStorageLogic } from './logic/readable-storage-logic';
@@ -86,3 +86,27 @@ export type MockContractFactory<F extends ContractFactory> = Omit<F, 'deploy' | 
   connect: (...args: Parameters<F['connect']>) => MockContractFactory<F>;
   deploy: (...args: Parameters<F['deploy']>) => Promise<MockContract<ThenArg<ReturnType<F['deploy']>>>>;
 };
+
+export interface EVMResult {}
+export interface Message {
+  to?: Address;
+  codeAddress?: Address;
+  value: bigint;
+  data: Buffer;
+  caller: Address;
+}
+export interface VM {
+  stateManager: SmockVMManager;
+  evm: {
+    events: any;
+  };
+}
+
+export type CallOverrideCallback = (address: Buffer, data: Buffer) => Promise<{ result: Buffer; shouldRevert: boolean } | undefined>;
+
+export interface EDRProvider {
+  _setCallOverrideCallback(callback: CallOverrideCallback): void;
+  _node: {
+    _vm: VM;
+  };
+}

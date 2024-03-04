@@ -1,3 +1,4 @@
+import { stripZeros } from 'ethers/lib/utils';
 import { SmockVMManager } from '../types';
 import { fromHexString, remove0x, toFancyAddress, toHexString } from '../utils';
 import {
@@ -31,7 +32,11 @@ export class ReadableStorageLogic {
       slots.map(async (slotKeyPair) => ({
         ...slotKeyPair,
         value: remove0x(
-          toHexString(await this.vmManager.getContractStorage(toFancyAddress(this.contractAddress), fromHexString(slotKeyPair.key)))
+          toHexString(
+            Buffer.from(
+              stripZeros(await this.vmManager.getContractStorage(toFancyAddress(this.contractAddress), fromHexString(slotKeyPair.key)))
+            )
+          )
         ),
       }))
     );

@@ -1,6 +1,6 @@
 {
   "name": "@defi-wonderland/smock",
-  "version": "2.3.5",
+  "version": "2.4.0",
   "description": "The Solidity mocking library",
   "keywords": [
     "ethereum",
@@ -52,17 +52,8 @@
     "*.sol": "cross-env solhint --fix 'contracts/**/*.sol' 'interfaces/**/*.sol'",
     "package.json": "sort-package-json"
   },
-  "resolutions": {
-    "@ethereumjs/block": "3.2.1",
-    "@ethereumjs/blockchain": "5.2.1",
-    "@ethereumjs/common": "2.2.0",
-    "@ethereumjs/tx": "3.1.4",
-    "@ethereumjs/vm": "5.3.1"
-  },
   "dependencies": {
-    "@nomicfoundation/ethereumjs-evm": "^1.0.0-rc.3",
-    "@nomicfoundation/ethereumjs-util": "^8.0.0-rc.3",
-    "@nomicfoundation/ethereumjs-vm": "^6.0.0-rc.3",
+    "@nomicfoundation/ethereumjs-util": "^9.0.4",
     "diff": "^5.0.0",
     "lodash.isequal": "^4.5.0",
     "lodash.isequalwith": "^4.4.0",
@@ -84,7 +75,7 @@
     "@types/lodash.isequal": "^4.5.5",
     "@types/lodash.isequalwith": "^4.4.6",
     "@types/mocha": "8.2.2",
-    "@types/node": "15.12.2",
+    "@types/node": "18.19.21",
     "@types/readable-stream": "^2.3.13",
     "@types/semver": "^7.3.8",
     "chai": "4.3.4",
@@ -92,7 +83,7 @@
     "cross-env": "7.0.3",
     "ethereum-waffle": "3.4.0",
     "ethers": "5.4.1",
-    "hardhat": "2.11.0",
+    "hardhat": "^2.21.0",
     "hardhat-preprocessor": "0.1.4",
     "husky": "6.0.0",
     "inquirer": "8.1.0",
@@ -109,7 +100,7 @@
     "ts-node": "10.0.0",
     "tsconfig-paths": "^3.9.0",
     "typechain": "5.1.1",
-    "typescript": "4.5.2"
+    "typescript": "4.9.5"
   },
   "peerDependencies": {
     "@ethersproject/abi": "^5",
@@ -117,6 +108,6 @@
     "@ethersproject/abstract-signer": "^5",
     "@nomiclabs/hardhat-ethers": "^2",
     "ethers": "^5",
-    "hardhat": "^2"
+    "hardhat": "^2.21.0"
   }
 }

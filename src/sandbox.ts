@@ -1,11 +1,12 @@
-import { VM } from '@nomicfoundation/ethereumjs-vm';
+import { Address } from '@nomicfoundation/ethereumjs-util';
 import { FactoryOptions } from '@nomiclabs/hardhat-ethers/types';
 import { BaseContract, ContractFactory, ethers } from 'ethers';
 import hre from 'hardhat';
 import { ethersInterfaceFromSpec } from './factories/ethers-interface';
 import { createFakeContract, createMockContractFactory } from './factories/smock-contract';
+import { ProgrammableFunctionLogic } from './logic/programmable-function-logic';
 import { ObservableVM } from './observable-vm';
-import { FakeContract, FakeContractOptions, FakeContractSpec, MockContractFactory } from './types';
+import { CallOverrideCallback, EDRProvider, FakeContract, FakeContractOptions, FakeContractSpec, MockContractFactory } from './types';
 import { getHardhatBaseProvider, makeRandomAddress } from './utils';
 
 // Handle hardhat ^2.4.0
@@ -31,9 +32,56 @@ try {
 export class Sandbox {
   private vm: ObservableVM;
   private static nonce: number = 0;
+  private addressToSighashToFunction: Map<string, Map<string | null, ProgrammableFunctionLogic>> = new Map();
 
-  constructor(vm: VM) {
-    this.vm = new ObservableVM(vm);
+  constructor(provider: EDRProvider) {
+    this.vm = new ObservableVM(provider._node._vm);
+
+    provider._setCallOverrideCallback((address, data) => this.overrideCall(address, data));
+  }
+
+  private async overrideCall(address: Buffer, data: Buffer): ReturnType<CallOverrideCallback> {
+    const calledFunction = this.getCalledFunction(address, data);
+
+    const encodedCallAnswer = await calledFunction?.getEncodedCallAnswer(data);
+
+    if (encodedCallAnswer === undefined) {
+      return undefined;
+    }
+
+    const [result, shouldRevert] = encodedCallAnswer;
+
+    return {
+      result,
+      shouldRevert,
+    };
+  }
+
+  private getCalledFunction(address: Buffer, data: Buffer): ProgrammableFunctionLogic | null {
+    const addressKey = new Address(address).toString().toLowerCase();
+
+    const sighashToFunction = this.addressToSighashToFunction.get(addressKey);
+    if (data.length >= 4) {
+      const sighash = '0x' + data.slice(0, 4).toString('hex');
+      const sighashKey = sighash.toLowerCase();
+
+      return sighashToFunction?.get(sighashKey) || null;
+    }
+
+    return sighashToFunction?.get(null) || null;
+  }
+
+  private addFunctionToMap(address: string, sighash: string | null, functionLogic: ProgrammableFunctionLogic): void {
+    const addressKey = address.toLowerCase();
+    const sighashKey = sighash === null ? null : sighash.toLowerCase();
+
+    let sighashToFunction = this.addressToSighashToFunction.get(addressKey);
+    if (sighashToFunction === undefined) {
+      sighashToFunction = new Map();
+      this.addressToSighashToFunction.set(addressKey, sighashToFunction);
+    }
+
+    sighashToFunction.set(sighashKey, functionLogic);
   }
 
   async fake<Type extends BaseContract>(spec: FakeContractSpec, opts: FakeContractOptions = {}): Promise<FakeContract<Type>> {
@@ -41,7 +89,8 @@ export class Sandbox {
       this.vm,
       opts.address || makeRandomAddress(),
       await ethersInterfaceFromSpec(spec),
-      opts.provider || hre.ethers.provider
+      opts.provider || hre.ethers.provider,
+      (address, sighash, functionLogic) => this.addFunctionToMap(address, sighash, functionLogic)
     );
   }
 
@@ -49,7 +98,12 @@ export class Sandbox {
     contractName: string,
     signerOrOptions?: ethers.Signer | FactoryOptions
   ): Promise<MockContractFactory<T>> {
-    return createMockContractFactory(this.vm, contractName, signerOrOptions);
+    return createMockContractFactory(
+      this.vm,
+      contractName,
+      (address, sighash, functionLogic) => this.addFunctionToMap(address, sighash, functionLogic),
+      signerOrOptions
+    );
   }
 
   static async create(): Promise<Sandbox> {
@@ -68,18 +122,7 @@ export class Sandbox {
       await provider._init();
     }
 
-    // Here we're fixing with hardhat's internal error management. Smock is a bit weird and messes
-    // with stack traces so we need to help hardhat out a bit when it comes to smock-specific errors.
-    const originalManagerErrorsFn = node._manageErrors.bind(node);
-    node._manageErrors = async (vmResult: any, vmTrace: any, vmTracerError?: any): Promise<any> => {
-      if (vmResult.exceptionError && vmResult.exceptionError.error === 'smock revert') {
-        return new TransactionExecutionError(`VM Exception while processing transaction: revert ${decodeRevertReason(vmResult.returnValue)}`);
-      }
-
-      return originalManagerErrorsFn(vmResult, vmTrace, vmTracerError);
-    };
-
-    return new Sandbox(provider._node._vm as VM);
+    return new Sandbox(provider);
   }
 
   static getNextNonce(): number {
