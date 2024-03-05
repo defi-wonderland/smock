@@ -1,8 +1,6 @@
 /* Imports: External */
-import { Address } from '@nomicfoundation/ethereumjs-util/dist/address';
-import { HardhatNetworkProvider } from 'hardhat/internal/hardhat-network/provider/provider';
+import { Address } from '@nomicfoundation/ethereumjs-util';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
-import { toHexString } from '.';
 
 /**
  * Finds the "base" Ethereum provider of the current hardhat environment.
@@ -18,7 +16,7 @@ import { toHexString } from '.';
  * @param hre hardhat runtime environment to pull the base provider from.
  * @return base hardhat network provider
  */
-export const getHardhatBaseProvider = async (runtime: HardhatRuntimeEnvironment): Promise<HardhatNetworkProvider> => {
+export const getHardhatBaseProvider = async (runtime: HardhatRuntimeEnvironment): Promise<any> => {
   // This function is pretty approximate. Haven't spent enough time figuring out if there's a more
   // reliable way to get the base provider. I can imagine a future in which there's some circular
   // references and this function ends up looping. So I'll just preempt this by capping the maximum
@@ -30,12 +28,8 @@ export const getHardhatBaseProvider = async (runtime: HardhatRuntimeEnvironment)
   // property (at least for now!).
   let provider: any = runtime.network.provider;
 
-  if ('init' in provider) {
-    // Newer versions of Hardhat initialize the provider lazily, so we need to
-    // call provider.init() explicitly. This is a no-op if the provider is
-    // already initialized.
-    await provider.init();
-  }
+  // This is a no-op if the provider is already initialized.
+  await provider.init();
 
   while (provider._wrapped !== undefined) {
     provider = provider._wrapped;
@@ -45,13 +39,6 @@ export const getHardhatBaseProvider = async (runtime: HardhatRuntimeEnvironment)
     if (currentLoopIterations > maxLoopIterations) {
       throw new Error(`[smock]: unable to find base hardhat provider. are you sure you're running locally?`);
     }
-  }
-
-  // Sometimes the VM hasn't been initialized by the time we get here, depending on what the user
-  // is doing with hardhat (e.g., sending a transaction before calling this function will
-  // initialize the vm). Initialize it here if it hasn't been already.
-  if (provider._node === undefined) {
-    await provider._init();
   }
 
   // TODO: Figure out a reliable way to do a type check here. Source for inspiration:
@@ -76,9 +63,5 @@ export const toFancyAddress = (address: string): Address => {
  * @returns Way more boring address.
  */
 export const fromFancyAddress = (fancyAddress: Address): string => {
-  if (fancyAddress.buf) {
-    return toHexString(fancyAddress.buf);
-  } else {
-    return fancyAddress.toString();
-  }
+  return fancyAddress.toString();
 };

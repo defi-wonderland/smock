@@ -1,16 +1,17 @@
-import { Message } from '@nomicfoundation/ethereumjs-evm/dist/message';
+import { Address } from '@nomicfoundation/ethereumjs-util';
 import { FactoryOptions } from '@nomiclabs/hardhat-ethers/types';
+import assert from 'assert';
 import { BaseContract, BigNumber, ContractFactory, ethers } from 'ethers';
 import { Interface } from 'ethers/lib/utils';
 import { ethers as hardhatEthers } from 'hardhat';
 import { Observable } from 'rxjs';
-import { distinct, filter, map, share, withLatestFrom } from 'rxjs/operators';
+import { filter, map, share } from 'rxjs/operators';
 import { EditableStorageLogic as EditableStorage } from '../logic/editable-storage-logic';
 import { ProgrammableFunctionLogic, SafeProgrammableContract } from '../logic/programmable-function-logic';
 import { ReadableStorageLogic as ReadableStorage } from '../logic/readable-storage-logic';
 import { ObservableVM } from '../observable-vm';
 import { Sandbox } from '../sandbox';
-import { ContractCall, FakeContract, MockContractFactory, ProgrammableContractFunction, ProgrammedReturnValue } from '../types';
+import { ContractCall, FakeContract, Message, MockContractFactory, ProgrammableContractFunction, ProgrammedReturnValue } from '../types';
 import { convertPojoToStruct, fromFancyAddress, impersonate, isPojo, toFancyAddress, toHexString } from '../utils';
 import { getStorageLayout } from '../utils/storage';
 
@@ -18,16 +19,18 @@ export async function createFakeContract<Contract extends BaseContract>(
   vm: ObservableVM,
   address: string,
   contractInterface: ethers.utils.Interface,
-  provider: ethers.providers.Provider
+  provider: ethers.providers.Provider,
+  addFunctionToMap: (address: string, sighash: string | null, functionLogic: ProgrammableFunctionLogic) => void
 ): Promise<FakeContract<Contract>> {
   const fake = (await initContract(vm, address, contractInterface, provider)) as unknown as FakeContract<Contract>;
   const contractFunctions = getContractFunctionsNameAndSighash(contractInterface, Object.keys(fake.functions));
 
   // attach to every contract function, all the programmable and watchable logic
   contractFunctions.forEach(([sighash, name]) => {
-    const { encoder, calls$, results$ } = getFunctionEventData(vm, contractInterface, fake.address, sighash);
-    const functionLogic = new SafeProgrammableContract(name, calls$, results$, encoder);
+    const { encoder, calls$ } = getFunctionEventData(vm, contractInterface, fake.address, sighash);
+    const functionLogic = new SafeProgrammableContract(contractInterface, sighash, name, calls$, encoder);
     fillProgrammableContractFunction(fake[name], functionLogic);
+    addFunctionToMap(fake.address, sighash, functionLogic);
   });
 
   return fake;
@@ -36,7 +39,8 @@ export async function createFakeContract<Contract extends BaseContract>(
 function mockifyContractFactory<T extends ContractFactory>(
   vm: ObservableVM,
   contractName: string,
-  factory: MockContractFactory<T>
+  factory: MockContractFactory<T>,
+  addFunctionToMap: (address: string, sighash: string | null, functionLogic: ProgrammableFunctionLogic) => void
 ): MockContractFactory<T> {
   const realDeploy = factory.deploy;
   factory.deploy = async (...args: Parameters<T['deploy']>) => {
@@ -45,9 +49,10 @@ function mockifyContractFactory<T extends ContractFactory>(
 
     // attach to every contract function, all the programmable and watchable logic
     contractFunctions.forEach(([sighash, name]) => {
-      const { encoder, calls$, results$ } = getFunctionEventData(vm, mock.interface, mock.address, sighash);
-      const functionLogic = new ProgrammableFunctionLogic(name, calls$, results$, encoder);
+      const { encoder, calls$ } = getFunctionEventData(vm, mock.interface, mock.address, sighash);
+      const functionLogic = new ProgrammableFunctionLogic(mock.interface, sighash, name, calls$, encoder);
       fillProgrammableContractFunction(mock[name], functionLogic);
+      addFunctionToMap(mock.address, sighash, functionLogic);
     });
 
     // attach to every internal variable, all the editable logic
@@ -66,7 +71,7 @@ function mockifyContractFactory<T extends ContractFactory>(
   const realConnect = factory.connect;
   factory.connect = (...args: Parameters<T['connect']>): MockContractFactory<T> => {
     const newFactory = realConnect.apply(factory, args) as MockContractFactory<T>;
-    return mockifyContractFactory(vm, contractName, newFactory);
+    return mockifyContractFactory(vm, contractName, newFactory, addFunctionToMap);
   };
 
   return factory;
@@ -75,10 +80,11 @@ function mockifyContractFactory<T extends ContractFactory>(
 export async function createMockContractFactory<T extends ContractFactory>(
   vm: ObservableVM,
   contractName: string,
+  addFunctionToMap: (address: string, sighash: string | null, functionLogic: ProgrammableFunctionLogic) => void,
   signerOrOptions?: ethers.Signer | FactoryOptions
 ): Promise<MockContractFactory<T>> {
   const factory = (await hardhatEthers.getContractFactory(contractName, signerOrOptions)) as unknown as MockContractFactory<T>;
-  return mockifyContractFactory(vm, contractName, factory);
+  return mockifyContractFactory(vm, contractName, factory, addFunctionToMap);
 }
 
 async function initContract(
@@ -104,14 +110,8 @@ function getFunctionEventData(vm: ObservableVM, contractInterface: ethers.utils.
   const encoder = getFunctionEncoder(contractInterface, sighash);
   // Filter only the calls that correspond to this function, from vm beforeMessages
   const calls$ = parseAndFilterBeforeMessages(vm.getBeforeMessages(), contractInterface, contractAddress, sighash);
-  // Get every result that comes right after a call to this function
-  const results$ = vm.getAfterMessages().pipe(
-    withLatestFrom(calls$),
-    distinct(([, call]) => call),
-    map(([answer]) => answer)
-  );
 
-  return { encoder, calls$, results$ };
+  return { encoder, calls$ };
 }
 
 function getFunctionEncoder(contractInterface: ethers.utils.Interface, sighash: string | null): (values?: ProgrammedReturnValue) => string {
@@ -157,7 +157,7 @@ function parseAndFilterBeforeMessages(
     }),
     // Ensure the message is directed to this contract
     filter((message) => {
-      const target = message.delegatecall ? message.codeAddress : message.to;
+      const target = isDelegated(message) ? message.codeAddress : message.to;
       return target?.toString().toLowerCase() === contractAddress.toLowerCase();
     }),
     map((message) => parseMessage(message, contractInterface, sighash)),
@@ -206,12 +206,28 @@ function parseMessage(message: Message, contractInterface: Interface, sighash: s
     args: sighash === null ? toHexString(message.data) : getMessageArgs(message.data, contractInterface, sighash),
     nonce: Sandbox.getNextNonce(),
     value: BigNumber.from(message.value.toString()),
-    target: fromFancyAddress(message.delegatecall ? message.codeAddress : message.to!),
-    delegatedFrom: message.delegatecall ? fromFancyAddress(message.to!) : undefined,
+    target: targetAddres(message),
+    delegatedFrom: isDelegated(message) ? fromFancyAddress(message.to!) : undefined,
   };
 }
 
-function getMessageArgs(messageData: Buffer, contractInterface: Interface, sighash: string): unknown[] {
+function targetAddres(message: Message): string {
+  assert(message.to !== undefined, 'Message should have a target address');
+
+  if (message.codeAddress !== undefined && message.to! !== message.caller && message.caller !== message.codeAddress) {
+    return fromFancyAddress(message.codeAddress);
+  } else {
+    return fromFancyAddress(message.to!);
+  }
+}
+
+function isDelegated(message: Message): boolean {
+  assert(message.to !== undefined, 'Message should have a target address');
+
+  return message.codeAddress !== undefined && message.to !== message.caller && message.caller !== message.codeAddress;
+}
+
+export function getMessageArgs(messageData: Buffer, contractInterface: Interface, sighash: string): unknown[] {
   try {
     return contractInterface.decodeFunctionData(contractInterface.getFunction(sighash).format(), toHexString(messageData)) as unknown[];
   } catch (err) {
