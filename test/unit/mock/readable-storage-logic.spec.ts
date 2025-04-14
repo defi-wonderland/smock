@@ -150,5 +150,56 @@ describe('Mock: Readable storage logic', () => {
       const getValue = await mock.getVariable('_uint256Array');
       expect(getValue).to.deep.equal(await mock.getUint256Array());
     });
+
+    it('should be able to get values in a bytes32 => SimpleStruct mapping', async () => {
+      const mapKey = BYTES32_EXAMPLE;
+      const struct = {
+        valueA: BigNumber.from(1234),
+        valueB: true,
+      };
+      await mock.setVariable('_bytes32ToSimpleStructMap', { [mapKey]: struct });
+
+      const getMockVariable = await mock.getVariable('_bytes32ToSimpleStructMap', [mapKey]);
+      const getStructView = await mock.getBytes32ToSimpleStructMapValue(mapKey);
+      expect(getMockVariable).to.deep.equal(struct);
+      expect(getStructView.valueA).to.deep.equal(struct.valueA);
+      expect(getStructView.valueB).to.deep.equal(struct.valueB);
+    });
+
+    it('should be able to get values in a bytes32 => PackedStruct mapping', async () => {
+      const mapKey = BYTES32_EXAMPLE;
+      const struct = {
+        packedA: BigNumber.from(2),
+        packedB: BigNumber.from(1),
+        packedC: BigNumber.from(2),
+        packedD: BigNumber.from(1),
+        packedE: ADDRESS_EXAMPLE,
+      };
+      await mock.setVariable('_bytes32ToPackedStructMap', { [mapKey]: struct });
+
+      const getMockVariable = await mock.getVariable('_bytes32ToPackedStructMap', [mapKey]);
+      const getStructView = await mock.getBytes32ToPackedStructMapValue(mapKey);
+      expect(getMockVariable).to.deep.equal(struct);
+      expect(getStructView.packedA).to.deep.equal(struct.packedA);
+      expect(getStructView.packedB).to.deep.equal(struct.packedB);
+      expect(getStructView.packedC).to.deep.equal(struct.packedC);
+      expect(getStructView.packedD).to.deep.equal(struct.packedD);
+      expect(getStructView.packedE).to.deep.equal(struct.packedE);
+    });
+
+    it('should be able to get values in a bytes32 => OtherPackedStruct mapping', async () => {
+      const mapKey = BYTES32_EXAMPLE;
+      const struct = {
+        packedA: ADDRESS_EXAMPLE,
+        packedB: '0x000000000000000000000001',
+      };
+      await mock.setVariable('_bytes32ToOtherPackedStructMap', { [mapKey]: struct });
+
+      const getMockVariable = await mock.getVariable('_bytes32ToOtherPackedStructMap', [mapKey]);
+      const getStructView = await mock.getBytes32ToOtherPackedStructMapValue(mapKey);
+      expect(getMockVariable).to.deep.equal(struct);
+      expect(getStructView.packedA).to.deep.equal(struct.packedA);
+      expect(getStructView.packedB).to.deep.equal(struct.packedB);
+    });
   });
 });
