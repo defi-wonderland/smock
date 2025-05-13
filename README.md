@@ -10,6 +10,14 @@
 <br />
 <br />
 
+> ⚠️ **DEPRECATED – DO NOT USE**
+>
+> This repository is no longer maintained and is **deprecated**.
+>
+> It may contain **outdated, insecure, or vulnerable code** and should **not** be used in production or as a dependency in any project.
+>
+> The repository is retained solely for historical reference. No support, updates, or security patches will be provided.
+
 ## Soft-deprecation notice
 
 Smock has had a fruitful life, and its legacy lives on
@@ -17,12 +25,11 @@ Smock has had a fruitful life, and its legacy lives on
 re-implementation for foundry which we now use exclusively as a side-effect of
 using `foundry` for all new projects.
 
-This project will receive security/bug fixes and code review for the
-foreseeable future, so existing projects can continue to use it, but no further
-features will be implemented. In particular, we won't migrate the project to
+We won't migrate the project to
 newer versions of peer dependencies, as specified in
 [#201](https://github.com/defi-wonderland/smock/issues/201)
 
+# Overview
 **Smock** is the **S**olidity **mock**ing library. It's a plugin for
 [hardhat](https://hardhat.org) that can be used to create mock Solidity
 contracts entirely in JavaScript (or TypeScript!). With Smock, it's
